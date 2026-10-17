@@ -143,6 +143,15 @@ func (g *Git) Commit(ctx context.Context, msg string) (string, error) {
 	return g.run(ctx, "rev-parse", "HEAD")
 }
 
+// Dirty lists files changed or added in the working tree.
+func (g *Git) Dirty(ctx context.Context) []string {
+	out, _ := g.run(ctx, "status", "--porcelain")
+	if out == "" {
+		return nil
+	}
+	return strings.Split(out, "\n")
+}
+
 // ChangedFiles lists paths changed between two revisions.
 func (g *Git) ChangedFiles(ctx context.Context, from, to string) ([]string, error) {
 	out, err := g.run(ctx, "diff", "--name-only", from, to)

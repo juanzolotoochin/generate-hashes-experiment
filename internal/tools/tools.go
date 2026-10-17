@@ -47,7 +47,10 @@ type Outcome struct {
 	// Download is what the tool's Bazel servers received over the network
 	// during this invocation (set by the harness; nil if not measured).
 	Download *netmeter.Counts
-	Err      string
+	// Dirtied lists files the tool changed in the checkout (e.g. a rewritten
+	// MODULE.bazel.lock); the harness restores them after each tool.
+	Dirtied []string
+	Err     string
 }
 
 // Tool computes the targets affected between the base and head revisions.
@@ -301,8 +304,9 @@ func (o Outcome) MarshalJSON() ([]byte, error) {
 		Seconds      float64            `json:"seconds"`
 		PhaseSeconds map[string]float64 `json:"phase_seconds,omitempty"`
 		Download     *netmeter.Counts   `json:"download_bytes,omitempty"`
+		Dirtied      []string           `json:"dirtied,omitempty"`
 		Err          string             `json:"error,omitempty"`
-	}{o.Labels, o.Duration.Seconds(), phases, o.Download, o.Err})
+	}{o.Labels, o.Duration.Seconds(), phases, o.Download, o.Dirtied, o.Err})
 }
 
 // UnmarshalJSON reads what MarshalJSON writes.
@@ -312,12 +316,13 @@ func (o *Outcome) UnmarshalJSON(b []byte) error {
 		Seconds      float64            `json:"seconds"`
 		PhaseSeconds map[string]float64 `json:"phase_seconds"`
 		Download     *netmeter.Counts   `json:"download_bytes"`
+		Dirtied      []string           `json:"dirtied"`
 		Err          string             `json:"error"`
 	}
 	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
-	*o = Outcome{Labels: v.Affected, Duration: time.Duration(v.Seconds * float64(time.Second)), Err: v.Err, Download: v.Download,
+	*o = Outcome{Labels: v.Affected, Duration: time.Duration(v.Seconds * float64(time.Second)), Err: v.Err, Download: v.Download, Dirtied: v.Dirtied,
 		Affected: map[string]bool{}, Phases: map[string]time.Duration{}}
 	for _, l := range v.Affected {
 		o.Affected[l] = true

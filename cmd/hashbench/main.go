@@ -72,6 +72,7 @@ func run() error {
 		cacheMode   = flag.String("repo-cache-mode", "local", "local: tools fetch repositories from the internet into their own caches; remote: also use --experimental_remote_repo_contents_cache with -remote-cache (tools are reported as <tool>@remote)")
 		remoteCache = flag.String("remote-cache", "local", "remote cache for -repo-cache-mode=remote: local (the bundled cache server on localhost, data in -cache-dir) or a grpc:// or grpcs:// URL (credentials go in a -bazelrc file)")
 		rcServer    = flag.String("remote-cache-server", "", "the bundled local remote cache server (set by bazel run)")
+		updLocks    = flag.Bool("update-lockfiles", false, "regenerate fixture/_workspace/MODULE.bazel.lock and the scenarios' lockfiles in the source tree (run with bazel run) and exit")
 		rereport    = flag.Bool("rereport", false, "regenerate the report from <work-dir>/results.json (adding the repo contents cache support table if missing) and exit")
 		seedOnly    = flag.Bool("seed-only", false, "with -repo-cache-mode=remote: seed the remote repo contents cache with the base revision's repositories and exit")
 		reuseTruth  = flag.String("reuse-truth", "", "results.json of an earlier run: reuse its ground truth (skips per-scenario oracle builds) and merge its tools' scores")
@@ -222,6 +223,13 @@ func run() error {
 		fmt.Printf("Local remote cache on %s (data in %s)\n", addr, filepath.Join(cache, "remotecache"))
 	}
 
+	lockSrc := ""
+	if *updLocks {
+		if lockSrc = os.Getenv("BUILD_WORKSPACE_DIRECTORY"); lockSrc == "" {
+			return fmt.Errorf("-update-lockfiles must be run with bazel run")
+		}
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	var sweep []*bench.Results
@@ -236,7 +244,7 @@ func run() error {
 		}
 		cfg := bench.Config{
 			WorkDir: dir, CacheDir: cache, Toolbox: toolbox, Git: git, ExtraRC: rcs,
-			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, SeedOnly: *seedOnly,
+			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, LockfileSrc: lockSrc, SeedOnly: *seedOnly,
 			CustomBazel: *customBazel, StockBazel: *stockBazel, BazelDiff: *bazelDiff, TD: *td,
 			Tools: toolNames, Scenarios: selected, Scale: n, PerfReps: *perfReps,
 			Oracle: oracleOn || prior != nil, KeepServers: *keepServers, Out: os.Stdout, Prior: prior,

@@ -36,18 +36,21 @@ type Config struct {
 	RemoteCache   string // grpc:// or grpcs:// URL
 	RemoteName    string // "local" or the URL, keys the seeder's state
 	SeedOnly      bool   // remote mode: seed the base revision and stop
-	CustomBazel   string
-	StockBazel    string
-	BazelDiff     string
-	TD            string
-	Tools         []string
-	Scenarios     []scenario.Scenario
-	Scale         int
-	PerfReps      int
-	Oracle        bool
-	KeepServers   bool
-	Out           io.Writer
-	Meta          map[string]string
+	// LockfileSrc, if set, is the source checkout: regenerate the fixture's
+	// MODULE.bazel.lock and the scenarios' lockfiles there, and stop.
+	LockfileSrc string
+	CustomBazel string
+	StockBazel  string
+	BazelDiff   string
+	TD          string
+	Tools       []string
+	Scenarios   []scenario.Scenario
+	Scale       int
+	PerfReps    int
+	Oracle      bool
+	KeepServers bool
+	Out         io.Writer
+	Meta        map[string]string
 	// Prior, if set, holds results of an earlier run of the same fixture and
 	// scenarios. Its per-scenario ground truth is reused instead of
 	// rebuilding with the oracle (only the base revision is built, to know
@@ -197,6 +200,9 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		say("  warning: counting targets failed: %s", firstLine(q.Err.Error()))
 	}
 	runner.Run(ctx, repo, cfg.StockBazel, "--bazelrc="+sharedRC, "--output_base="+countBase, "shutdown")
+	if cfg.LockfileSrc != "" {
+		return nil, updateLockfiles(ctx, cfg, git, runner, sharedRC, say)
+	}
 
 	// Each tool's network traffic goes through its own meter.
 	remoteAddr := ""
@@ -339,6 +345,10 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		res.Setup[t.Name()] = Setup{Seconds: time.Since(start).Seconds(), Download: d}
 		say("  %s ready in %s, downloaded %s", t.Name(), time.Since(start).Round(time.Second), MB(d))
 	}
+	if dirty := git.Dirty(ctx); len(dirty) > 0 {
+		say("  warning: preparing the tools modified the checkout: %s (restored)", strings.Join(dirty, ", "))
+		git.Reset(ctx, baseRev)
+	}
 	res.RepoSupport = RepoSupportFor(cfg.WorkDir)
 
 	var base oracle.Snapshot
@@ -357,6 +367,10 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		}
 		say("Building the base revision with the oracle aspect (builds every target)...")
 		base, err = orc.Build(ctx, "base")
+		if dirty := git.Dirty(ctx); len(dirty) > 0 {
+			say("  warning: the oracle modified the checkout: %s (restored)", strings.Join(dirty, ", "))
+			git.Reset(ctx, baseRev)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("oracle base build: %w", err)
 		}
@@ -425,6 +439,12 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 			return sr
 		}
 	}
+	if lock, ok := scenario.Lockfile(sc.Name); ok {
+		if err := os.WriteFile(filepath.Join(git.Dir, "MODULE.bazel.lock"), lock, 0o644); err != nil {
+			sr.Err = err.Error()
+			return sr
+		}
+	}
 	headRev, err := git.Commit(ctx, sc.Name)
 	if err != nil {
 		sr.Err = err.Error()
@@ -445,6 +465,11 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 			o := t.Affected(ctx, baseRev, headRev)
 			d := meters[t.Name()].Counts().Sub(c0)
 			o.Download = &d
+			if dirty := git.Dirty(ctx); len(dirty) > 0 {
+				o.Dirtied = dirty
+				say("  %-20s modified the checkout: %s (restored)", t.Name(), strings.Join(dirty, ", "))
+				git.Reset(ctx, headRev)
+			}
 			if sc.Name == "control" {
 				res.NoChange[t.Name()] = append(res.NoChange[t.Name()], o.Duration.Seconds())
 			}
@@ -482,6 +507,10 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 		say("  %-20s          %d need rebuild (ground truth from prior run)", "oracle", len(truth))
 	} else if orc != nil {
 		head, err := orc.Build(ctx, sc.Name)
+		if dirty := git.Dirty(ctx); len(dirty) > 0 {
+			say("  warning: the oracle modified the checkout: %s (restored)", strings.Join(dirty, ", "))
+			git.Reset(ctx, headRev)
+		}
 		sr.OracleSeconds = head.Duration.Seconds()
 		if err != nil {
 			sr.Err = "oracle: " + err.Error()
@@ -575,8 +604,6 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 // action. Caches are per process (toolBazelrc, sharedBazelrc).
 func userBazelrc(cfg Config) string {
 	lines := []string{
-		// No MODULE.bazel.lock: it would be an untracked, tool-dependent file.
-		"common --lockfile_mode=off",
 		"build --shell_executable=" + filepath.Join(cfg.Toolbox, "bin", "bash"),
 	}
 	return strings.Join(lines, "\n") + "\n"

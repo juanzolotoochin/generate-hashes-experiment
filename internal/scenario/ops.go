@@ -114,3 +114,15 @@ func writeKeepMode(p string, b []byte) error {
 	}
 	return os.WriteFile(p, b, st.Mode().Perm())
 }
+
+// Lockfile returns the MODULE.bazel.lock committed with the named scenario,
+// if its change also changes the lockfile.
+func Lockfile(name string) ([]byte, bool) {
+	b, err := dataFS.ReadFile("data/lockfiles/" + name + ".MODULE.bazel.lock")
+	return b, err == nil
+}
+
+// LockfileSource is the path of a scenario's lockfile in the source tree.
+func LockfileSource(name string) string {
+	return "internal/scenario/data/lockfiles/" + name + ".MODULE.bazel.lock"
+}
