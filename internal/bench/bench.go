@@ -79,16 +79,16 @@ type ScenarioResult struct {
 
 // Results is everything a run produces.
 type Results struct {
-	Meta      map[string]string    `json:"meta"`
-	Tools     []string             `json:"tools"`
-	Scale     int                  `json:"scale"`
-	BaseSize  int                  `json:"base_targets"`
+	Meta     map[string]string `json:"meta"`
+	Tools    []string          `json:"tools"`
+	Scale    int               `json:"scale"`
+	BaseSize int               `json:"base_targets"`
 	// RuleTargets is the number of rule targets in //... (workspace size).
-	RuleTargets int `json:"rule_targets"`
-	Scenarios []ScenarioResult     `json:"scenarios"`
-	NoChange  map[string][]float64 `json:"no_change_seconds"`
-	Started   time.Time            `json:"started"`
-	Finished  time.Time            `json:"finished"`
+	RuleTargets int                  `json:"rule_targets"`
+	Scenarios   []ScenarioResult     `json:"scenarios"`
+	NoChange    map[string][]float64 `json:"no_change_seconds"`
+	Started     time.Time            `json:"started"`
+	Finished    time.Time            `json:"finished"`
 }
 
 // Run executes the benchmark and returns its results. Results are also
