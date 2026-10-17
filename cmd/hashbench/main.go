@@ -265,6 +265,7 @@ func run() error {
 			return err
 		}
 		fmt.Printf("\n=== scale %d (%s) ===\n", n, cfg.WorkDir)
+		cfg.OnSave = func(r *bench.Results) { report.Write(cfg.WorkDir, r) }
 		res, err := bench.Run(ctx, cfg)
 		if res != nil {
 			paths, rerr := report.Write(cfg.WorkDir, res)

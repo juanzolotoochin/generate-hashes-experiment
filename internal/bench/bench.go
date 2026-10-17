@@ -39,6 +39,9 @@ type Config struct {
 	// LockfileSrc, if set, is the source checkout: regenerate the fixture's
 	// MODULE.bazel.lock and the scenarios' lockfiles there, and stop.
 	LockfileSrc string
+	// OnSave, if set, is called after every scenario with the results so far
+	// (e.g. to rewrite the report incrementally).
+	OnSave      func(*Results)
 	CustomBazel string
 	StockBazel  string
 	BazelDiff   string
@@ -388,6 +391,9 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 	save := func() {
 		b, _ := json.MarshalIndent(res, "", " ")
 		os.WriteFile(filepath.Join(cfg.WorkDir, "results.json"), b, 0o644)
+		if cfg.OnSave != nil {
+			cfg.OnSave(res)
+		}
 	}
 
 	if cfg.Prior != nil {
