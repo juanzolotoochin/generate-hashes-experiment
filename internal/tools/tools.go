@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/juanzolotoochin/generate-hashes-experiment/internal/netmeter"
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/ws"
 )
 
@@ -25,6 +26,16 @@ type Env struct {
 	CustomBazel string
 	BazelDiff   string
 	TD          string
+	// RC is a bazelrc passed with --bazelrc to every Bazel invocation of the
+	// tool (its own caches and, in remote mode, the remote cache).
+	RC string
+	// Suffix is appended to the tool name, e.g. "@remote".
+	Suffix string
+}
+
+// startup returns the Bazel startup options for a tool's output base.
+func (e Env) startup(outputBase string) []string {
+	return []string{"--bazelrc=" + e.RC, "--output_base=" + outputBase}
 }
 
 // Outcome is one tool's answer for one scenario.
@@ -33,6 +44,9 @@ type Outcome struct {
 	Labels   []string
 	Duration time.Duration
 	Phases   map[string]time.Duration
+	// Download is what the tool's Bazel servers received over the network
+	// during this invocation (set by the harness; nil if not measured).
+	Download *netmeter.Counts
 	Err      string
 }
 
@@ -49,19 +63,20 @@ type Tool interface {
 
 // New returns the tool with the given name.
 func New(name string, env Env) (Tool, error) {
-	dir := filepath.Join(env.StateDir, name)
+	full := name + env.Suffix
+	dir := filepath.Join(env.StateDir, full)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
 	}
 	switch name {
 	case "custom":
-		return &customTool{env: env, dir: dir, name: name, command: "query"}, nil
+		return &customTool{env: env, dir: dir, name: full, command: "query"}, nil
 	case "custom-cquery":
-		return &customTool{env: env, dir: dir, name: name, command: "cquery"}, nil
+		return &customTool{env: env, dir: dir, name: full, command: "cquery"}, nil
 	case "bazel-diff":
-		return &bazelDiffTool{env: env, dir: dir}, nil
+		return &bazelDiffTool{env: env, dir: dir, name: full}, nil
 	case "target-determinator":
-		return &tdTool{env: env, dir: dir}, nil
+		return &tdTool{env: env, dir: dir, name: full}, nil
 	}
 	return nil, fmt.Errorf("unknown tool %q (want custom, custom-cquery, bazel-diff or target-determinator)", name)
 }
@@ -116,9 +131,8 @@ func (t *customTool) Name() string { return t.name }
 // (cquery) lines. A label configured more than once gets the combination of
 // its hashes.
 func (t *customTool) hashes(ctx context.Context) (map[string]string, time.Duration, error) {
-	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel,
-		"--output_base="+filepath.Join(t.dir, "output_base"),
-		t.command, "//...", "--generate_hashes")
+	args := append(t.env.startup(filepath.Join(t.dir, "output_base")), t.command, "//...", "--generate_hashes")
+	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel, args...)
 	if res.Err != nil {
 		return nil, res.Duration, res.Err
 	}
@@ -163,7 +177,7 @@ func (t *customTool) Affected(ctx context.Context, _, _ string) Outcome {
 }
 
 func (t *customTool) Shutdown(ctx context.Context) {
-	t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel, "--output_base="+filepath.Join(t.dir, "output_base"), "shutdown")
+	t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel, append(t.env.startup(filepath.Join(t.dir, "output_base")), "shutdown")...)
 }
 
 // ---- bazel-diff (unmodified release) ----
@@ -171,13 +185,14 @@ func (t *customTool) Shutdown(ctx context.Context) {
 type bazelDiffTool struct {
 	env  Env
 	dir  string
+	name string
 	base string
 }
 
-func (t *bazelDiffTool) Name() string { return "bazel-diff" }
+func (t *bazelDiffTool) Name() string { return t.name }
 
 func (t *bazelDiffTool) startup() string {
-	return "--bazelStartupOptions=--output_base=" + filepath.Join(t.dir, "output_base")
+	return "--bazelStartupOptions=" + strings.Join(t.env.startup(filepath.Join(t.dir, "output_base")), " ")
 }
 
 func (t *bazelDiffTool) generate(ctx context.Context, out string) ws.Result {
@@ -220,17 +235,18 @@ func (t *bazelDiffTool) Affected(ctx context.Context, _, headRev string) Outcome
 }
 
 func (t *bazelDiffTool) Shutdown(ctx context.Context) {
-	t.env.Runner.Run(ctx, t.env.Workspace, t.env.StockBazel, "--output_base="+filepath.Join(t.dir, "output_base"), "shutdown")
+	t.env.Runner.Run(ctx, t.env.Workspace, t.env.StockBazel, append(t.env.startup(filepath.Join(t.dir, "output_base")), "shutdown")...)
 }
 
 // ---- target-determinator ----
 
 type tdTool struct {
-	env Env
-	dir string
+	env  Env
+	dir  string
+	name string
 }
 
-func (t *tdTool) Name() string { return "target-determinator" }
+func (t *tdTool) Name() string { return t.name }
 
 func (t *tdTool) userRoot() string { return filepath.Join(t.dir, "output_user_root") }
 
@@ -250,6 +266,7 @@ func (t *tdTool) Affected(ctx context.Context, baseRev, _ string) Outcome {
 	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.TD,
 		"-bazel="+t.env.StockBazel,
 		"-bazel-startup-opts=--output_user_root="+t.userRoot(),
+		"-bazel-startup-opts=--bazelrc="+t.env.RC,
 		"-cache-dir="+filepath.Join(t.dir, "cache"),
 		"-nocache_results",
 		"-working-directory="+t.env.Workspace,
@@ -269,7 +286,7 @@ func (t *tdTool) Shutdown(ctx context.Context) {
 	entries, _ := filepath.Glob(filepath.Join(t.userRoot(), "*", "server", "server.pid.txt"))
 	for _, pid := range entries {
 		ob := filepath.Dir(filepath.Dir(pid))
-		t.env.Runner.Run(ctx, t.env.Workspace, t.env.StockBazel, "--output_user_root="+t.userRoot(), "--output_base="+ob, "shutdown")
+		t.env.Runner.Run(ctx, t.env.Workspace, t.env.StockBazel, "--output_user_root="+t.userRoot(), "--bazelrc="+t.env.RC, "--output_base="+ob, "shutdown")
 	}
 }
 
@@ -283,8 +300,9 @@ func (o Outcome) MarshalJSON() ([]byte, error) {
 		Affected     []string           `json:"affected"`
 		Seconds      float64            `json:"seconds"`
 		PhaseSeconds map[string]float64 `json:"phase_seconds,omitempty"`
+		Download     *netmeter.Counts   `json:"download_bytes,omitempty"`
 		Err          string             `json:"error,omitempty"`
-	}{o.Labels, o.Duration.Seconds(), phases, o.Err})
+	}{o.Labels, o.Duration.Seconds(), phases, o.Download, o.Err})
 }
 
 // UnmarshalJSON reads what MarshalJSON writes.
@@ -293,12 +311,13 @@ func (o *Outcome) UnmarshalJSON(b []byte) error {
 		Affected     []string           `json:"affected"`
 		Seconds      float64            `json:"seconds"`
 		PhaseSeconds map[string]float64 `json:"phase_seconds"`
+		Download     *netmeter.Counts   `json:"download_bytes"`
 		Err          string             `json:"error"`
 	}
 	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
-	*o = Outcome{Labels: v.Affected, Duration: time.Duration(v.Seconds * float64(time.Second)), Err: v.Err,
+	*o = Outcome{Labels: v.Affected, Duration: time.Duration(v.Seconds * float64(time.Second)), Err: v.Err, Download: v.Download,
 		Affected: map[string]bool{}, Phases: map[string]time.Duration{}}
 	for _, l := range v.Affected {
 		o.Affected[l] = true

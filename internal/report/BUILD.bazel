@@ -12,5 +12,8 @@ go_library(
     ],
     importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/report",
     visibility = ["//:__subpackages__"],
-    deps = ["//internal/bench"],
+    deps = [
+        "//internal/bench",
+        "//internal/netmeter",
+    ],
 )

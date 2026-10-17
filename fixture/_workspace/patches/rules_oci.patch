@@ -1,0 +1,7 @@
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,3 @@
+-# Bazel rules for OCI container images
++# Bazel rules for OCI container images (patched)
+ 
+ Very simple Bazel rules based on the Open Containers Initiative specification: <https://opencontainers.org/>

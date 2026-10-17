@@ -30,6 +30,7 @@ type Oracle struct {
 	Workspace  string
 	OutputBase string
 	RepoDir    string // where the aspect repository is materialized
+	RC         string // bazelrc passed with --bazelrc (shared caches)
 
 	src *sourceHasher
 }
@@ -59,7 +60,7 @@ func (o *Oracle) Install() error {
 }
 
 func (o *Oracle) bazel(ctx context.Context, args ...string) ws.Result {
-	return o.Runner.Run(ctx, o.Workspace, o.Bazel, append([]string{"--output_base=" + o.OutputBase}, args...)...)
+	return o.Runner.Run(ctx, o.Workspace, o.Bazel, append([]string{"--bazelrc=" + o.RC, "--output_base=" + o.OutputBase}, args...)...)
 }
 
 // Build builds every target in the workspace and fingerprints them.

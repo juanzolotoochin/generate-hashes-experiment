@@ -18,6 +18,31 @@ const (
 	digestBase12b   = "sha256:7f0c72cd138b442ae0deeb69c08b1acf5525439ba251a49ad93c320a061567e5"
 )
 
+// ociEnvPatch makes rules_oci set an extra env var on every OCIImage action.
+const ociEnvPatch = `--- a/oci/private/image.bzl
++++ b/oci/private/image.bzl
+@@ -237,7 +237,7 @@
+     if ctx.attr.workdir:
+         args.add(ctx.attr.workdir, format = "--workdir=%s")
+ 
+-    action_env = {}
++    action_env = {"HASHBENCH_PATCHED": "1"}
+ 
+     # Windows: Don't convert arguments like --entrypoint=/some/bin to --entrypoint=C:/msys64/some/bin
+     if util.is_windows_exec(ctx):
+`
+
+// goStringsPatch edits a comment in the Go standard library's strings package.
+const goStringsPatch = `--- a/src/strings/strings.go
++++ b/src/strings/strings.go
+@@ -2,4 +2,5 @@
+ // Use of this source code is governed by a BSD-style
+ // license that can be found in the LICENSE file.
+ 
++// Patched by hashbench.
+ // Package strings implements simple functions to manipulate UTF-8 encoded strings.
+`
+
 // All returns every scenario, in execution order. Cheap local edits come
 // first; dependency and toolchain changes, which refetch external repos, last.
 func All() []Scenario {
@@ -248,9 +273,9 @@ func All() []Scenario {
 		// ---- Module graph ----
 		{
 			Name: "bzlmod_dep_bump", Category: "bzlmod",
-			Description: "tar.bzl 0.10.8 -> 0.10.9.",
+			Description: "tar.bzl 0.10.9 -> 0.10.8.",
 			Expectation: "Targets built with tar.bzl rules (//oci:greeter_layer, //oci:image), if the bump changes their outputs.",
-			Ops:         []Op{Replace{"MODULE.bazel", `bazel_dep(name = "tar.bzl", version = "0.10.8")`, `bazel_dep(name = "tar.bzl", version = "0.10.9")`}},
+			Ops:         []Op{Replace{"MODULE.bazel", `bazel_dep(name = "tar.bzl", version = "0.10.9")`, `bazel_dep(name = "tar.bzl", version = "0.10.8")`}},
 		},
 		{
 			Name: "module_comment", Category: "bzlmod",
@@ -259,12 +284,50 @@ func All() []Scenario {
 			Ops:         []Op{Prepend{"MODULE.bazel", "# A comment.\n"}},
 		},
 
+		// ---- Patches ----
+		// The base revision already applies a README-only patch to rules_oci
+		// and a CONTRIBUTING.md-only patch to the Go SDK, so the *_edit and
+		// *_noop scenarios change only a patch file, never MODULE.bazel.
+		{
+			Name: "bzlmod_patch_add", Category: "patch",
+			Description: "Add a second rules_oci patch (MODULE.bazel) that sets an env var on the OCIImage action.",
+			Expectation: "The oci_image targets and what is built from them.",
+			Ops: []Op{
+				Write{"patches/rules_oci_env.patch", ociEnvPatch},
+				Replace{"MODULE.bazel", `    patches = ["//patches:rules_oci.patch"],`, `    patches = ["//patches:rules_oci.patch", "//patches:rules_oci_env.patch"],`},
+			},
+		},
+		{
+			Name: "bzlmod_patch_edit", Category: "patch",
+			Description: "Rewrite the existing rules_oci patch to change oci/private/image.bzl (patch file only).",
+			Expectation: "The oci_image targets and what is built from them.",
+			Ops:         []Op{Write{"patches/rules_oci.patch", ociEnvPatch}},
+		},
+		{
+			Name: "bzlmod_patch_noop", Category: "patch",
+			Description: "Rewrite the existing rules_oci patch to a different README.md edit (patch file only).",
+			Expectation: "Nothing affected: no action reads rules_oci's README.",
+			Ops:         []Op{Replace{"patches/rules_oci.patch", "(patched)", "(patched again)"}},
+		},
+		{
+			Name: "toolchain_patch_edit", Category: "patch",
+			Description: "Rewrite the existing Go SDK patch to edit src/strings/strings.go (patch file only).",
+			Expectation: "Every Go target: the standard library is compiled from the SDK sources.",
+			Ops:         []Op{Write{"patches/go_sdk.patch", goStringsPatch}},
+		},
+		{
+			Name: "toolchain_patch_noop", Category: "patch",
+			Description: "Rewrite the existing Go SDK patch to a different CONTRIBUTING.md edit (patch file only).",
+			Expectation: "Nothing affected, unless the SDK's file globs ship CONTRIBUTING.md.",
+			Ops:         []Op{Replace{"patches/go_sdk.patch", "(patched)", "(patched again)"}},
+		},
+
 		// ---- Toolchains ----
 		{
 			Name: "go_toolchain", Category: "toolchain",
 			Description: "Go SDK 1.27.2 -> 1.27.1.",
 			Expectation: "Every Go target (compiled outputs change) and the images containing them.",
-			Ops:         []Op{Replace{"MODULE.bazel", `go_sdk.download(version = "1.27.2")`, `go_sdk.download(version = "1.27.1")`}},
+			Ops:         []Op{Replace{"MODULE.bazel", `    version = "1.27.2",`, `    version = "1.27.1",`}},
 		},
 		{
 			Name: "rust_toolchain", Category: "toolchain",
@@ -280,9 +343,9 @@ func All() []Scenario {
 		},
 		{
 			Name: "llvm_toolchain", Category: "toolchain",
-			Description: "Hermetic LLVM toolchain module 0.8.19 -> 0.8.18.",
+			Description: "Hermetic LLVM toolchain module 0.8.24 -> 0.8.23.",
 			Expectation: "Every C/C++ target (and anything else the toolchain compiles or links).",
-			Ops:         []Op{Replace{"MODULE.bazel", `bazel_dep(name = "llvm", version = "0.8.19")`, `bazel_dep(name = "llvm", version = "0.8.18")`}},
+			Ops:         []Op{Replace{"MODULE.bazel", `bazel_dep(name = "llvm", version = "0.8.24")`, `bazel_dep(name = "llvm", version = "0.8.23")`}},
 		},
 
 		// ---- Build configuration ----

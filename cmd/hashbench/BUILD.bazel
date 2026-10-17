@@ -11,8 +11,10 @@ go_binary(
         "-target-determinator=$(rootpath @target_determinator//file)",
         "-bash=$(rootpath @static_bash//file)",
         "-busybox=$(rootpath @static_busybox//file)",
+        "-remote-cache-server=$(rootpath //cmd/remotecache)",
     ],
     data = [
+        "//cmd/remotecache",
         "@bazel_diff//file",
         "@static_bash//file",
         "@static_busybox//file",

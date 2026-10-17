@@ -31,12 +31,14 @@ scale {{.R.Scale}} · {{.R.BaseSize}} targets · {{index .R.Meta "host"}}, {{ind
 
 <h2>Summary</h2>
 <div class="wrap"><table>
-<thead><tr><th>Tool</th><th class="num">Exact</th><th class="num">Scenarios with misses</th><th class="num">Missed targets</th><th class="num">Over-selected targets</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">Warm no-change</th><th class="num">Warm per change (median)</th></tr></thead>
+<thead><tr><th>Tool</th><th class="num">Exact</th><th class="num">Scenarios with misses</th><th class="num">Missed targets</th><th class="num">Over-selected targets</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">Warm no-change</th><th class="num">Warm per change (median)</th><th class="num">Setup download</th><th class="num">Download, all changes</th></tr></thead>
 <tbody>{{range .Summaries}}<tr>
 <td><b>{{.Tool}}</b>{{if .Errors}}<div class="muted">{{.Errors}} errored: {{join .ErroredScenarios ", "}}</div>{{end}}</td>
 <td class="num">{{.Exact}}/{{.Scored}}</td><td class="num">{{.WithMisses}}</td><td class="num">{{.Missed}}</td><td class="num">{{.Extra}}</td>
 <td class="num">{{.Recall}}</td><td class="num">{{.Precision}}</td><td class="num">{{.NoChangeMedian}}</td><td class="num">{{.ScenarioMedian}}</td>
+<td class="num">{{.SetupDownload}}<div class="muted">{{.SetupSeconds}}</div></td><td class="num">{{.ChangeDownload}}</td>
 </tr>{{end}}</tbody></table></div>
+<p class="muted"><b>Downloads</b> are bytes each tool's Bazel received over the network (internet downloads plus the remote cache), measured by a per-tool proxy. Every tool starts from its own empty repository caches; setup is the first run on the base revision. <code>@remote</code> tools use <code>--experimental_remote_repo_contents_cache</code>.</p>
 <p class="muted">A <b>miss</b> is a target whose outputs, runfiles or test attributes changed but the tool did not select it: CI would skip a target that needs rebuilding or retesting. An <b>over-selection</b> is a target the tool selected although nothing it produces changed: wasted CI work.</p>
 
 <h2>Scenarios</h2>
@@ -59,13 +61,22 @@ scale {{.R.Scale}} · {{.R.BaseSize}} targets · {{index .R.Meta "host"}}, {{ind
 {{if .Outcome.Err}}<b>error</b><details><summary>log</summary><pre>{{.Outcome.Err}}</pre></details>
 {{else if $sc.HasOracle}}{{if and (eq .FN 0) (eq .FP 0)}}<b>exact</b>{{else}}{{if .FN}}<b>{{.FN}} missed</b>{{end}}{{if and .FN .FP}} · {{end}}{{if .FP}}<b>+{{.FP}}</b> extra{{end}}{{end}}
 {{else}}{{len .Outcome.Labels}} selected{{end}}
-<div class="muted">{{secs .Outcome.Duration.Seconds}}</div>
+<div class="muted">{{secs .Outcome.Duration.Seconds}} · {{mb .Outcome.Download}}</div>
 {{if or .Missed .Extra}}<details><summary>targets</summary>
 {{if .Missed}}<div><b>Missed</b><ul class="l">{{range short .Missed 25}}<li><code>{{.}}</code></li>{{end}}</ul></div>{{end}}
 {{if .Extra}}<div><b>Over-selected</b><ul class="l">{{range short .Extra 25}}<li><code>{{.}}</code></li>{{end}}</ul></div>{{end}}
 </details>{{end}}
 </td>{{end}}
 </tr>{{end}}</tbody></table></div>
+
+{{if .R.RepoSupport}}<h2>Repo contents cache support by module</h2>
+<p class="muted">Every repository the tools fetched for the base revision, by owning module. Bazel only caches repositories whose rule declares them reproducible; those can come from <code>--experimental_remote_repo_contents_cache</code>, the rest are fetched from the internet even with a remote cache. <b>Bold</b>: a direct <code>bazel_dep</code> of the fixture.</p>
+<div class="wrap"><table>
+<thead><tr><th>Module</th><th class="num">Cacheable repos</th><th class="num">Size</th><th class="num">Not cacheable</th><th class="num">Size</th><th>Not cacheable repos</th></tr></thead>
+<tbody>{{range .R.RepoSupport}}<tr><td>{{if .Direct}}<b>{{.Module}}</b>{{else}}{{.Module}}{{end}}</td><td class="num">{{.Cached}}</td><td class="num">{{gb .CachedBytes}}</td>
+<td class="num">{{.NotCached}}</td><td class="num">{{gb .NotCachedBytes}}</td>
+<td>{{if .NotCachedRepos}}<details><summary>{{len .NotCachedRepos}} repos</summary><ul class="l">{{range .NotCachedRepos}}<li><code>{{.}}</code></li>{{end}}</ul></details>{{end}}</td></tr>{{end}}</tbody></table></div>
+{{end}}
 
 <h2>Warm performance</h2>
 <div class="wrap"><table>

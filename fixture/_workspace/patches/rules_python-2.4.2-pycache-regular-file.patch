@@ -1,0 +1,61 @@
+rules_python 2.4.2: make hermetic interpreter repos cacheable in the remote repo contents cache
+
+python_repository creates a __pycache__ entry in every directory with .py files: a symlink to an
+absolute path outside the repo ($XDG_CACHE_HOME/rules_python_pycache/..., or under TMP), or, when
+no cache dir is available, a symlink to /dev/null. Bazel 9 never uploads a repo with symlinks
+that leave the repo to the remote repo contents cache (RepositoryUtils.replantSymlinks ->
+safeForRemoteCache=false, bazelbuild/bazel#30160), and skips the upload without a message. So
+every interpreter repo misses the remote cache on every machine and every fresh output base.
+
+This patch adds RULES_PYTHON_PYCACHE_DIR=/dev/null (or NUL) as a way to turn the pycache off, and
+then writes __pycache__ as an empty regular file in place of the /dev/null symlink. The repo then
+contains no symlinks, and it is uploaded and served lazily. Behavior without the env var is
+unchanged. This matches upstream bazel-contrib/rules_python d03bc77c (#4264, on main, not in any
+release as of 2.4.2).
+
+Use: single_version_override(module_name = "rules_python", patch_strip = 1,
+         patches = ["//patches:rules_python-2.4.2-pycache-regular-file.patch"])
+     common --repo_env=RULES_PYTHON_PYCACHE_DIR=/dev/null
+Verified with python_3_12_riscv64-unknown-linux-gnu, Bazel 9.2, a local REAPI cache and two fresh
+output bases per variant:
+  patched:   run 1 uploads (2 AC updates), run 2 is a lazy hit, 0 symlinks leave the repo
+  unpatched: both runs miss and nothing is uploaded
+
+diff --git a/python/private/python_repository.bzl b/python/private/python_repository.bzl
+index 3fd0928a..86d0569a 100644
+--- a/python/private/python_repository.bzl
++++ b/python/private/python_repository.bzl
+@@ -65,6 +65,8 @@ def _get_pycache_root(rctx):
+ 
+     # 1. RULES_PYTHON_PYCACHE_DIR
+     res = rctx.getenv("RULES_PYTHON_PYCACHE_DIR")
++    if res and res.lower() in ("/dev/null", "nul"):
++        return None
+     if res:
+         res = res + "/" + rctx.name
+         return repo_utils.mkdir(rctx, res)
+@@ -107,9 +109,6 @@ def _create_pycache_symlinks(rctx, logger):
+     logger.info(lambda: "pycache root: {}".format(pycache_root))
+     pycache_root_str = str(pycache_root) if pycache_root else None
+ 
+-    os_name = repo_utils.get_platforms_os_name(rctx)
+-    null_device = "NUL" if os_name == "windows" else "/dev/null"
+-
+     queue = [rctx.path(".")]
+ 
+     # Starlark doesn't support recursion, use a loop with a queue.
+@@ -143,7 +142,13 @@ def _create_pycache_symlinks(rctx, logger):
+                 rctx.symlink(target_dir, pycache_dir)
+             else:
+                 rctx.delete(pycache_dir)
+-                rctx.symlink(null_device, pycache_dir)
++
++                # The intent is to disable pyc generation, which we can't
++                # entirely do directly. A symlink to the null device points
++                # outside the repo, which keeps the repo out of the remote repo
++                # contents cache. A regular file seems to make python skip
++                # local pyc generation, so use that.
++                rctx.file(pycache_dir, content = "", executable = False)
+ 
+ def _python_repository_impl(rctx):
+     if rctx.attr.distutils and rctx.attr.distutils_content:

@@ -1,2 +1,3 @@
 /bazel-*
 /hashbench-work/
+/auto.bazelrc

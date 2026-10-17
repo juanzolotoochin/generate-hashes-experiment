@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/bench"
+	"github.com/juanzolotoochin/generate-hashes-experiment/internal/netmeter"
 )
 
 //go:embed report.html.tmpl
@@ -34,6 +35,9 @@ type ToolSummary struct {
 	CategoryMedians  map[string]string
 	MissedScenarios  []string
 	ErroredScenarios []string
+	SetupSeconds     string
+	SetupDownload    string
+	ChangeDownload   string // total over all non-control scenarios
 }
 
 type view struct {
@@ -57,6 +61,8 @@ func Write(dir string, r *bench.Results) ([]string, error) {
 		"join":  strings.Join,
 		"short": shortList,
 		"cell":  cellClass,
+		"mb":    mb,
+		"gb":    gb,
 	}).Parse(htmlTmpl)
 	if err != nil {
 		return nil, err
@@ -85,6 +91,8 @@ func summarize(r *bench.Results) []ToolSummary {
 	for _, tool := range r.Tools {
 		s := ToolSummary{Tool: tool, CategoryMedians: map[string]string{}}
 		var times []float64
+		var dl netmeter.Counts
+		measured := false
 		cat := map[string][]float64{}
 		for _, sc := range r.Scenarios {
 			for _, ts := range sc.Tools {
@@ -97,6 +105,11 @@ func summarize(r *bench.Results) []ToolSummary {
 					continue
 				}
 				if sc.Name != "control" {
+					if d := ts.Outcome.Download; d != nil {
+						measured = true
+						dl.Internet += d.Internet
+						dl.Remote += d.Remote
+					}
 					times = append(times, ts.Outcome.Duration.Seconds())
 					cat[sc.Category] = append(cat[sc.Category], ts.Outcome.Duration.Seconds())
 				}
@@ -123,12 +136,43 @@ func summarize(r *bench.Results) []ToolSummary {
 		s.Precision = ratio(s.TP, s.TP+s.Extra)
 		s.NoChangeMedian = medianStr(r.NoChange[tool])
 		s.ScenarioMedian = medianStr(times)
+		s.ChangeDownload = "–"
+		if measured {
+			s.ChangeDownload = mb(&dl)
+		}
+		s.SetupSeconds, s.SetupDownload = "–", "–"
+		if st, ok := r.Setup[tool]; ok {
+			s.SetupSeconds = fmt.Sprintf("%.0fs", st.Seconds)
+			s.SetupDownload = mb(&st.Download)
+		}
 		for c, ts := range cat {
 			s.CategoryMedians[c] = medianStr(ts)
 		}
 		out = append(out, s)
 	}
 	return out
+}
+
+// mb formats downloaded bytes, with the remote-cache share when there is one.
+func mb(c *netmeter.Counts) string {
+	if c == nil {
+		return "–"
+	}
+	s := fmt.Sprintf("%.1f MB", float64(c.Total())/1e6)
+	if c.Remote > 0 {
+		s += fmt.Sprintf(" (%.0f%% remote)", 100*float64(c.Remote)/float64(c.Total()))
+	}
+	return s
+}
+
+func gb(n int64) string {
+	switch {
+	case n == 0:
+		return "0"
+	case n < 1e9:
+		return fmt.Sprintf("%.0f MB", float64(n)/1e6)
+	}
+	return fmt.Sprintf("%.1f GB", float64(n)/1e9)
 }
 
 func ratio(a, b int) string {
@@ -183,6 +227,11 @@ func markdown(v view) string {
 		fmt.Fprintf(&b, "| %s | %d/%d | %d | %d | %d | %s | %s | %s | %s |\n",
 			s.Tool, s.Exact, s.Scored, s.WithMisses, s.Missed, s.Extra, s.Recall, s.Precision, s.NoChangeMedian, s.ScenarioMedian)
 	}
+	b.WriteString("\n## Downloads\n\nBytes each tool's Bazel received over the network (internet and remote cache), starting from its own empty caches.\n\n")
+	b.WriteString("| Tool | Setup (base revision) | Setup time | All changes (total) |\n|---|---|---|---|\n")
+	for _, s := range v.Summaries {
+		fmt.Fprintf(&b, "| %s | %s | %s | %s |\n", s.Tool, s.SetupDownload, s.SetupSeconds, s.ChangeDownload)
+	}
 	b.WriteString("\n| Scenario | Category | Truth |")
 	for _, t := range v.R.Tools {
 		fmt.Fprintf(&b, " %s |", t)
@@ -212,6 +261,31 @@ func markdown(v view) string {
 				}
 				fmt.Fprintf(&b, " %s |", strings.Join(parts, ", "))
 			}
+		}
+		b.WriteString("\n")
+	}
+	if len(v.R.RepoSupport) > 0 {
+		b.WriteString("\n## Repo contents cache support by module\n\n")
+		b.WriteString("Every repository the tools fetched for the base revision. Only repositories whose rule declares them reproducible are cached (locally and by `--experimental_remote_repo_contents_cache`); the rest are fetched from the internet even with a remote cache. **Bold**: a direct `bazel_dep` of the fixture.\n\n")
+		b.WriteString("| Module | Cacheable repos | Size | Not cacheable | Size | Not cacheable repos |\n|---|---|---|---|---|---|\n")
+		for _, r := range v.R.RepoSupport {
+			name := r.Module
+			if r.Direct {
+				name = "**" + name + "**"
+			}
+			fmt.Fprintf(&b, "| %s | %d | %s | %d | %s | %s |\n", name, r.Cached, gb(r.CachedBytes), r.NotCached, gb(r.NotCachedBytes),
+				strings.Join(shortList(r.NotCachedRepos, 4), ", "))
+		}
+	}
+	b.WriteString("\n### Downloads per scenario\n\n| Scenario |")
+	for _, t := range v.R.Tools {
+		fmt.Fprintf(&b, " %s |", t)
+	}
+	b.WriteString("\n|---|" + strings.Repeat("---|", len(v.R.Tools)) + "\n")
+	for _, sc := range v.R.Scenarios {
+		fmt.Fprintf(&b, "| %s |", sc.Name)
+		for _, ts := range sc.Tools {
+			fmt.Fprintf(&b, " %s |", mb(ts.Outcome.Download))
 		}
 		b.WriteString("\n")
 	}

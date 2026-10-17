@@ -1,0 +1,33 @@
+load("@rules_rs//rs:cargo_build_script.bzl", "cargo_build_script")
+load("@rules_rs//rs:rust_binary.bzl", "rust_binary")
+
+exports_files([
+    "Cargo.lock",
+    "Cargo.toml",
+])
+
+cargo_build_script(
+    name = "build_script",
+    srcs = ["build.rs"],
+    data = glob(["proto/*.proto"]),
+    edition = "2021",
+    deps = [
+        "@crates//:protox",
+        "@crates//:tonic-build",
+    ],
+)
+
+rust_binary(
+    name = "remotecache",
+    srcs = ["src/main.rs"],
+    edition = "2021",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":build_script",
+        "@crates//:prost",
+        "@crates//:sha2",
+        "@crates//:tokio",
+        "@crates//:tokio-stream",
+        "@crates//:tonic",
+    ],
+)

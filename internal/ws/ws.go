@@ -77,9 +77,9 @@ func (r *Runner) Run(ctx context.Context, dir, name string, args ...string) Resu
 	res := Result{Stdout: stdout.Bytes(), Stderr: stderr.Bytes(), Duration: time.Since(start), Err: err}
 	if r.Log != nil {
 		fmt.Fprintf(r.Log, "# exit=%v duration=%s\n", err, res.Duration.Round(time.Millisecond))
-		if err != nil {
-			r.Log.Write(tail(stderr.Bytes(), 8000))
-		}
+		// Keep stderr even on success: Bazel prints some warnings (e.g.
+		// remote repo contents cache lookup/upload failures) only there.
+		r.Log.Write(tail(stderr.Bytes(), 64000))
 	}
 	if err != nil {
 		res.Err = fmt.Errorf("%s %s: %w\n%s", name, strings.Join(args, " "), err, tail(stderr.Bytes(), 4000))

@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/juanzolotoochin/generate-hashes-experiment/fixture"
+	"github.com/juanzolotoochin/generate-hashes-experiment/internal/netmeter"
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/oracle"
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/scale"
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/scenario"
@@ -23,22 +24,30 @@ import (
 
 // Config controls a benchmark run.
 type Config struct {
-	WorkDir     string
-	CacheDir    string
-	Toolbox     string // from SetupToolbox
-	Git         string
-	CustomBazel string
-	StockBazel  string
-	BazelDiff   string
-	TD          string
-	Tools       []string
-	Scenarios   []scenario.Scenario
-	Scale       int
-	PerfReps    int
-	Oracle      bool
-	KeepServers bool
-	Out         io.Writer
-	Meta        map[string]string
+	WorkDir  string
+	CacheDir string
+	Toolbox  string // from SetupToolbox
+	Git      string
+	ExtraRC  []string // optional bazelrc files imported by every generated bazelrc
+	// RepoCacheMode is "local" (repositories are fetched from the internet
+	// into each tool's own caches) or "remote" (also with
+	// --experimental_remote_repo_contents_cache against RemoteCache).
+	RepoCacheMode string
+	RemoteCache   string // grpc:// or grpcs:// URL
+	RemoteName    string // "local" or the URL, keys the seeder's state
+	SeedOnly      bool   // remote mode: seed the base revision and stop
+	CustomBazel   string
+	StockBazel    string
+	BazelDiff     string
+	TD            string
+	Tools         []string
+	Scenarios     []scenario.Scenario
+	Scale         int
+	PerfReps      int
+	Oracle        bool
+	KeepServers   bool
+	Out           io.Writer
+	Meta          map[string]string
 	// Prior, if set, holds results of an earlier run of the same fixture and
 	// scenarios. Its per-scenario ground truth is reused instead of
 	// rebuilding with the oracle (only the base revision is built, to know
@@ -87,14 +96,34 @@ type Results struct {
 	RuleTargets int                  `json:"rule_targets"`
 	Scenarios   []ScenarioResult     `json:"scenarios"`
 	NoChange    map[string][]float64 `json:"no_change_seconds"`
-	Started     time.Time            `json:"started"`
-	Finished    time.Time            `json:"finished"`
+	// Setup is each tool's first run on the base revision, starting from its
+	// own empty caches.
+	Setup map[string]Setup `json:"setup"`
+	// RepoSupport is the repo contents cache support of every repository the
+	// tools fetched for the base revision, by module.
+	RepoSupport []RepoSupport `json:"repo_support,omitempty"`
+	Started     time.Time     `json:"started"`
+	Finished    time.Time     `json:"finished"`
+}
+
+// Setup is a tool's preparation on the base revision.
+type Setup struct {
+	Seconds  float64         `json:"seconds"`
+	Download netmeter.Counts `json:"download_bytes"`
 }
 
 // Run executes the benchmark and returns its results. Results are also
 // written to <WorkDir>/results.json after every scenario.
 func Run(ctx context.Context, cfg Config) (*Results, error) {
-	res := &Results{Meta: cfg.Meta, Tools: cfg.Tools, Scale: cfg.Scale, NoChange: map[string][]float64{}, Started: time.Now()}
+	res := &Results{Meta: cfg.Meta, Scale: cfg.Scale, NoChange: map[string][]float64{}, Setup: map[string]Setup{}, Started: time.Now()}
+	remote := cfg.RepoCacheMode == "remote"
+	suffix := ""
+	if remote {
+		suffix = "@remote"
+	}
+	for _, t := range cfg.Tools {
+		res.Tools = append(res.Tools, t+suffix)
+	}
 	say := func(format string, args ...any) { fmt.Fprintf(cfg.Out, format+"\n", args...) }
 
 	repo := filepath.Join(cfg.WorkDir, "repo")
@@ -152,28 +181,135 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		return nil, err
 	}
 
+	// The oracle (and the target count) share the caches in CacheDir: they
+	// are not measured. Every tool gets its own, see toolBazelrc.
+	sharedRC := filepath.Join(state, "shared.bazelrc")
+	if err := os.WriteFile(sharedRC, []byte(sharedBazelrc(cfg)), 0o644); err != nil {
+		return nil, err
+	}
+
 	// Workspace size, from a throwaway server so no tool gets a head start.
 	countBase := filepath.Join(state, "count", "output_base")
-	if q := runner.Run(ctx, repo, cfg.StockBazel, "--output_base="+countBase, "query", "kind(rule, //...)", "--output=label"); q.Err == nil {
+	if q := runner.Run(ctx, repo, cfg.StockBazel, "--bazelrc="+sharedRC, "--output_base="+countBase, "query", "kind(rule, //...)", "--output=label"); q.Err == nil {
 		res.RuleTargets = strings.Count(string(q.Stdout), "\n")
 		say("Workspace has %d rule targets", res.RuleTargets)
 	} else {
 		say("  warning: counting targets failed: %s", firstLine(q.Err.Error()))
 	}
-	runner.Run(ctx, repo, cfg.StockBazel, "--output_base="+countBase, "shutdown")
+	runner.Run(ctx, repo, cfg.StockBazel, "--bazelrc="+sharedRC, "--output_base="+countBase, "shutdown")
 
-	env := tools.Env{
-		Runner: runner, Workspace: repo, StateDir: state,
-		StockBazel: cfg.StockBazel, CustomBazel: cfg.CustomBazel, BazelDiff: cfg.BazelDiff, TD: cfg.TD,
+	// Each tool's network traffic goes through its own meter.
+	remoteAddr := ""
+	if remote {
+		if remoteAddr, err = hostPort(cfg.RemoteCache); err != nil {
+			return nil, err
+		}
 	}
+	sockDir, err := os.MkdirTemp("", "hashbench-net")
+	if err != nil {
+		return nil, err
+	}
+	defer os.RemoveAll(sockDir)
+	meters := map[string]*netmeter.Meter{}
 	var ts []tools.Tool
-	for _, name := range cfg.Tools {
+	for i, name := range cfg.Tools {
+		dir := filepath.Join(state, name+suffix)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return nil, err
+		}
+		m, err := netmeter.Start(remoteAddr, filepath.Join(sockDir, fmt.Sprintf("%d.sock", i)))
+		if err != nil {
+			return nil, err
+		}
+		defer m.Close()
+		rc := filepath.Join(dir, "tool.bazelrc")
+		if err := os.WriteFile(rc, []byte(toolBazelrc(cfg, dir, m.RemoteProxy())), 0o644); err != nil {
+			return nil, err
+		}
+		env := tools.Env{
+			Runner:    &ws.Runner{Log: logf, Env: append(append([]string{}, runner.Env...), m.Env()...)},
+			Workspace: repo, StateDir: state, RC: rc, Suffix: suffix,
+			StockBazel: cfg.StockBazel, CustomBazel: cfg.CustomBazel, BazelDiff: cfg.BazelDiff, TD: cfg.TD,
+		}
 		t, err := tools.New(name, env)
 		if err != nil {
 			return nil, err
 		}
+		meters[t.Name()] = m
 		ts = append(ts, t)
 	}
+
+	// In remote mode a separate seeder fetches each revision's repositories
+	// first, so they are in the remote repo contents cache before any tool
+	// asks for them. It runs what the tools run (the custom Bazel's
+	// --generate_hashes queries, stock query and cquery), each binary in its
+	// own output base. Its state lives in CacheDir so it stays warm across work
+	// dirs; put already-downloaded archives in CacheDir/seed/cache/repository
+	// to seed without downloading them again.
+	seed := func(string) {}
+	if remote {
+		// One seeder per remote cache: a seeder that already has every
+		// repository locally would not upload anything to a new cache.
+		// Downloaded archives are shared (CacheDir/seed/cache/repository).
+		seedDir := filepath.Join(cfg.CacheDir, "seed-"+sanitize(cfg.RemoteName))
+		if err := os.MkdirAll(seedDir, 0o755); err != nil {
+			return nil, err
+		}
+		sm, err := netmeter.Start(remoteAddr, filepath.Join(sockDir, "seed.sock"))
+		if err != nil {
+			return nil, err
+		}
+		defer sm.Close()
+		seedRC := filepath.Join(seedDir, "seed.bazelrc")
+		rc := toolBazelrc(cfg, seedDir, sm.RemoteProxy())
+		rc = strings.Replace(rc, filepath.Join(seedDir, "cache", "repository"), filepath.Join(cfg.CacheDir, "seed", "cache", "repository"), 1)
+		if err := os.WriteFile(seedRC, []byte(rc), 0o644); err != nil {
+			return nil, err
+		}
+		seedRunner := &ws.Runner{Log: logf, Env: append(append([]string{}, runner.Env...), sm.Env()...)}
+		type step struct {
+			bazel, ob string
+			args      []string
+		}
+		var steps []step
+		if cfg.CustomBazel != "" {
+			ob := filepath.Join(seedDir, "custom", "output_base")
+			steps = append(steps,
+				step{cfg.CustomBazel, ob, []string{"query", "//...", "--generate_hashes"}},
+				step{cfg.CustomBazel, ob, []string{"cquery", "//...", "--generate_hashes"}})
+		}
+		ob := filepath.Join(seedDir, "stock", "output_base")
+		steps = append(steps,
+			step{cfg.StockBazel, ob, []string{"query", "deps(//...)", "--output=label"}},
+			step{cfg.StockBazel, ob, []string{"cquery", "deps(//...)", "--output=label"}})
+		seed = func(rev string) {
+			for _, st := range steps {
+				start, c0 := time.Now(), sm.Counts()
+				args := append([]string{"--bazelrc=" + seedRC, "--output_base=" + st.ob}, st.args...)
+				r := seedRunner.Run(ctx, repo, st.bazel, append(args, "--keep_going")...)
+				d := sm.Counts().Sub(c0)
+				status := ""
+				if r.Err != nil {
+					status = " (failed, see commands.log)"
+				}
+				say("  %-20s %7.1fs  %s %s: uploaded %.1f MB, downloaded %s%s", "seed", time.Since(start).Seconds(),
+					filepath.Base(st.bazel), st.args[0], float64(d.Sent)/1e6, MB(d), status)
+			}
+			say("  %-20s seeded %s", "seed", rev)
+		}
+		defer func() {
+			for _, ob := range []string{filepath.Join(seedDir, "custom", "output_base"), filepath.Join(seedDir, "stock", "output_base")} {
+				b := cfg.StockBazel
+				if strings.Contains(ob, "custom") {
+					b = cfg.CustomBazel
+				}
+				if b != "" {
+					seedRunner.Run(context.Background(), repo, b, "--bazelrc="+seedRC, "--output_base="+ob, "shutdown")
+				}
+			}
+		}()
+	}
+
 	var orc *oracle.Oracle
 	defer func() {
 		if cfg.KeepServers {
@@ -188,14 +324,22 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		}
 	}()
 
+	seed("base")
+	if cfg.SeedOnly {
+		return nil, nil
+	}
 	for _, t := range ts {
 		start := time.Now()
 		say("Preparing %s on the base revision (first run fetches and loads everything)...", t.Name())
+		c0 := meters[t.Name()].Counts()
 		if err := t.Prepare(ctx, baseRev); err != nil {
 			return nil, fmt.Errorf("prepare %s: %w", t.Name(), err)
 		}
-		say("  %s ready in %s", t.Name(), time.Since(start).Round(time.Second))
+		d := meters[t.Name()].Counts().Sub(c0)
+		res.Setup[t.Name()] = Setup{Seconds: time.Since(start).Seconds(), Download: d}
+		say("  %s ready in %s, downloaded %s", t.Name(), time.Since(start).Round(time.Second), MB(d))
 	}
+	res.RepoSupport = RepoSupportFor(cfg.WorkDir)
 
 	var base oracle.Snapshot
 	if cfg.Oracle {
@@ -203,6 +347,7 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 			Runner: runner, Bazel: cfg.StockBazel, Workspace: repo,
 			OutputBase: filepath.Join(state, "oracle", "output_base"),
 			RepoDir:    filepath.Join(state, "oracle", "repo"),
+			RC:         sharedRC,
 		}
 		if err := os.MkdirAll(filepath.Dir(orc.OutputBase), 0o755); err != nil {
 			return nil, err
@@ -232,16 +377,25 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 	}
 
 	if cfg.Prior != nil {
+		// The prior run's tools come first (e.g. local, then @remote).
+		var priorTools []string
 		for _, t := range cfg.Prior.Tools {
 			if !contains(res.Tools, t) {
-				res.Tools = append(res.Tools, t)
+				priorTools = append(priorTools, t)
 				res.NoChange[t] = cfg.Prior.NoChange[t]
+				if s, ok := cfg.Prior.Setup[t]; ok {
+					res.Setup[t] = s
+				}
+				if len(res.RepoSupport) == 0 {
+					res.RepoSupport = cfg.Prior.RepoSupport
+				}
 			}
 		}
+		res.Tools = append(priorTools, res.Tools...)
 	}
 	for i, sc := range cfg.Scenarios {
 		say("[%d/%d] %s: %s", i+1, len(cfg.Scenarios), sc.Name, sc.Description)
-		sr := runScenario(ctx, cfg, git, baseRev, sc, ts, orc, base, res, say, prior)
+		sr := runScenario(ctx, cfg, git, baseRev, sc, ts, meters, seed, orc, base, res, say, prior)
 		res.Scenarios = append(res.Scenarios, sr)
 		save()
 	}
@@ -254,7 +408,7 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 }
 
 func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, sc scenario.Scenario,
-	ts []tools.Tool, orc *oracle.Oracle, base oracle.Snapshot, res *Results, say func(string, ...any),
+	ts []tools.Tool, meters map[string]*netmeter.Meter, seed func(string), orc *oracle.Oracle, base oracle.Snapshot, res *Results, say func(string, ...any),
 	prior map[string]ScenarioResult) ScenarioResult {
 	sr := ScenarioResult{Name: sc.Name, Category: sc.Category, Description: sc.Description, Expectation: sc.Expectation}
 	for _, op := range sc.Ops {
@@ -277,6 +431,7 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 		return sr
 	}
 	sr.DiffStat = git.DiffStat(ctx, baseRev, headRev)
+	seed(sc.Name)
 
 	// The control scenario doubles as the warm no-change timing sample.
 	reps := 1
@@ -286,7 +441,10 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 	outcomes := map[string]tools.Outcome{}
 	for _, t := range ts {
 		for r := 0; r < reps; r++ {
+			c0 := meters[t.Name()].Counts()
 			o := t.Affected(ctx, baseRev, headRev)
+			d := meters[t.Name()].Counts().Sub(c0)
+			o.Download = &d
 			if sc.Name == "control" {
 				res.NoChange[t.Name()] = append(res.NoChange[t.Name()], o.Duration.Seconds())
 			}
@@ -297,7 +455,7 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 		if o.Err != "" {
 			status = "ERROR: " + firstLine(o.Err)
 		}
-		say("  %-20s %7.1fs  %s", t.Name(), o.Duration.Seconds(), status)
+		say("  %-20s %7.1fs  %s, downloaded %s", t.Name(), o.Duration.Seconds(), status, MB(*o.Download))
 	}
 
 	universe := map[string]bool{}
@@ -404,22 +562,89 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 			}
 		}
 	}
+	order := map[string]int{}
+	for i, t := range res.Tools {
+		order[t] = i
+	}
+	sort.SliceStable(sr.Tools, func(i, j int) bool { return order[sr.Tools[i].Tool] < order[sr.Tools[j].Tool] })
 	return sr
 }
 
 // userBazelrc returns the machine-specific Bazel flags written into the
-// benchmark workspace: shared caches, and the toolbox's static bash as the
-// shell for every action.
+// benchmark workspace: the toolbox's static bash as the shell for every
+// action. Caches are per process (toolBazelrc, sharedBazelrc).
 func userBazelrc(cfg Config) string {
 	lines := []string{
 		// No MODULE.bazel.lock: it would be an untracked, tool-dependent file.
 		"common --lockfile_mode=off",
-		"common --repository_cache=" + filepath.Join(cfg.CacheDir, "repository"),
-		"common --repo_contents_cache=" + filepath.Join(cfg.CacheDir, "repo_contents"),
-		"build --disk_cache=" + filepath.Join(cfg.CacheDir, "disk"),
 		"build --shell_executable=" + filepath.Join(cfg.Toolbox, "bin", "bash"),
 	}
 	return strings.Join(lines, "\n") + "\n"
+}
+
+// sharedBazelrc is passed with --bazelrc to the oracle and the target count:
+// caches shared across runs, never measured.
+func sharedBazelrc(cfg Config) string {
+	lines := []string{
+		"common --repository_cache=" + filepath.Join(cfg.CacheDir, "repository"),
+		"common --repo_contents_cache=" + filepath.Join(cfg.CacheDir, "repo_contents"),
+		"build --disk_cache=" + filepath.Join(cfg.CacheDir, "disk"),
+	}
+	return strings.Join(append(lines, extraImports(cfg)...), "\n") + "\n"
+}
+
+// toolBazelrc is passed with --bazelrc to one tool's Bazel invocations: its
+// own repository caches under dir, so its downloads are its own, and in
+// remote mode the remote repo contents cache, reached through remoteProxy.
+func toolBazelrc(cfg Config, dir, remoteProxy string) string {
+	lines := []string{
+		"common --repository_cache=" + filepath.Join(dir, "cache", "repository"),
+		"common --repo_contents_cache=" + filepath.Join(dir, "cache", "repo_contents"),
+	}
+	if cfg.RepoCacheMode == "remote" {
+		lines = append(lines,
+			"startup --experimental_remote_repo_contents_cache",
+			"common --remote_cache="+cfg.RemoteCache,
+		)
+		if remoteProxy != "" {
+			lines = append(lines, "common --remote_proxy="+remoteProxy)
+		}
+	}
+	return strings.Join(append(lines, extraImports(cfg)...), "\n") + "\n"
+}
+
+// extraImports imports the -bazelrc files by path, so their contents (e.g.
+// credentials) never enter the benchmark checkout.
+func extraImports(cfg Config) []string {
+	var lines []string
+	for _, rc := range cfg.ExtraRC {
+		lines = append(lines, "import "+rc)
+	}
+	return lines
+}
+
+// hostPort turns grpc[s]://host[:port] into host:port.
+func hostPort(url string) (string, error) {
+	rest, ok := strings.CutPrefix(url, "grpcs://")
+	if !ok {
+		if rest, ok = strings.CutPrefix(url, "grpc://"); !ok {
+			return "", fmt.Errorf("remote cache %q: want a grpc:// or grpcs:// URL", url)
+		}
+	}
+	rest, _, _ = strings.Cut(rest, "/")
+	if !strings.Contains(rest, ":") {
+		rest += ":443"
+	}
+	return rest, nil
+}
+
+// MB formats downloaded bytes.
+func MB(c netmeter.Counts) string {
+	s := fmt.Sprintf("%.1f MB", float64(c.Total())/1e6)
+	if c.Remote > 0 {
+		s += fmt.Sprintf(" (%.1f MB remote)", float64(c.Remote)/1e6)
+	}
+	return s
 }
 
 // SetupToolbox creates dir/bin holding the static bash and busybox (with a
@@ -479,4 +704,13 @@ func sortedKeys(m map[string]bool) []string {
 func firstLine(s string) string {
 	s, _, _ = strings.Cut(s, "\n")
 	return s
+}
+
+func sanitize(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r >= 'a' && r <= 'z' || r >= '0' && r <= '9' || r == '.' || r == '-' {
+			return r
+		}
+		return '_'
+	}, strings.ToLower(s))
 }

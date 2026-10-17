@@ -90,6 +90,32 @@ libraries) and runs in its own `hashbench-work/scale-N`. The sweep writes
 workspace size. For runs with `-scale` above 0, the oracle is off and a
 representative scenario subset runs, unless you override them.
 
+### Remote repo contents cache
+
+To measure the tools with `--experimental_remote_repo_contents_cache`, run the
+local pass and then the remote pass with its ground truth:
+
+```sh
+/path/to/custom-bazel run //cmd/hashbench -- -custom-bazel=/path/to/custom-bazel \
+    -tools=custom,custom-cquery,bazel-diff,target-determinator
+cp hashbench-work/results.json local.json
+/path/to/custom-bazel run //cmd/hashbench -- -custom-bazel=/path/to/custom-bazel \
+    -tools=custom,custom-cquery,bazel-diff,target-determinator \
+    -repo-cache-mode=remote -reuse-truth=local.json
+```
+
+By default the remote pass uses the bundled cache server (`cmd/remotecache`, a
+minimal Remote Execution API cache in Rust), which the harness starts on
+localhost with its data in the cache dir. To use a real remote cache instead,
+pass `-remote-cache=grpcs://...` and put credentials in an untracked bazelrc
+passed with `-bazelrc` (e.g. `auto.bazelrc`, which is gitignored, containing
+`common --remote_header=x-buildbuddy-api-key=<key>`).
+
+The remote pass reports every tool as `<tool>@remote` next to the local
+results. Before each revision is measured, a separate seeder fetches its
+repositories (the custom Bazel's `--generate_hashes` queries, stock `query` and
+`cquery`), so they are in the remote cache before any tool asks for them.
+
 ### Options
 
 | Flag | Default | Meaning |
@@ -105,6 +131,9 @@ representative scenario subset runs, unless you override them.
 | `-work-dir` | `hashbench-work` | Benchmark checkout, per-tool output bases, logs and results (relative to where you ran `bazel run`). |
 | `-cache-dir` | `~/.cache/hashbench` | Shared repository, repo-contents and disk caches, plus the toolbox. |
 | `-keep-servers` | `false` | Leave the Bazel servers running afterwards. |
+| `-repo-cache-mode` | `local` | `local`, or `remote` to add `--experimental_remote_repo_contents_cache` (tools are reported as `<tool>@remote`). |
+| `-remote-cache` | `local` | Remote cache for `-repo-cache-mode=remote`: `local` (bundled server on localhost) or a `grpc://`/`grpcs://` URL. |
+| `-bazelrc` | | Comma-separated extra bazelrc files (e.g. credentials) imported by every Bazel invocation, by path. |
 
 Every command the harness runs is logged to `hashbench-work/commands.log`.
 
@@ -144,6 +173,10 @@ fixture (`-list` prints them all). They cover:
   changes: one package, a whole snapshot move, and a snapshot move where every
   package is byte-identical.
 - **Module graph:** a `bazel_dep` bump and a comment in `MODULE.bazel`.
+- **Patches:** adding a patch to a module (`single_version_override`), and
+  editing only an existing patch file, for a module (rules_oci) and a
+  toolchain (the Go SDK, via `go_sdk.download(patches = …)`). Each has a
+  variant that changes real inputs and one that only changes a README.
 - **Toolchains:** Go SDK, Rust, Python and hermetic LLVM version changes.
 - **Build configuration:** a `.bazelrc` flag that changes C++ compilation.
 
@@ -196,8 +229,21 @@ time to produce the affected set for the scenario's head revision:
   (it checks the base out in place, since the benchmark checkout is always clean).
 
 Reports show the median of the no-change scenario (repeated `-perf-reps` times)
-and medians per scenario category. Cold-cache performance is deliberately not
-measured.
+and medians per scenario category.
+
+### Downloads
+
+Every tool has its own repository and repo-contents caches, so what it fetches
+is its own. Each tool's Bazel reaches the network only through its own proxy
+in the harness: internet downloads go through `HTTPS_PROXY`, and the remote
+cache through `--remote_proxy=unix:…`. The report shows the bytes each tool
+received:
+
+- **Setup:** the first run on the base revision, from empty caches.
+- **Per scenario:** the head revision, e.g. a toolchain bump downloads the new
+  toolchain.
+
+The oracle uses separate, shared caches and is not measured.
 
 ## The fixture
 

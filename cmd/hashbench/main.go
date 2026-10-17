@@ -68,6 +68,12 @@ func run() error {
 		useOracle   = flag.Bool("oracle", true, "build every target to compute ground truth (default: on for scale 0, off otherwise)")
 		keepServers = flag.Bool("keep-servers", false, "leave Bazel servers running after the run")
 		list        = flag.Bool("list", false, "list scenarios and exit")
+		extraRC     = flag.String("bazelrc", "", "comma-separated extra bazelrc files imported by every Bazel invocation in the benchmark (e.g. remote cache flags and credentials)")
+		cacheMode   = flag.String("repo-cache-mode", "local", "local: tools fetch repositories from the internet into their own caches; remote: also use --experimental_remote_repo_contents_cache with -remote-cache (tools are reported as <tool>@remote)")
+		remoteCache = flag.String("remote-cache", "local", "remote cache for -repo-cache-mode=remote: local (the bundled cache server on localhost, data in -cache-dir) or a grpc:// or grpcs:// URL (credentials go in a -bazelrc file)")
+		rcServer    = flag.String("remote-cache-server", "", "the bundled local remote cache server (set by bazel run)")
+		rereport    = flag.Bool("rereport", false, "regenerate the report from <work-dir>/results.json (adding the repo contents cache support table if missing) and exit")
+		seedOnly    = flag.Bool("seed-only", false, "with -repo-cache-mode=remote: seed the remote repo contents cache with the base revision's repositories and exit")
 		reuseTruth  = flag.String("reuse-truth", "", "results.json of an earlier run: reuse its ground truth (skips per-scenario oracle builds) and merge its tools' scores")
 	)
 	flag.Parse()
@@ -114,6 +120,30 @@ func run() error {
 		a, _ := filepath.Abs(p)
 		return a
 	}
+	if *rereport {
+		dir := userPath(*workDir)
+		b, err := os.ReadFile(filepath.Join(dir, "results.json"))
+		if err != nil {
+			return err
+		}
+		var res bench.Results
+		if err := json.Unmarshal(b, &res); err != nil {
+			return err
+		}
+		if len(res.RepoSupport) == 0 {
+			res.RepoSupport = bench.RepoSupportFor(dir)
+			b, _ := json.MarshalIndent(&res, "", " ")
+			if err := os.WriteFile(filepath.Join(dir, "results.json"), b, 0o644); err != nil {
+				return err
+			}
+		}
+		paths, err := report.Write(dir, &res)
+		if err != nil {
+			return err
+		}
+		fmt.Println("Report:\n  " + strings.Join(paths, "\n  "))
+		return nil
+	}
 	var prior *bench.Results
 	if *reuseTruth != "" {
 		b, err := os.ReadFile(userPath(*reuseTruth))
@@ -138,7 +168,7 @@ func run() error {
 		}
 		return a, nil
 	}
-	tools := map[string]*string{"stock-bazel": stockBazel, "bazel-diff": bazelDiff, "target-determinator": td, "bash": bash, "busybox": busybox}
+	tools := map[string]*string{"stock-bazel": stockBazel, "bazel-diff": bazelDiff, "target-determinator": td, "bash": bash, "busybox": busybox, "remote-cache-server": rcServer}
 	for name, p := range tools {
 		if *p, err = runfile(name, *p); err != nil {
 			return err
@@ -165,6 +195,33 @@ func run() error {
 		return fmt.Errorf("toolbox: %w", err)
 	}
 
+	if *cacheMode != "local" && *cacheMode != "remote" {
+		return fmt.Errorf("-repo-cache-mode must be local or remote, not %q", *cacheMode)
+	}
+	if *seedOnly && *cacheMode != "remote" {
+		return fmt.Errorf("-seed-only needs -repo-cache-mode=remote")
+	}
+	var rcs, rcNames []string
+	for _, f := range splitList(*extraRC) {
+		p := userPath(f)
+		if _, err := os.Stat(p); err != nil {
+			return fmt.Errorf("-bazelrc: %w", err)
+		}
+		rcs = append(rcs, p)
+		rcNames = append(rcNames, filepath.Base(p))
+	}
+
+	remoteURL := *remoteCache
+	if *cacheMode == "remote" && remoteURL == "local" {
+		addr, stopServer, err := bench.StartLocalCache(*rcServer, filepath.Join(cache, "remotecache"))
+		if err != nil {
+			return fmt.Errorf("local remote cache: %w", err)
+		}
+		defer stopServer()
+		remoteURL = "grpc://" + addr
+		fmt.Printf("Local remote cache on %s (data in %s)\n", addr, filepath.Join(cache, "remotecache"))
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	var sweep []*bench.Results
@@ -178,7 +235,8 @@ func run() error {
 			oracleOn = n == 0
 		}
 		cfg := bench.Config{
-			WorkDir: dir, CacheDir: cache, Toolbox: toolbox, Git: git,
+			WorkDir: dir, CacheDir: cache, Toolbox: toolbox, Git: git, ExtraRC: rcs,
+			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, SeedOnly: *seedOnly,
 			CustomBazel: *customBazel, StockBazel: *stockBazel, BazelDiff: *bazelDiff, TD: *td,
 			Tools: toolNames, Scenarios: selected, Scale: n, PerfReps: *perfReps,
 			Oracle: oracleOn || prior != nil, KeepServers: *keepServers, Out: os.Stdout, Prior: prior,
@@ -187,6 +245,9 @@ func run() error {
 				"bazel_diff":          "v60.0.0",
 				"target_determinator": "v0.34.0",
 				"custom_bazel":        filepath.Base(*customBazel),
+				"extra_bazelrc":       strings.Join(rcNames, ","),
+				"repo_cache_mode":     *cacheMode,
+				"remote_cache":        remoteCacheMeta(*cacheMode, *remoteCache),
 				"host":                runtime.GOOS + "/" + runtime.GOARCH,
 				"cpus":                fmt.Sprint(runtime.NumCPU()),
 				"date":                time.Now().Format(time.RFC3339),
@@ -276,4 +337,15 @@ func splitList(s string) []string {
 		}
 	}
 	return out
+}
+
+// remoteCacheMeta names the remote cache in the report without credentials.
+func remoteCacheMeta(mode, remote string) string {
+	if mode != "remote" {
+		return ""
+	}
+	if remote == "local" {
+		return "local (bundled cache on localhost)"
+	}
+	return remote
 }
