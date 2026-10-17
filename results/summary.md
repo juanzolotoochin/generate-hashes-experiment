@@ -4,12 +4,12 @@ Stock Bazel 9.2.0 · bazel-diff v60.0.0 · target-determinator v0.34.0 · scale 
 
 | Tool | Exact | Scenarios with misses | Missed targets | Over-selected targets | Recall | Precision | Warm no-change | Warm per change (median) |
 |---|---|---|---|---|---|---|---|---|
-| custom-cquery | 26/42 | 1 | 1 | 73 | 99.3% | 66.2% | 0.6s | 0.7s |
-| custom | 24/42 | 6 | 50 | 34 | 65.3% | 73.4% | 0.2s | 0.2s |
-| bazel-diff | 23/42 | 4 | 47 | 70 | 67.4% | 58.1% | 0.4s | 0.6s |
-| target-determinator | 26/42 | 0 | 0 | 84 | 100.0% | 63.2% | 9.7s | 11.6s |
+| custom | 25/42 | 1 | 8 | 65 | 94.4% | 67.7% | 5.1s | 6.0s |
+| custom-cquery | 26/42 | 0 | 0 | 84 | 100.0% | 63.2% | 0.7s | 0.9s |
+| bazel-diff | 23/42 | 4 | 47 | 70 | 67.4% | 58.1% | 0.4s | 0.5s |
+| target-determinator | 26/42 | 0 | 0 | 84 | 100.0% | 63.2% | 10.2s | 11.2s |
 
-| Scenario | Category | Truth | custom-cquery | custom | bazel-diff | target-determinator |
+| Scenario | Category | Truth | custom | custom-cquery | bazel-diff | target-determinator |
 |---|---|---|---|---|---|---|
 | control | control | 0 | ✅ | ✅ | ✅ | ✅ |
 | go_src_edit | source | 9 | +2 extra | +2 extra | +2 extra | +2 extra |
@@ -21,8 +21,8 @@ Stock Bazel 9.2.0 · bazel-diff v60.0.0 · target-determinator v0.34.0 · scale 
 | new_globbed_file | source | 6 | ✅ | ✅ | ✅ | ✅ |
 | unreferenced_file | source | 0 | ✅ | ✅ | ✅ | ✅ |
 | docs_edit | source | 0 | ✅ | ✅ | ✅ | ✅ |
-| chmod_runfile | source | 1 | ❌ 1 missed | ❌ 1 missed | ✅ | ✅ |
-| chmod_source | source | 0 | ✅ | ✅ | +11 extra | +11 extra |
+| chmod_runfile | source | 1 | ✅ | ✅ | ✅ | ✅ |
+| chmod_source | source | 0 | +11 extra | +11 extra | +11 extra | +11 extra |
 | rename_source | source | 9 | +2 extra | +2 extra | +2 extra | +2 extra |
 | build_add_dep | BUILD | 0 | +1 extra | +1 extra | +1 extra | +1 extra |
 | build_copts | BUILD | 1 | ✅ | ✅ | ✅ | ✅ |
@@ -39,7 +39,7 @@ Stock Bazel 9.2.0 · bazel-diff v60.0.0 · target-determinator v0.34.0 · scale 
 | go_dep_bump | dependency | 9 | +2 extra | +2 extra | +2 extra | +2 extra |
 | pip_dep_bump | dependency | 3 | ✅ | ✅ | ✅ | ✅ |
 | rust_crate_bump | dependency | 3 | ✅ | ✅ | ✅ | ✅ |
-| multitool_bump | dependency | 2 | ✅ | ❌ 2 missed | ✅ | ✅ |
+| multitool_bump | dependency | 2 | ✅ | ✅ | ✅ | ✅ |
 | oci_digest_bump | dependency | 9 | +3 extra | +3 extra | +3 extra | +3 extra |
 | img_digest_bump | dependency | 1 | ✅ | ✅ | ✅ | ✅ |
 | apko_package_add | dependency | 2 | ✅ | ✅ | ✅ | ✅ |
@@ -48,8 +48,8 @@ Stock Bazel 9.2.0 · bazel-diff v60.0.0 · target-determinator v0.34.0 · scale 
 | distroless_timestamp | dependency | 0 | ✅ | ✅ | +8 extra | ✅ |
 | bzlmod_dep_bump | bzlmod | 0 | ✅ | ✅ | +13 extra | ✅ |
 | module_comment | bzlmod | 0 | ✅ | ✅ | ✅ | ✅ |
-| go_toolchain | toolchain | 16 | +2 extra | ❌ 16 missed | ❌ 16 missed | +2 extra |
-| rust_toolchain | toolchain | 3 | ✅ | ❌ 3 missed | ❌ 3 missed | ✅ |
-| python_toolchain | toolchain | 3 | ✅ | ✅ | ✅ | ✅ |
-| llvm_toolchain | toolchain | 20 | +6 extra | ❌ 20 missed | ❌ 20 missed | +6 extra |
-| bazelrc_copt | config | 8 | +31 extra | ❌ 8 missed | ❌ 8 missed | +31 extra |
+| go_toolchain | toolchain | 16 | +2 extra | +2 extra | ❌ 16 missed | +2 extra |
+| rust_toolchain | toolchain | 3 | ✅ | ✅ | ❌ 3 missed | ✅ |
+| python_toolchain | toolchain | 3 | +4 extra | ✅ | ✅ | ✅ |
+| llvm_toolchain | toolchain | 20 | +14 extra | +6 extra | ❌ 20 missed | +6 extra |
+| bazelrc_copt | config | 8 | ❌ 8 missed | +31 extra | ❌ 8 missed | +31 extra |

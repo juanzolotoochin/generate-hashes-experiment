@@ -6,8 +6,10 @@
   complete. See the README.
 - Correctness results for all 42 scenarios are in `results/`, from a run in
   which every target built (no excluded targets).
-- `custom-cquery` (the custom Bazel's `cquery --generate_hashes`) was added and
-  scored with `-reuse-truth`, merged into `results/`.
+- `custom-cquery` (the custom Bazel's `cquery --generate_hashes`) was added.
+- `results/` is from a full rerun of all four tools on a newer custom Bazel
+  build (oracle rebuilt every scenario, 0 failed targets). With that build,
+  `query` is about 5s slower per run than before.
 - The experimental hermetic sandbox
   (`--experimental_use_hermetic_linux_sandbox`) was removed. It hid the host's
   glibc, which prebuilt toolchains (the official `rustc`, the Python

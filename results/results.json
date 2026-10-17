@@ -3,14 +3,14 @@
   "bazel_diff": "v60.0.0",
   "cpus": "16",
   "custom_bazel": "bazel-hashes-9-2",
-  "date": "2026-10-17T13:10:33+02:00",
+  "date": "2026-10-17T17:31:27+02:00",
   "host": "linux/amd64",
   "stock_bazel": "9.2.0",
   "target_determinator": "v0.34.0"
  },
  "tools": [
-  "custom-cquery",
   "custom",
+  "custom-cquery",
   "bazel-diff",
   "target-determinator"
  ],
@@ -26,14 +26,14 @@
    "ops": null,
    "diffstat": "",
    "universe": 39,
-   "oracle_seconds": 33.290185789,
+   "oracle_seconds": 25.942417477,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.628016402
+      "seconds": 5.118220035
      },
      "true_positives": 0,
      "missed": 0,
@@ -41,10 +41,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.102527988
+      "seconds": 0.680327932
      },
      "true_positives": 0,
      "missed": 0,
@@ -55,10 +55,10 @@
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 0.323366849,
+      "seconds": 0.318180324,
       "phase_seconds": {
-       "generate-hashes": 0.288878881,
-       "get-impacted-targets": 0.034487968
+       "generate-hashes": 0.281641676,
+       "get-impacted-targets": 0.036538648
       }
      },
      "true_positives": 0,
@@ -70,7 +70,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 9.720437889
+      "seconds": 10.162344339
      },
      "true_positives": 0,
      "missed": 0,
@@ -100,36 +100,9 @@
     "//oci:image_index_json_cp"
    ],
    "universe": 39,
-   "oracle_seconds": 32.273266156,
+   "oracle_seconds": 24.63287645,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//go/cmd/greeter:greeter",
-       "//go/greet:greet",
-       "//go/greet:greet_test",
-       "//img:greeter_layer",
-       "//img:image",
-       "//oci:greeter_layer",
-       "//oci:greeter_layer_mtree",
-       "//oci:image",
-       "//oci:image.digest",
-       "//oci:image_index_json",
-       "//oci:image_index_json_cp"
-      ],
-      "seconds": 0.655587672
-     },
-     "true_positives": 9,
-     "missed": 0,
-     "over_selected": 2,
-     "over_selected_targets": [
-      "//oci:greeter_layer_mtree",
-      "//oci:image_index_json"
-     ],
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -146,7 +119,34 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.121770736
+      "seconds": 8.286387318
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.961467759
      },
      "true_positives": 9,
      "missed": 0,
@@ -177,10 +177,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.370368382,
+      "seconds": 0.417057623,
       "phase_seconds": {
-       "generate-hashes": 0.333877894,
-       "get-impacted-targets": 0.036490488
+       "generate-hashes": 0.382197338,
+       "get-impacted-targets": 0.034860285
       }
      },
      "true_positives": 9,
@@ -208,7 +208,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 10.614775355
+      "seconds": 10.939544169
      },
      "true_positives": 9,
      "missed": 0,
@@ -242,36 +242,9 @@
     "//oci:image_index_json_cp"
    ],
    "universe": 39,
-   "oracle_seconds": 31.175835633,
+   "oracle_seconds": 25.040927315,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//go/cmd/greeter:greeter",
-       "//go/greet:greet",
-       "//go/greet:greet_test",
-       "//img:greeter_layer",
-       "//img:image",
-       "//oci:greeter_layer",
-       "//oci:greeter_layer_mtree",
-       "//oci:image",
-       "//oci:image.digest",
-       "//oci:image_index_json",
-       "//oci:image_index_json_cp"
-      ],
-      "seconds": 0.642379776
-     },
-     "true_positives": 9,
-     "missed": 0,
-     "over_selected": 2,
-     "over_selected_targets": [
-      "//oci:greeter_layer_mtree",
-      "//oci:image_index_json"
-     ],
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -288,7 +261,34 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.089901565
+      "seconds": 5.545041624
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.794294501
      },
      "true_positives": 9,
      "missed": 0,
@@ -319,10 +319,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.349455238,
+      "seconds": 0.444243333,
       "phase_seconds": {
-       "generate-hashes": 0.312818638,
-       "get-impacted-targets": 0.0366366
+       "generate-hashes": 0.399415017,
+       "get-impacted-targets": 0.044828316
       }
      },
      "true_positives": 9,
@@ -350,7 +350,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 10.302263485
+      "seconds": 11.414937241
      },
      "true_positives": 9,
      "missed": 0,
@@ -383,24 +383,9 @@
     "//py/lib:lib"
    ],
    "universe": 39,
-   "oracle_seconds": 41.403007511,
+   "oracle_seconds": 23.867595221,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//py/app:app",
-       "//py/lib:greet_test",
-       "//py/lib:lib"
-      ],
-      "seconds": 0.559540104
-     },
-     "true_positives": 3,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -409,7 +394,22 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 0.086913868
+      "seconds": 5.758393572
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 0.729975561
      },
      "true_positives": 3,
      "missed": 0,
@@ -425,10 +425,10 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 0.34468274,
+      "seconds": 0.474709677,
       "phase_seconds": {
-       "generate-hashes": 0.310019323,
-       "get-impacted-targets": 0.034663417
+       "generate-hashes": 0.416428839,
+       "get-impacted-targets": 0.058280838
       }
      },
      "true_positives": 3,
@@ -444,7 +444,7 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 9.924826993
+      "seconds": 9.990842771
      },
      "true_positives": 3,
      "missed": 0,
@@ -468,24 +468,9 @@
     "//cc/lib:hello_test"
    ],
    "universe": 39,
-   "oracle_seconds": 33.480541074,
+   "oracle_seconds": 23.426461635,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//cc/app:app",
-       "//cc/lib:hello",
-       "//cc/lib:hello_test"
-      ],
-      "seconds": 0.610107957
-     },
-     "true_positives": 3,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -494,7 +479,22 @@
        "//cc/lib:hello",
        "//cc/lib:hello_test"
       ],
-      "seconds": 0.386835523
+      "seconds": 5.254556165
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test"
+      ],
+      "seconds": 0.714241707
      },
      "true_positives": 3,
      "missed": 0,
@@ -514,10 +514,10 @@
        "//cc/lib:hello_test.dwp",
        "//cc/lib:hello_test.stripped"
       ],
-      "seconds": 1.5848281910000002,
+      "seconds": 0.496009661,
       "phase_seconds": {
-       "generate-hashes": 1.398567447,
-       "get-impacted-targets": 0.186260744
+       "generate-hashes": 0.453767273,
+       "get-impacted-targets": 0.042242388
       }
      },
      "true_positives": 3,
@@ -533,7 +533,7 @@
        "//cc/lib:hello",
        "//cc/lib:hello_test"
       ],
-      "seconds": 13.504875541
+      "seconds": 10.842022458
      },
      "true_positives": 3,
      "missed": 0,
@@ -561,24 +561,9 @@
     "//rust/lib:lib"
    ],
    "universe": 39,
-   "oracle_seconds": 43.07819793,
+   "oracle_seconds": 23.449360177,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//rust/app:app",
-       "//rust/lib:lib",
-       "//rust/lib:lib_test"
-      ],
-      "seconds": 0.614011686
-     },
-     "true_positives": 3,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -587,7 +572,22 @@
        "//rust/lib:lib",
        "//rust/lib:lib_test"
       ],
-      "seconds": 0.196088082
+      "seconds": 5.920708232
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 0.782656731
      },
      "true_positives": 3,
      "missed": 0,
@@ -603,10 +603,10 @@
        "//rust/lib:lib.rs",
        "//rust/lib:lib_test"
       ],
-      "seconds": 0.611179598,
+      "seconds": 0.438041408,
       "phase_seconds": {
-       "generate-hashes": 0.560643753,
-       "get-impacted-targets": 0.050535845
+       "generate-hashes": 0.404858956,
+       "get-impacted-targets": 0.033182452
       }
      },
      "true_positives": 3,
@@ -622,7 +622,7 @@
        "//rust/lib:lib",
        "//rust/lib:lib_test"
       ],
-      "seconds": 11.589646474
+      "seconds": 10.81758746
      },
      "true_positives": 3,
      "missed": 0,
@@ -657,28 +657,9 @@
     "//tools:shout"
    ],
    "universe": 39,
-   "oracle_seconds": 35.039945443,
+   "oracle_seconds": 24.123074096,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//data:json",
-       "//tools:check_test",
-       "//tools:notes",
-       "//tools:pair_a",
-       "//tools:pair_b",
-       "//tools:shout",
-       "//tools:summary"
-      ],
-      "seconds": 0.602629124
-     },
-     "true_positives": 7,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -691,7 +672,26 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 1.260843079
+      "seconds": 5.491778812
+     },
+     "true_positives": 7,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 0.758259757
      },
      "true_positives": 7,
      "missed": 0,
@@ -711,10 +711,10 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 5.168748476,
+      "seconds": 0.457751452,
       "phase_seconds": {
-       "generate-hashes": 4.598770247,
-       "get-impacted-targets": 0.569978229
+       "generate-hashes": 0.417169723,
+       "get-impacted-targets": 0.040581729
       }
      },
      "true_positives": 7,
@@ -734,7 +734,7 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 33.956391299
+      "seconds": 10.729336936
      },
      "true_positives": 7,
      "missed": 0,
@@ -769,27 +769,9 @@
     "//tools:summary"
    ],
    "universe": 39,
-   "oracle_seconds": 25.203607888,
+   "oracle_seconds": 23.561282022,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//data:json",
-       "//tools:check_test",
-       "//tools:notes",
-       "//tools:pair_a",
-       "//tools:pair_b",
-       "//tools:summary"
-      ],
-      "seconds": 0.749706508
-     },
-     "true_positives": 6,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -801,7 +783,25 @@
        "//tools:pair_b",
        "//tools:summary"
       ],
-      "seconds": 0.18423034
+      "seconds": 6.227794879
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:summary"
+      ],
+      "seconds": 0.991325406
      },
      "true_positives": 6,
      "missed": 0,
@@ -820,10 +820,10 @@
        "//tools:pair_b",
        "//tools:summary"
       ],
-      "seconds": 0.461483767,
+      "seconds": 0.460850011,
       "phase_seconds": {
-       "generate-hashes": 0.425687449,
-       "get-impacted-targets": 0.035796318
+       "generate-hashes": 0.423104756,
+       "get-impacted-targets": 0.037745255
       }
      },
      "true_positives": 6,
@@ -842,7 +842,7 @@
        "//tools:pair_b",
        "//tools:summary"
       ],
-      "seconds": 11.108343282
+      "seconds": 10.696598964
      },
      "true_positives": 6,
      "missed": 0,
@@ -861,14 +861,14 @@
    ],
    "diffstat": "go/greet/NOTES.txt | 1 +\n 1 file changed, 1 insertion(+)\n create mode 100644 go/greet/NOTES.txt",
    "universe": 39,
-   "oracle_seconds": 24.428309989,
+   "oracle_seconds": 23.498565498,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.647921656
+      "seconds": 5.731400107
      },
      "true_positives": 0,
      "missed": 0,
@@ -876,10 +876,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.086271461
+      "seconds": 0.807080957
      },
      "true_positives": 0,
      "missed": 0,
@@ -890,10 +890,10 @@
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 0.400951375,
+      "seconds": 0.434998548,
       "phase_seconds": {
-       "generate-hashes": 0.34617735,
-       "get-impacted-targets": 0.054774025
+       "generate-hashes": 0.39267844,
+       "get-impacted-targets": 0.042320108
       }
      },
      "true_positives": 0,
@@ -905,7 +905,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 10.659629923
+      "seconds": 10.207388371
      },
      "true_positives": 0,
      "missed": 0,
@@ -924,14 +924,14 @@
    ],
    "diffstat": "docs/README.md | 2 ++\n 1 file changed, 2 insertions(+)",
    "universe": 39,
-   "oracle_seconds": 24.842912401,
+   "oracle_seconds": 23.515550173,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.630320991
+      "seconds": 5.822565463
      },
      "true_positives": 0,
      "missed": 0,
@@ -939,10 +939,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.107101285
+      "seconds": 0.719531461
      },
      "true_positives": 0,
      "missed": 0,
@@ -953,10 +953,10 @@
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 0.294615003,
+      "seconds": 0.585760847,
       "phase_seconds": {
-       "generate-hashes": 0.265103358,
-       "get-impacted-targets": 0.029511645
+       "generate-hashes": 0.543993846,
+       "get-impacted-targets": 0.041767001
       }
      },
      "true_positives": 0,
@@ -968,7 +968,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 10.703358855
+      "seconds": 10.611760833
      },
      "true_positives": 0,
      "missed": 0,
@@ -993,35 +993,33 @@
     "//tools:check_test"
    ],
    "universe": 39,
-   "oracle_seconds": 26.168540977,
+   "oracle_seconds": 23.168565399,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
-      "affected": null,
-      "seconds": 0.64828936
+      "affected": [
+       "//tools:check_test"
+      ],
+      "seconds": 5.237390416
      },
-     "true_positives": 0,
-     "missed": 1,
+     "true_positives": 1,
+     "missed": 0,
      "over_selected": 0,
-     "missed_targets": [
-      "//tools:check_test"
-     ],
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
-      "affected": null,
-      "seconds": 0.131884894
+      "affected": [
+       "//tools:check_test"
+      ],
+      "seconds": 0.741205319
      },
-     "true_positives": 0,
-     "missed": 1,
+     "true_positives": 1,
+     "missed": 0,
      "over_selected": 0,
-     "missed_targets": [
-      "//tools:check_test"
-     ],
      "out_of_universe": 0
     },
     {
@@ -1031,10 +1029,10 @@
        "//tools:check_test",
        "//tools:fixture.txt"
       ],
-      "seconds": 0.364655774,
+      "seconds": 0.441639841,
       "phase_seconds": {
-       "generate-hashes": 0.331521487,
-       "get-impacted-targets": 0.033134287
+       "generate-hashes": 0.407343513,
+       "get-impacted-targets": 0.034296328
       }
      },
      "true_positives": 1,
@@ -1048,7 +1046,7 @@
       "affected": [
        "//tools:check_test"
       ],
-      "seconds": 10.81901294
+      "seconds": 11.255170487000001
      },
      "true_positives": 1,
      "missed": 0,
@@ -1067,29 +1065,79 @@
    ],
    "diffstat": "go/greet/greet.go | 0\n 1 file changed, 0 insertions(+), 0 deletions(-)\n mode change 100644 =\u003e 100755 go/greet/greet.go",
    "universe": 39,
-   "oracle_seconds": 25.111427713,
+   "oracle_seconds": 23.4179562,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
-      "affected": null,
-      "seconds": 0.614910125
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 5.5741311719999995
      },
      "true_positives": 0,
      "missed": 0,
-     "over_selected": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
-      "affected": null,
-      "seconds": 0.106224419
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.723658656
      },
      "true_positives": 0,
      "missed": 0,
-     "over_selected": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
      "out_of_universe": 0
     },
     {
@@ -1112,10 +1160,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.41133842,
+      "seconds": 0.438632771,
       "phase_seconds": {
-       "generate-hashes": 0.359671848,
-       "get-impacted-targets": 0.051666572
+       "generate-hashes": 0.394614684,
+       "get-impacted-targets": 0.044018087
       }
      },
      "true_positives": 0,
@@ -1152,7 +1200,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 10.409603996
+      "seconds": 10.441671731
      },
      "true_positives": 0,
      "missed": 0,
@@ -1207,36 +1255,9 @@
     "//oci:image_index_json_cp"
    ],
    "universe": 39,
-   "oracle_seconds": 25.216608586,
+   "oracle_seconds": 23.48629998,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//go/cmd/greeter:greeter",
-       "//go/greet:greet",
-       "//go/greet:greet_test",
-       "//img:greeter_layer",
-       "//img:image",
-       "//oci:greeter_layer",
-       "//oci:greeter_layer_mtree",
-       "//oci:image",
-       "//oci:image.digest",
-       "//oci:image_index_json",
-       "//oci:image_index_json_cp"
-      ],
-      "seconds": 0.732595719
-     },
-     "true_positives": 9,
-     "missed": 0,
-     "over_selected": 2,
-     "over_selected_targets": [
-      "//oci:greeter_layer_mtree",
-      "//oci:image_index_json"
-     ],
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -1253,7 +1274,34 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.129414841
+      "seconds": 5.868875943
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 1.010442773
      },
      "true_positives": 9,
      "missed": 0,
@@ -1285,10 +1333,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.334061166,
+      "seconds": 0.468586428,
       "phase_seconds": {
-       "generate-hashes": 0.296673046,
-       "get-impacted-targets": 0.03738812
+       "generate-hashes": 0.428818307,
+       "get-impacted-targets": 0.039768121
       }
      },
      "true_positives": 9,
@@ -1316,7 +1364,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 10.815109389
+      "seconds": 11.121264413
      },
      "true_positives": 9,
      "missed": 0,
@@ -1339,16 +1387,16 @@
    ],
    "diffstat": "py/app/BUILD.bazel | 5 ++++-\n 1 file changed, 4 insertions(+), 1 deletion(-)",
    "universe": 39,
-   "oracle_seconds": 24.732156335,
+   "oracle_seconds": 24.372397049,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//py/app:app"
       ],
-      "seconds": 0.747176857
+      "seconds": 5.210830679
      },
      "true_positives": 0,
      "missed": 0,
@@ -1359,12 +1407,12 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//py/app:app"
       ],
-      "seconds": 0.16622768
+      "seconds": 0.843188996
      },
      "true_positives": 0,
      "missed": 0,
@@ -1381,10 +1429,10 @@
        "//py/app:BUILD.bazel",
        "//py/app:app"
       ],
-      "seconds": 0.355811428,
+      "seconds": 0.42250687,
       "phase_seconds": {
-       "generate-hashes": 0.324409664,
-       "get-impacted-targets": 0.031401764
+       "generate-hashes": 0.38967654,
+       "get-impacted-targets": 0.03283033
       }
      },
      "true_positives": 0,
@@ -1401,7 +1449,7 @@
       "affected": [
        "//py/app:app"
       ],
-      "seconds": 9.941186221
+      "seconds": 11.247212413
      },
      "true_positives": 0,
      "missed": 0,
@@ -1429,16 +1477,16 @@
     "//cc/app:app"
    ],
    "universe": 39,
-   "oracle_seconds": 25.598659242,
+   "oracle_seconds": 23.814493593999998,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//cc/app:app"
       ],
-      "seconds": 0.749850973
+      "seconds": 5.817613265
      },
      "true_positives": 1,
      "missed": 0,
@@ -1446,12 +1494,12 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//cc/app:app"
       ],
-      "seconds": 0.09618343
+      "seconds": 0.85035869
      },
      "true_positives": 1,
      "missed": 0,
@@ -1467,10 +1515,10 @@
        "//cc/app:app.dwp",
        "//cc/app:app.stripped"
       ],
-      "seconds": 0.319270252,
+      "seconds": 0.395977008,
       "phase_seconds": {
-       "generate-hashes": 0.286447616,
-       "get-impacted-targets": 0.032822636
+       "generate-hashes": 0.353954609,
+       "get-impacted-targets": 0.042022399
       }
      },
      "true_positives": 1,
@@ -1484,7 +1532,7 @@
       "affected": [
        "//cc/app:app"
       ],
-      "seconds": 9.909020517
+      "seconds": 10.705114928
      },
      "true_positives": 1,
      "missed": 0,
@@ -1509,16 +1557,16 @@
     "//go/greet:greet_test"
    ],
    "universe": 39,
-   "oracle_seconds": 27.344561052,
+   "oracle_seconds": 24.256505284,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//go/greet:greet_test"
       ],
-      "seconds": 0.709168914
+      "seconds": 6.053602502
      },
      "true_positives": 1,
      "missed": 0,
@@ -1526,12 +1574,12 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//go/greet:greet_test"
       ],
-      "seconds": 0.119948649
+      "seconds": 0.839383343
      },
      "true_positives": 1,
      "missed": 0,
@@ -1545,10 +1593,10 @@
        "//go/greet:BUILD.bazel",
        "//go/greet:greet_test"
       ],
-      "seconds": 0.319835145,
+      "seconds": 0.447653232,
       "phase_seconds": {
-       "generate-hashes": 0.284315146,
-       "get-impacted-targets": 0.035519999
+       "generate-hashes": 0.411726442,
+       "get-impacted-targets": 0.03592679
       }
      },
      "true_positives": 1,
@@ -1562,7 +1610,7 @@
       "affected": [
        "//go/greet:greet_test"
       ],
-      "seconds": 9.874534762
+      "seconds": 11.269154351
      },
      "true_positives": 1,
      "missed": 0,
@@ -1584,14 +1632,14 @@
     "//go/greet:greet_test"
    ],
    "universe": 38,
-   "oracle_seconds": 24.967479554,
+   "oracle_seconds": 23.938868254,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.758639337
+      "seconds": 5.583123262
      },
      "true_positives": 0,
      "missed": 0,
@@ -1599,10 +1647,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.100979017
+      "seconds": 0.864846065
      },
      "true_positives": 0,
      "missed": 0,
@@ -1615,10 +1663,10 @@
       "affected": [
        "//go/greet:BUILD.bazel"
       ],
-      "seconds": 0.299508036,
+      "seconds": 0.390144784,
       "phase_seconds": {
-       "generate-hashes": 0.26672357,
-       "get-impacted-targets": 0.032784466
+       "generate-hashes": 0.351341287,
+       "get-impacted-targets": 0.038803497
       }
      },
      "true_positives": 0,
@@ -1630,7 +1678,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 9.868725865
+      "seconds": 11.255092378
      },
      "true_positives": 0,
      "missed": 0,
@@ -1649,14 +1697,14 @@
    ],
    "diffstat": "go/greet/BUILD.bazel | 5 ++++-\n 1 file changed, 4 insertions(+), 1 deletion(-)",
    "universe": 39,
-   "oracle_seconds": 24.512820632,
+   "oracle_seconds": 23.802075510999998,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.735291426
+      "seconds": 5.543596979
      },
      "true_positives": 0,
      "missed": 0,
@@ -1664,10 +1712,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.079109035
+      "seconds": 0.790408085
      },
      "true_positives": 0,
      "missed": 0,
@@ -1680,10 +1728,10 @@
       "affected": [
        "//go/greet:BUILD.bazel"
       ],
-      "seconds": 0.288978522,
+      "seconds": 0.893353816,
       "phase_seconds": {
-       "generate-hashes": 0.259735398,
-       "get-impacted-targets": 0.029243124
+       "generate-hashes": 0.849254513,
+       "get-impacted-targets": 0.044099303
       }
      },
      "true_positives": 0,
@@ -1695,7 +1743,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 9.895546314
+      "seconds": 10.629634859
      },
      "true_positives": 0,
      "missed": 0,
@@ -1714,14 +1762,14 @@
    ],
    "diffstat": "go/greet/BUILD.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
    "universe": 39,
-   "oracle_seconds": 25.307915182,
+   "oracle_seconds": 23.478145491,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.754429329
+      "seconds": 6.270414443
      },
      "true_positives": 0,
      "missed": 0,
@@ -1729,10 +1777,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.080609629
+      "seconds": 0.854045403
      },
      "true_positives": 0,
      "missed": 0,
@@ -1745,10 +1793,10 @@
       "affected": [
        "//go/greet:BUILD.bazel"
       ],
-      "seconds": 0.311632083,
+      "seconds": 0.393725475,
       "phase_seconds": {
-       "generate-hashes": 0.277623342,
-       "get-impacted-targets": 0.034008741
+       "generate-hashes": 0.353285482,
+       "get-impacted-targets": 0.040439993
       }
      },
      "true_positives": 0,
@@ -1760,7 +1808,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 10.202237231
+      "seconds": 10.644751162
      },
      "true_positives": 0,
      "missed": 0,
@@ -1779,14 +1827,14 @@
    ],
    "diffstat": "go/greet/BUILD.bazel | 1 +\n 1 file changed, 1 insertion(+)",
    "universe": 39,
-   "oracle_seconds": 29.012912923,
+   "oracle_seconds": 23.737622164,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.736579369
+      "seconds": 5.853013378
      },
      "true_positives": 0,
      "missed": 0,
@@ -1794,10 +1842,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.160141328
+      "seconds": 0.793172194
      },
      "true_positives": 0,
      "missed": 0,
@@ -1810,10 +1858,10 @@
       "affected": [
        "//go/greet:BUILD.bazel"
       ],
-      "seconds": 0.295124993,
+      "seconds": 0.437968312,
       "phase_seconds": {
-       "generate-hashes": 0.260057721,
-       "get-impacted-targets": 0.035067272
+       "generate-hashes": 0.403627011,
+       "get-impacted-targets": 0.034341301
       }
      },
      "true_positives": 0,
@@ -1825,7 +1873,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 10.015590253
+      "seconds": 10.504563029
      },
      "true_positives": 0,
      "missed": 0,
@@ -1844,11 +1892,11 @@
    ],
    "diffstat": "go/greet/BUILD.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
    "universe": 39,
-   "oracle_seconds": 44.655987881,
+   "oracle_seconds": 23.63097682,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//go/cmd/greeter:greeter",
@@ -1863,7 +1911,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.749173087
+      "seconds": 5.427826985
      },
      "true_positives": 0,
      "missed": 0,
@@ -1884,7 +1932,7 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//go/cmd/greeter:greeter",
@@ -1899,7 +1947,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.151399666
+      "seconds": 0.832045569
      },
      "true_positives": 0,
      "missed": 0,
@@ -1939,10 +1987,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.348490096,
+      "seconds": 0.447197666,
       "phase_seconds": {
-       "generate-hashes": 0.307130138,
-       "get-impacted-targets": 0.041359958
+       "generate-hashes": 0.404726856,
+       "get-impacted-targets": 0.04247081
       }
      },
      "true_positives": 0,
@@ -1979,7 +2027,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 11.097938324
+      "seconds": 11.190029498
      },
      "true_positives": 0,
      "missed": 0,
@@ -2021,24 +2069,9 @@
     "//tools:pair_b"
    ],
    "universe": 39,
-   "oracle_seconds": 37.699491953,
+   "oracle_seconds": 23.633487054,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//tools:notes",
-       "//tools:pair_a",
-       "//tools:pair_b"
-      ],
-      "seconds": 0.706212316
-     },
-     "true_positives": 3,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -2047,7 +2080,22 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 1.527801018
+      "seconds": 5.990823512
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.805507873
      },
      "true_positives": 3,
      "missed": 0,
@@ -2062,10 +2110,10 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 5.017820697,
+      "seconds": 0.439201238,
       "phase_seconds": {
-       "generate-hashes": 4.542129174,
-       "get-impacted-targets": 0.475691523
+       "generate-hashes": 0.396215821,
+       "get-impacted-targets": 0.042985417
       }
      },
      "true_positives": 3,
@@ -2081,7 +2129,7 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 34.270304304
+      "seconds": 10.921210244
      },
      "true_positives": 3,
      "missed": 0,
@@ -2106,18 +2154,18 @@
     "//tools:pair_b"
    ],
    "universe": 39,
-   "oracle_seconds": 35.22931716,
+   "oracle_seconds": 23.546060204,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//tools:notes",
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 0.667074818
+      "seconds": 5.677433923
      },
      "true_positives": 1,
      "missed": 0,
@@ -2129,14 +2177,14 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//tools:notes",
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 0.686410513
+      "seconds": 0.855334946
      },
      "true_positives": 1,
      "missed": 0,
@@ -2155,10 +2203,10 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 1.740772481,
+      "seconds": 0.531124875,
       "phase_seconds": {
-       "generate-hashes": 1.644188864,
-       "get-impacted-targets": 0.096583617
+       "generate-hashes": 0.500408637,
+       "get-impacted-targets": 0.030716238
       }
      },
      "true_positives": 1,
@@ -2178,7 +2226,7 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 12.495814258
+      "seconds": 10.683605292
      },
      "true_positives": 1,
      "missed": 0,
@@ -2201,18 +2249,18 @@
    ],
    "diffstat": "tools/defs.bzl | 1 +\n 1 file changed, 1 insertion(+)",
    "universe": 39,
-   "oracle_seconds": 42.600423521,
+   "oracle_seconds": 23.823351625,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//tools:notes",
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 0.685513062
+      "seconds": 5.91827522
      },
      "true_positives": 0,
      "missed": 0,
@@ -2225,14 +2273,14 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//tools:notes",
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 0.582305872
+      "seconds": 0.847420822
      },
      "true_positives": 0,
      "missed": 0,
@@ -2252,10 +2300,10 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 2.9259110980000003,
+      "seconds": 0.498013455,
       "phase_seconds": {
-       "generate-hashes": 2.506775524,
-       "get-impacted-targets": 0.419135574
+       "generate-hashes": 0.453616839,
+       "get-impacted-targets": 0.044396616
       }
      },
      "true_positives": 0,
@@ -2276,7 +2324,7 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 29.783939306
+      "seconds": 10.988143156
      },
      "true_positives": 0,
      "missed": 0,
@@ -2300,18 +2348,18 @@
    ],
    "diffstat": "tools/defs.bzl | 3 +++\n 1 file changed, 3 insertions(+)",
    "universe": 39,
-   "oracle_seconds": 44.988335111,
+   "oracle_seconds": 23.907816269,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//tools:notes",
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 0.762430138
+      "seconds": 5.426772286
      },
      "true_positives": 0,
      "missed": 0,
@@ -2324,14 +2372,14 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//tools:notes",
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 0.858877266
+      "seconds": 0.820448076
      },
      "true_positives": 0,
      "missed": 0,
@@ -2351,10 +2399,10 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 3.138196054,
+      "seconds": 0.427431873,
       "phase_seconds": {
-       "generate-hashes": 2.839670115,
-       "get-impacted-targets": 0.298525938
+       "generate-hashes": 0.390192495,
+       "get-impacted-targets": 0.037239378
       }
      },
      "true_positives": 0,
@@ -2375,7 +2423,7 @@
        "//tools:pair_a",
        "//tools:pair_b"
       ],
-      "seconds": 31.674624242
+      "seconds": 11.426251641
      },
      "true_positives": 0,
      "missed": 0,
@@ -2421,36 +2469,9 @@
     "//oci:image_index_json_cp"
    ],
    "universe": 39,
-   "oracle_seconds": 24.927242966,
+   "oracle_seconds": 23.935616852,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//go/cmd/greeter:greeter",
-       "//go/greet:greet",
-       "//go/greet:greet_test",
-       "//img:greeter_layer",
-       "//img:image",
-       "//oci:greeter_layer",
-       "//oci:greeter_layer_mtree",
-       "//oci:image",
-       "//oci:image.digest",
-       "//oci:image_index_json",
-       "//oci:image_index_json_cp"
-      ],
-      "seconds": 0.91941622
-     },
-     "true_positives": 9,
-     "missed": 0,
-     "over_selected": 2,
-     "over_selected_targets": [
-      "//oci:greeter_layer_mtree",
-      "//oci:image_index_json"
-     ],
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -2467,7 +2488,34 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 1.113305273
+      "seconds": 6.431836043
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 1.403452715
      },
      "true_positives": 9,
      "missed": 0,
@@ -2498,10 +2546,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 0.947834024,
+      "seconds": 0.530021012,
       "phase_seconds": {
-       "generate-hashes": 0.894082648,
-       "get-impacted-targets": 0.053751376
+       "generate-hashes": 0.498175754,
+       "get-impacted-targets": 0.031845258
       }
      },
      "true_positives": 9,
@@ -2529,7 +2577,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 12.307496327
+      "seconds": 11.610604337
      },
      "true_positives": 9,
      "missed": 0,
@@ -2562,24 +2610,9 @@
     "//py/lib:lib"
    ],
    "universe": 39,
-   "oracle_seconds": 25.034419451,
+   "oracle_seconds": 24.141187279,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//py/app:app",
-       "//py/lib:greet_test",
-       "//py/lib:lib"
-      ],
-      "seconds": 5.731693384
-     },
-     "true_positives": 3,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -2588,7 +2621,22 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 4.949382109
+      "seconds": 9.651579145
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 4.72635528
      },
      "true_positives": 3,
      "missed": 0,
@@ -2604,10 +2652,10 @@
        "//py/lib:lib",
        "//py:requirements_lock.txt"
       ],
-      "seconds": 5.889202974,
+      "seconds": 5.757119691,
       "phase_seconds": {
-       "generate-hashes": 5.859302563,
-       "get-impacted-targets": 0.029900411
+       "generate-hashes": 5.707455092,
+       "get-impacted-targets": 0.049664599
       }
      },
      "true_positives": 3,
@@ -2623,7 +2671,7 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 18.546588002
+      "seconds": 20.464518585
      },
      "true_positives": 3,
      "missed": 0,
@@ -2652,24 +2700,9 @@
     "//rust/lib:lib_test"
    ],
    "universe": 39,
-   "oracle_seconds": 25.964117994,
+   "oracle_seconds": 23.347500439,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//rust/app:app",
-       "//rust/lib:lib",
-       "//rust/lib:lib_test"
-      ],
-      "seconds": 4.783628532
-     },
-     "true_positives": 3,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -2678,7 +2711,22 @@
        "//rust/lib:lib",
        "//rust/lib:lib_test"
       ],
-      "seconds": 4.932654419
+      "seconds": 11.499239615
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 5.294821209
      },
      "true_positives": 3,
      "missed": 0,
@@ -2694,10 +2742,10 @@
        "//rust/lib:lib",
        "//rust/lib:lib_test"
       ],
-      "seconds": 6.315366881,
+      "seconds": 5.9689717909999995,
       "phase_seconds": {
-       "generate-hashes": 6.281617811,
-       "get-impacted-targets": 0.03374907
+       "generate-hashes": 5.942329212,
+       "get-impacted-targets": 0.026642579
       }
      },
      "true_positives": 3,
@@ -2713,7 +2761,7 @@
        "//rust/lib:lib",
        "//rust/lib:lib_test"
       ],
-      "seconds": 18.992656907
+      "seconds": 16.723492458
      },
      "true_positives": 3,
      "missed": 0,
@@ -2736,17 +2784,17 @@
     "//tools:summary"
    ],
    "universe": 39,
-   "oracle_seconds": 26.021799864,
+   "oracle_seconds": 23.389545621,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//tools:check_test",
        "//tools:summary"
       ],
-      "seconds": 4.655353788
+      "seconds": 8.346009159
      },
      "true_positives": 2,
      "missed": 0,
@@ -2754,18 +2802,17 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
-      "affected": null,
-      "seconds": 2.245372841
+      "affected": [
+       "//tools:check_test",
+       "//tools:summary"
+      ],
+      "seconds": 2.9132762679999997
      },
-     "true_positives": 0,
-     "missed": 2,
+     "true_positives": 2,
+     "missed": 0,
      "over_selected": 0,
-     "missed_targets": [
-      "//tools:check_test",
-      "//tools:summary"
-     ],
      "out_of_universe": 0
     },
     {
@@ -2776,10 +2823,10 @@
        "//tools:multitool.lock.json",
        "//tools:summary"
       ],
-      "seconds": 2.368772819,
+      "seconds": 2.047445172,
       "phase_seconds": {
-       "generate-hashes": 2.341947337,
-       "get-impacted-targets": 0.026825482
+       "generate-hashes": 2.020744501,
+       "get-impacted-targets": 0.026700671
       }
      },
      "true_positives": 2,
@@ -2794,7 +2841,7 @@
        "//tools:check_test",
        "//tools:summary"
       ],
-      "seconds": 13.24305993
+      "seconds": 12.797978841
      },
      "true_positives": 2,
      "missed": 0,
@@ -2835,38 +2882,9 @@
     "//oci:image_index_json_cp"
    ],
    "universe": 39,
-   "oracle_seconds": 26.993807677,
+   "oracle_seconds": 24.057387183,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//distroless:cacerts_image",
-       "//distroless:cacerts_image.digest",
-       "//distroless:cacerts_image_index_json",
-       "//distroless:cacerts_image_index_json_cp",
-       "//distroless:tzdata_image",
-       "//distroless:tzdata_image.digest",
-       "//distroless:tzdata_image_index_json",
-       "//distroless:tzdata_image_index_json_cp",
-       "//oci:image",
-       "//oci:image.digest",
-       "//oci:image_index_json",
-       "//oci:image_index_json_cp"
-      ],
-      "seconds": 13.470242622
-     },
-     "true_positives": 9,
-     "missed": 0,
-     "over_selected": 3,
-     "over_selected_targets": [
-      "//distroless:cacerts_image_index_json",
-      "//distroless:tzdata_image_index_json",
-      "//oci:image_index_json"
-     ],
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -2884,7 +2902,36 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 6.573837596
+      "seconds": 18.150495899
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 13.396730715
      },
      "true_positives": 9,
      "missed": 0,
@@ -2919,10 +2966,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 6.825414479,
+      "seconds": 6.840584678,
       "phase_seconds": {
-       "generate-hashes": 6.798143006,
-       "get-impacted-targets": 0.027271473
+       "generate-hashes": 6.808070335,
+       "get-impacted-targets": 0.032514343
       }
      },
      "true_positives": 9,
@@ -2952,7 +2999,7 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 28.222324682
+      "seconds": 43.980110854
      },
      "true_positives": 9,
      "missed": 0,
@@ -2982,16 +3029,16 @@
     "//img:image"
    ],
    "universe": 39,
-   "oracle_seconds": 24.827080142,
+   "oracle_seconds": 24.253401285,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//img:image"
       ],
-      "seconds": 13.787641749
+      "seconds": 17.376517611
      },
      "true_positives": 1,
      "missed": 0,
@@ -2999,12 +3046,12 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//img:image"
       ],
-      "seconds": 6.369574452
+      "seconds": 11.980344275
      },
      "true_positives": 1,
      "missed": 0,
@@ -3017,10 +3064,10 @@
       "affected": [
        "//img:image"
       ],
-      "seconds": 6.4274891069999995,
+      "seconds": 6.395469447,
       "phase_seconds": {
-       "generate-hashes": 6.392344025,
-       "get-impacted-targets": 0.035145082
+       "generate-hashes": 6.353136355,
+       "get-impacted-targets": 0.042333092
       }
      },
      "true_positives": 1,
@@ -3034,7 +3081,7 @@
       "affected": [
        "//img:image"
       ],
-      "seconds": 32.163231322
+      "seconds": 32.455780361
      },
      "true_positives": 1,
      "missed": 0,
@@ -3062,23 +3109,9 @@
     "//apko:image.lock"
    ],
    "universe": 39,
-   "oracle_seconds": 24.413856029,
+   "oracle_seconds": 23.476005534,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//apko:image",
-       "//apko:image.lock"
-      ],
-      "seconds": 12.299942709
-     },
-     "true_positives": 2,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -3086,7 +3119,21 @@
        "//apko:image",
        "//apko:image.lock"
       ],
-      "seconds": 6.240213027
+      "seconds": 17.723038302
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//apko:image",
+       "//apko:image.lock"
+      ],
+      "seconds": 12.060919257
      },
      "true_positives": 2,
      "missed": 0,
@@ -3101,10 +3148,10 @@
        "//apko:image",
        "//apko:image.lock"
       ],
-      "seconds": 6.346133144,
+      "seconds": 8.079073179,
       "phase_seconds": {
-       "generate-hashes": 6.311516703,
-       "get-impacted-targets": 0.034616441
+       "generate-hashes": 8.050010471,
+       "get-impacted-targets": 0.029062708
       }
      },
      "true_positives": 2,
@@ -3119,7 +3166,7 @@
        "//apko:image",
        "//apko:image.lock"
       ],
-      "seconds": 21.070905971
+      "seconds": 22.907090252
      },
      "true_positives": 2,
      "missed": 0,
@@ -3148,11 +3195,11 @@
     "//distroless:tzdata_image_index_json_cp"
    ],
    "universe": 39,
-   "oracle_seconds": 25.158502357,
+   "oracle_seconds": 24.192186637,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": [
        "//distroless:tzdata_image",
@@ -3160,7 +3207,7 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 1.170306778
+      "seconds": 5.964805071
      },
      "true_positives": 3,
      "missed": 0,
@@ -3171,7 +3218,7 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": [
        "//distroless:tzdata_image",
@@ -3179,7 +3226,7 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 0.10697789
+      "seconds": 1.2573518479999999
      },
      "true_positives": 3,
      "missed": 0,
@@ -3206,10 +3253,10 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 0.316507257,
+      "seconds": 0.325739805,
       "phase_seconds": {
-       "generate-hashes": 0.281888939,
-       "get-impacted-targets": 0.034618318
+       "generate-hashes": 0.297894673,
+       "get-impacted-targets": 0.027845132
       }
      },
      "true_positives": 3,
@@ -3233,7 +3280,7 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 10.418590457
+      "seconds": 11.309905847
      },
      "true_positives": 3,
      "missed": 0,
@@ -3272,33 +3319,9 @@
     "//distroless:tzdata_image_index_json_cp"
    ],
    "universe": 39,
-   "oracle_seconds": 25.768126214,
+   "oracle_seconds": 24.909781494,
    "has_oracle": true,
    "tools": [
-    {
-     "tool": "custom-cquery",
-     "outcome": {
-      "affected": [
-       "//distroless:cacerts_image",
-       "//distroless:cacerts_image.digest",
-       "//distroless:cacerts_image_index_json",
-       "//distroless:cacerts_image_index_json_cp",
-       "//distroless:tzdata_image",
-       "//distroless:tzdata_image.digest",
-       "//distroless:tzdata_image_index_json",
-       "//distroless:tzdata_image_index_json_cp"
-      ],
-      "seconds": 0.786572758
-     },
-     "true_positives": 6,
-     "missed": 0,
-     "over_selected": 2,
-     "over_selected_targets": [
-      "//distroless:cacerts_image_index_json",
-      "//distroless:tzdata_image_index_json"
-     ],
-     "out_of_universe": 0
-    },
     {
      "tool": "custom",
      "outcome": {
@@ -3312,7 +3335,31 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 0.126031583
+      "seconds": 5.770647147
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 0.794876598
      },
      "true_positives": 6,
      "missed": 0,
@@ -3340,10 +3387,10 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 0.304188784,
+      "seconds": 0.496249009,
       "phase_seconds": {
-       "generate-hashes": 0.276330448,
-       "get-impacted-targets": 0.027858336
+       "generate-hashes": 0.458826511,
+       "get-impacted-targets": 0.037422498
       }
      },
      "true_positives": 6,
@@ -3368,7 +3415,7 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 10.1417391
+      "seconds": 10.066579476
      },
      "true_positives": 6,
      "missed": 0,
@@ -3392,14 +3439,14 @@
    ],
    "diffstat": "distroless/bookworm.lock.json | 16 ++++++++--------\n distroless/bookworm.yaml      |  2 +-\n 2 files changed, 9 insertions(+), 9 deletions(-)",
    "universe": 39,
-   "oracle_seconds": 26.727343899,
+   "oracle_seconds": 23.872146242,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 0.668045017
+      "seconds": 6.276260688
      },
      "true_positives": 0,
      "missed": 0,
@@ -3407,10 +3454,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 0.153090509
+      "seconds": 0.837251435
      },
      "true_positives": 0,
      "missed": 0,
@@ -3434,10 +3481,10 @@
        "//distroless:tzdata_image_index_json",
        "//distroless:tzdata_image_index_json_cp"
       ],
-      "seconds": 0.281519585,
+      "seconds": 0.446406725,
       "phase_seconds": {
-       "generate-hashes": 0.249581225,
-       "get-impacted-targets": 0.03193836
+       "generate-hashes": 0.406349904,
+       "get-impacted-targets": 0.040056821
       }
      },
      "true_positives": 0,
@@ -3459,7 +3506,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 10.26119365
+      "seconds": 11.241677449
      },
      "true_positives": 0,
      "missed": 0,
@@ -3478,14 +3525,14 @@
    ],
    "diffstat": "MODULE.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
    "universe": 39,
-   "oracle_seconds": 26.089170926,
+   "oracle_seconds": 23.800706722,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 12.234334596
+      "seconds": 16.803063027
      },
      "true_positives": 0,
      "missed": 0,
@@ -3493,10 +3540,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 6.505534507
+      "seconds": 12.693061952
      },
      "true_positives": 0,
      "missed": 0,
@@ -3527,10 +3574,10 @@
        "//oci:image_index_json",
        "//oci:image_index_json_cp"
       ],
-      "seconds": 6.509865539,
+      "seconds": 6.453096964,
       "phase_seconds": {
-       "generate-hashes": 6.469599114,
-       "get-impacted-targets": 0.040266425
+       "generate-hashes": 6.417960775,
+       "get-impacted-targets": 0.035136189
       }
      },
      "true_positives": 0,
@@ -3557,7 +3604,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 28.480831525
+      "seconds": 29.088557211
      },
      "true_positives": 0,
      "missed": 0,
@@ -3576,14 +3623,14 @@
    ],
    "diffstat": "MODULE.bazel | 1 +\n 1 file changed, 1 insertion(+)",
    "universe": 39,
-   "oracle_seconds": 28.945864696,
+   "oracle_seconds": 23.049168715,
    "has_oracle": true,
    "tools": [
     {
-     "tool": "custom-cquery",
+     "tool": "custom",
      "outcome": {
       "affected": null,
-      "seconds": 12.35798763
+      "seconds": 21.323109492
      },
      "true_positives": 0,
      "missed": 0,
@@ -3591,10 +3638,10 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
+     "tool": "custom-cquery",
      "outcome": {
       "affected": null,
-      "seconds": 11.696582867
+      "seconds": 12.05578438
      },
      "true_positives": 0,
      "missed": 0,
@@ -3605,10 +3652,10 @@
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 12.24814701,
+      "seconds": 11.003010651,
       "phase_seconds": {
-       "generate-hashes": 12.214040155,
-       "get-impacted-targets": 0.034106855
+       "generate-hashes": 10.963116782,
+       "get-impacted-targets": 0.039893869
       }
      },
      "true_positives": 0,
@@ -3620,7 +3667,7 @@
      "tool": "target-determinator",
      "outcome": {
       "affected": null,
-      "seconds": 34.479392667
+      "seconds": 32.987531197
      },
      "true_positives": 0,
      "missed": 0,
@@ -3670,9 +3717,43 @@
     "//tools:check_test"
    ],
    "universe": 39,
-   "oracle_seconds": 51.997634635,
+   "oracle_seconds": 23.911095187,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 43.91896802
+     },
+     "true_positives": 16,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom-cquery",
      "outcome": {
@@ -3696,7 +3777,7 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 14.681776295
+      "seconds": 15.548513996
      },
      "true_positives": 16,
      "missed": 0,
@@ -3708,42 +3789,13 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
-     "outcome": {
-      "affected": null,
-      "seconds": 15.100244749
-     },
-     "true_positives": 0,
-     "missed": 16,
-     "over_selected": 0,
-     "missed_targets": [
-      "//go/cmd/greeter:greeter",
-      "//go/greet:greet",
-      "//go/greet:greet_test",
-      "//img:greeter_layer",
-      "//img:image",
-      "//oci:greeter_layer",
-      "//oci:image",
-      "//oci:image.digest",
-      "//oci:image_index_json_cp",
-      "//tools/fixturetool:fixturetool",
-      "//tools:check_test",
-      "//tools:notes",
-      "//tools:pair_a",
-      "//tools:pair_b",
-      "//tools:shout",
-      "//tools:summary"
-     ],
-     "out_of_universe": 0
-    },
-    {
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 11.593663781,
+      "seconds": 11.916054508,
       "phase_seconds": {
-       "generate-hashes": 11.556961291,
-       "get-impacted-targets": 0.03670249
+       "generate-hashes": 11.877986027,
+       "get-impacted-targets": 0.038068481
       }
      },
      "true_positives": 0,
@@ -3792,7 +3844,7 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 37.558912914
+      "seconds": 33.892645867
      },
      "true_positives": 16,
      "missed": 0,
@@ -3825,9 +3877,24 @@
     "//rust/lib:lib_test"
    ],
    "universe": 39,
-   "oracle_seconds": 26.168588752,
+   "oracle_seconds": 25.382526699,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 234.800567877
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom-cquery",
      "outcome": {
@@ -3836,7 +3903,7 @@
        "//rust/lib:lib",
        "//rust/lib:lib_test"
       ],
-      "seconds": 12.106849616
+      "seconds": 12.83033718
      },
      "true_positives": 3,
      "missed": 0,
@@ -3844,29 +3911,13 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
-     "outcome": {
-      "affected": null,
-      "seconds": 10.269771719
-     },
-     "true_positives": 0,
-     "missed": 3,
-     "over_selected": 0,
-     "missed_targets": [
-      "//rust/app:app",
-      "//rust/lib:lib",
-      "//rust/lib:lib_test"
-     ],
-     "out_of_universe": 0
-    },
-    {
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 8.90453937,
+      "seconds": 9.091432247,
       "phase_seconds": {
-       "generate-hashes": 8.872760317000001,
-       "get-impacted-targets": 0.031779053
+       "generate-hashes": 9.061612673,
+       "get-impacted-targets": 0.029819574
       }
      },
      "true_positives": 0,
@@ -3887,7 +3938,7 @@
        "//rust/lib:lib",
        "//rust/lib:lib_test"
       ],
-      "seconds": 32.839841663
+      "seconds": 33.282061427
      },
      "true_positives": 3,
      "missed": 0,
@@ -3916,9 +3967,34 @@
     "//py/lib:lib"
    ],
    "universe": 39,
-   "oracle_seconds": 36.976979632,
+   "oracle_seconds": 24.729035791,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//cc/lib:hello_test",
+       "//go/greet:greet_test",
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib",
+       "//rust/lib:lib_test",
+       "//tools:check_test"
+      ],
+      "seconds": 121.913083854
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 4,
+     "over_selected_targets": [
+      "//cc/lib:hello_test",
+      "//go/greet:greet_test",
+      "//rust/lib:lib_test",
+      "//tools:check_test"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom-cquery",
      "outcome": {
@@ -3927,22 +4003,7 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 11.73659429
-     },
-     "true_positives": 3,
-     "missed": 0,
-     "over_selected": 0,
-     "out_of_universe": 0
-    },
-    {
-     "tool": "custom",
-     "outcome": {
-      "affected": [
-       "//py/app:app",
-       "//py/lib:greet_test",
-       "//py/lib:lib"
-      ],
-      "seconds": 10.46626068
+      "seconds": 12.623876709
      },
      "true_positives": 3,
      "missed": 0,
@@ -3957,10 +4018,10 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 11.210137591,
+      "seconds": 11.198262552,
       "phase_seconds": {
-       "generate-hashes": 11.184179083,
-       "get-impacted-targets": 0.025958508
+       "generate-hashes": 11.164682851,
+       "get-impacted-targets": 0.033579701
       }
      },
      "true_positives": 3,
@@ -3976,7 +4037,7 @@
        "//py/lib:greet_test",
        "//py/lib:lib"
       ],
-      "seconds": 33.384292817
+      "seconds": 33.516967481
      },
      "true_positives": 3,
      "missed": 0,
@@ -4025,9 +4086,71 @@
     "//rust/lib:lib_test"
    ],
    "universe": 39,
-   "oracle_seconds": 45.33358702,
+   "oracle_seconds": 25.752695074000002,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test",
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 35.473130409
+     },
+     "true_positives": 20,
+     "missed": 0,
+     "over_selected": 14,
+     "over_selected_targets": [
+      "//distroless:cacerts_image",
+      "//distroless:cacerts_image.digest",
+      "//distroless:cacerts_image_index_json",
+      "//distroless:cacerts_image_index_json_cp",
+      "//distroless:tzdata_image",
+      "//distroless:tzdata_image.digest",
+      "//distroless:tzdata_image_index_json",
+      "//distroless:tzdata_image_index_json_cp",
+      "//go/cmd/greeter:greeter",
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json",
+      "//py/app:app",
+      "//py/lib:greet_test",
+      "//tools/fixturetool:fixturetool"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom-cquery",
      "outcome": {
@@ -4059,7 +4182,7 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 12.308270782
+      "seconds": 13.241626867
      },
      "true_positives": 20,
      "missed": 0,
@@ -4075,46 +4198,13 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
-     "outcome": {
-      "affected": null,
-      "seconds": 11.14267947
-     },
-     "true_positives": 0,
-     "missed": 20,
-     "over_selected": 0,
-     "missed_targets": [
-      "//cc/app:app",
-      "//cc/lib:hello",
-      "//cc/lib:hello_test",
-      "//go/greet:greet",
-      "//go/greet:greet_test",
-      "//img:greeter_layer",
-      "//img:image",
-      "//oci:greeter_layer",
-      "//oci:image",
-      "//oci:image.digest",
-      "//oci:image_index_json_cp",
-      "//rust/app:app",
-      "//rust/lib:lib",
-      "//rust/lib:lib_test",
-      "//tools:check_test",
-      "//tools:notes",
-      "//tools:pair_a",
-      "//tools:pair_b",
-      "//tools:shout",
-      "//tools:summary"
-     ],
-     "out_of_universe": 0
-    },
-    {
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 10.694789254,
+      "seconds": 10.932721623,
       "phase_seconds": {
-       "generate-hashes": 10.663835558,
-       "get-impacted-targets": 0.030953696
+       "generate-hashes": 10.897712962,
+       "get-impacted-targets": 0.035008661
       }
      },
      "true_positives": 0,
@@ -4175,7 +4265,7 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 36.041338599
+      "seconds": 32.186240197
      },
      "true_positives": 20,
      "missed": 0,
@@ -4212,9 +4302,30 @@
     "//tools:check_test"
    ],
    "universe": 39,
-   "oracle_seconds": 43.25819722,
+   "oracle_seconds": 25.10105865,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 19.932932623
+     },
+     "true_positives": 0,
+     "missed": 8,
+     "over_selected": 0,
+     "missed_targets": [
+      "//cc/app:app",
+      "//cc/lib:hello",
+      "//cc/lib:hello_test",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//rust/app:app",
+      "//rust/lib:lib_test",
+      "//tools:check_test"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom-cquery",
      "outcome": {
@@ -4259,7 +4370,7 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 13.057159503
+      "seconds": 12.656773669
      },
      "true_positives": 8,
      "missed": 0,
@@ -4300,34 +4411,13 @@
      "out_of_universe": 0
     },
     {
-     "tool": "custom",
-     "outcome": {
-      "affected": null,
-      "seconds": 6.995875478
-     },
-     "true_positives": 0,
-     "missed": 8,
-     "over_selected": 0,
-     "missed_targets": [
-      "//cc/app:app",
-      "//cc/lib:hello",
-      "//cc/lib:hello_test",
-      "//go/greet:greet",
-      "//go/greet:greet_test",
-      "//rust/app:app",
-      "//rust/lib:lib_test",
-      "//tools:check_test"
-     ],
-     "out_of_universe": 0
-    },
-    {
      "tool": "bazel-diff",
      "outcome": {
       "affected": null,
-      "seconds": 6.341821643,
+      "seconds": 6.825107187,
       "phase_seconds": {
-       "generate-hashes": 6.311509217,
-       "get-impacted-targets": 0.030312426
+       "generate-hashes": 6.79438607,
+       "get-impacted-targets": 0.030721117
       }
      },
      "true_positives": 0,
@@ -4389,7 +4479,7 @@
        "//tools:shout",
        "//tools:summary"
       ],
-      "seconds": 21.846124772
+      "seconds": 23.236156601
      },
      "true_positives": 8,
      "missed": 0,
@@ -4434,34 +4524,34 @@
  ],
  "no_change_seconds": {
   "bazel-diff": [
-   0.767361255,
-   0.462955607,
-   0.370936684,
-   0.353438395,
-   0.323366849
+   0.722911941,
+   0.476955816,
+   0.415198234,
+   0.35167299,
+   0.318180324
   ],
   "custom": [
-   0.647413427,
-   0.229600076,
-   0.243148542,
-   0.123992121,
-   0.102527988
+   9.348192784,
+   5.460070634,
+   5.043691183,
+   5.026610586,
+   5.118220035
   ],
   "custom-cquery": [
-   0.869410316,
-   0.59662682,
-   0.524895047,
-   0.569367812,
-   0.628016402
+   1.649306911,
+   0.668859572,
+   0.581295773,
+   0.612630394,
+   0.680327932
   ],
   "target-determinator": [
-   11.0471653,
-   9.737578954,
-   9.544342495,
-   9.599633141,
-   9.720437889
+   11.21654764,
+   10.347782569,
+   10.210916082,
+   10.019949635,
+   10.162344339
   ]
  },
- "started": "2026-10-17T13:10:33.064875638+02:00",
- "finished": "2026-10-17T13:14:34.541882624+02:00"
+ "started": "2026-10-17T17:31:27.125070452+02:00",
+ "finished": "2026-10-17T18:29:01.58299477+02:00"
 }
