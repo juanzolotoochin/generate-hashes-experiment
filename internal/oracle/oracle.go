@@ -76,10 +76,6 @@ func (o *Oracle) Build(ctx context.Context, tag string) (Snapshot, error) {
 		"--output_groups="+outputGroup,
 		"--build_event_json_file="+bep,
 		"--build_event_json_file_path_conversion=false",
-		// The digest tool is a static binary that only reads its inputs, so it
-		// runs unsandboxed: the hermetic sandbox hardlinks inputs and mistakes
-		// identical blobs in OCI layouts for files modified during execution.
-		"--strategy=HashbenchDigest=local",
 	)
 	files, failed, err := parseBEP(bep)
 	snap := Snapshot{Inputs: map[string]string{}, Outputs: map[string]string{}, Failed: failed}

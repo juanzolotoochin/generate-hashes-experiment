@@ -355,64 +355,55 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 	return sr
 }
 
-// userBazelrc returns the machine-specific Bazel flags written (untracked) into
-// the benchmark workspace: shared caches, and a hermetic sandbox whose only
-// /bin and /usr/bin are the toolbox's static bash and busybox.
+// userBazelrc returns the machine-specific Bazel flags written into the
+// benchmark workspace: shared caches, and the toolbox's static bash as the
+// shell for every action.
 func userBazelrc(cfg Config) string {
-	bin := filepath.Join(cfg.Toolbox, "bin")
 	lines := []string{
 		// No MODULE.bazel.lock: it would be an untracked, tool-dependent file.
 		"common --lockfile_mode=off",
 		"common --repository_cache=" + filepath.Join(cfg.CacheDir, "repository"),
 		"common --repo_contents_cache=" + filepath.Join(cfg.CacheDir, "repo_contents"),
 		"build --disk_cache=" + filepath.Join(cfg.CacheDir, "disk"),
-		"build --experimental_use_hermetic_linux_sandbox",
-		"build --spawn_strategy=linux-sandbox",
-		"build --shell_executable=/bin/bash",
-		"build --sandbox_add_mount_pair=" + bin + ":/bin",
-		"build --sandbox_add_mount_pair=" + filepath.Join(cfg.Toolbox, "usr-bin") + ":/usr/bin",
+		"build --shell_executable=" + filepath.Join(cfg.Toolbox, "bin", "bash"),
 	}
 	return strings.Join(lines, "\n") + "\n"
 }
 
-// SetupToolbox creates dir/bin and dir/usr-bin, each holding the static bash
-// and busybox (with a relative symlink per busybox applet), plus git in bin.
-// bin is the only PATH every process sees; inside build sandboxes the two
-// directories are the only /bin and /usr/bin. They are separate copies
-// because Bazel keeps one sandbox mount per source path.
+// SetupToolbox creates dir/bin holding the static bash and busybox (with a
+// relative symlink per busybox applet) plus git. It is the only PATH every
+// process the harness starts sees.
 func SetupToolbox(dir, bash, busybox, git string) error {
-	for _, sub := range []string{"bin", "usr-bin"} {
-		d := filepath.Join(dir, sub)
-		if err := os.RemoveAll(d); err != nil {
-			return err
-		}
-		if err := os.MkdirAll(d, 0o755); err != nil {
-			return err
-		}
-		for name, src := range map[string]string{"bash": bash, "busybox": busybox} {
-			b, err := os.ReadFile(src)
-			if err != nil {
-				return err
-			}
-			if err := os.WriteFile(filepath.Join(d, name), b, 0o755); err != nil {
-				return err
-			}
-		}
-		out, err := exec.Command(filepath.Join(d, "busybox"), "--list").Output()
+	bin := filepath.Join(dir, "bin")
+	if err := os.RemoveAll(dir); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(bin, 0o755); err != nil {
+		return err
+	}
+	for name, src := range map[string]string{"bash": bash, "busybox": busybox} {
+		b, err := os.ReadFile(src)
 		if err != nil {
-			return fmt.Errorf("busybox --list: %w", err)
+			return err
 		}
-		for _, applet := range strings.Fields(string(out)) {
-			if applet == "bash" || applet == "busybox" {
-				continue
-			}
-			if err := os.Symlink("busybox", filepath.Join(d, applet)); err != nil {
-				return err
-			}
+		if err := os.WriteFile(filepath.Join(bin, name), b, 0o755); err != nil {
+			return err
+		}
+	}
+	out, err := exec.Command(filepath.Join(bin, "busybox"), "--list").Output()
+	if err != nil {
+		return fmt.Errorf("busybox --list: %w", err)
+	}
+	for _, applet := range strings.Fields(string(out)) {
+		if applet == "bash" || applet == "busybox" {
+			continue
+		}
+		if err := os.Symlink("busybox", filepath.Join(bin, applet)); err != nil {
+			return err
 		}
 	}
 	// git versions the benchmark workspace; target-determinator runs it too.
-	return os.Symlink(git, filepath.Join(dir, "bin", "git"))
+	return os.Symlink(git, filepath.Join(bin, "git"))
 }
 
 func sortedKeys(m map[string]bool) []string {

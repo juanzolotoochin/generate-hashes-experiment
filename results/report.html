@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>hashbench Results</title>
+<style>
+:root { --bg:#fbfbfa; --fg:#1d1d1b; --muted:#6b6b66; --card:#fff; --line:#e6e5e0; --ok:#1f7a4d; --okbg:#e6f4ec; --bad:#b42318; --badbg:#fdecea; --warn:#8a5a00; --warnbg:#fdf3dc; --code:#f3f2ee; --accent:#3b5bdb; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#161615; --fg:#ecebe6; --muted:#9a9993; --card:#1e1e1c; --line:#33332f; --ok:#5fd39a; --okbg:#173326; --bad:#ff8a80; --badbg:#3a1a17; --warn:#f2c25b; --warnbg:#3a2f12; --code:#2a2a27; --accent:#8fa8ff; } }
+:root[data-theme="dark"] { --bg:#161615; --fg:#ecebe6; --muted:#9a9993; --card:#1e1e1c; --line:#33332f; --ok:#5fd39a; --okbg:#173326; --bad:#ff8a80; --badbg:#3a1a17; --warn:#f2c25b; --warnbg:#3a2f12; --code:#2a2a27; --accent:#8fa8ff; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif }
+main { max-width:1280px; margin:0 auto; padding:32px 16px 64px }
+h1 { font-size:26px; margin:0 0 4px } h2 { font-size:18px; margin:36px 0 10px }
+.muted { color:var(--muted) } .cat { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted) }
+.wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--card) }
+table { border-collapse:collapse; width:100%; min-width:760px }
+th,td { text-align:left; vertical-align:top; padding:9px 12px; border-bottom:1px solid var(--line) }
+th { font-size:12px; color:var(--muted); font-weight:600 }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap }
+td.ok { background:var(--okbg) } td.bad { background:var(--badbg) } td.warn { background:var(--warnbg) } td.err { background:var(--code) }
+td.ok b { color:var(--ok) } td.bad b { color:var(--bad) } td.warn b { color:var(--warn) }
+code,pre { font:12px ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--code); border-radius:4px }
+code { padding:1px 4px; word-break:break-all } pre { padding:8px; white-space:pre-wrap; margin:4px 0 }
+details summary { cursor:pointer; color:var(--accent); font-size:12px }
+ul.l { margin:2px 0 6px 18px; padding:0 } .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px }
+.legend span { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px; margin-right:6px }
+</style></head>
+<body><main>
+<h1>hashbench</h1>
+<p class="muted">Correctness against a build-output oracle and warm-cache performance of Bazel target-selection tools.
+Stock Bazel 9.2.0 · bazel-diff v60.0.0 · target-determinator v0.34.0 ·
+scale 0 · 39 targets · linux/amd64, 16 CPUs · 2026-10-17T12:24:35&#43;02:00</p>
+
+<h2>Summary</h2>
+<div class="wrap"><table>
+<thead><tr><th>Tool</th><th class="num">Exact</th><th class="num">Scenarios with misses</th><th class="num">Missed targets</th><th class="num">Over-selected targets</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">Warm no-change</th><th class="num">Warm per change (median)</th></tr></thead>
+<tbody><tr>
+<td><b>custom</b></td>
+<td class="num">24/42</td><td class="num">6</td><td class="num">50</td><td class="num">34</td>
+<td class="num">65.3%</td><td class="num">73.4%</td><td class="num">0.2s</td><td class="num">0.2s</td>
+</tr><tr>
+<td><b>bazel-diff</b></td>
+<td class="num">23/42</td><td class="num">4</td><td class="num">47</td><td class="num">70</td>
+<td class="num">67.4%</td><td class="num">58.1%</td><td class="num">0.4s</td><td class="num">0.6s</td>
+</tr><tr>
+<td><b>target-determinator</b></td>
+<td class="num">26/42</td><td class="num">0</td><td class="num">0</td><td class="num">84</td>
+<td class="num">100.0%</td><td class="num">63.2%</td><td class="num">9.7s</td><td class="num">11.6s</td>
+</tr></tbody></table></div>
+<p class="muted">A <b>miss</b> is a target whose outputs, runfiles or test attributes changed but the tool did not select it: CI would skip a target that needs rebuilding or retesting. An <b>over-selection</b> is a target the tool selected although nothing it produces changed: wasted CI work.</p>
+
+<h2>Scenarios</h2>
+<p class="legend"><span style="background:var(--okbg);color:var(--ok)">exact</span><span style="background:var(--warnbg);color:var(--warn)">over-selects only</span><span style="background:var(--badbg);color:var(--bad)">misses targets</span></p>
+<div class="wrap"><table>
+<thead><tr><th style="width:30%">Scenario</th><th class="num">Truth</th><th>custom</th><th>bazel-diff</th><th>target-determinator</th></tr></thead>
+<tbody><tr>
+<td><div class="cat">control</div><b>control</b><div class="muted">Empty commit: nothing changes.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>
+</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.7s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>go_src_edit</b><div class="muted">Add a function to go/greet/greet.go.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //go/greet and everything that links it (greeter, its images, greet_test).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+
+
+<pre>append to go/greet/greet.go
+go/greet/greet.go | 2 &#43;&#43;
+ 1 file changed, 2 insertions(&#43;)</pre>
+</details></td>
+<td class="num">9</td>
+<td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.4s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">10.6s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>go_src_comment</b><div class="muted">Comment-only edit to go/greet/greet.go.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Compiled outputs are identical, so ideally nothing; content-hashing tools flag the go/greet closure.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+
+
+<pre>append to go/greet/greet.go
+go/greet/greet.go | 2 &#43;&#43;
+ 1 file changed, 2 insertions(&#43;)</pre>
+</details></td>
+<td class="num">9</td>
+<td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">10.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>py_src_edit</b><div class="muted">Add a function to py/lib/greet.py.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //py/lib, its test and //py/app (sources ship in runfiles).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li></ul></div>
+
+
+<pre>append to py/lib/greet.py
+py/lib/greet.py | 4 &#43;&#43;&#43;&#43;
+ 1 file changed, 4 insertions(&#43;)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.9s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>cc_header_edit</b><div class="muted">Add an #include to cc/lib/hello.h.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //cc/lib targets and //cc/app.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li></ul></div>
+
+
+<pre>edit cc/lib/hello.h
+cc/lib/hello.h | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.4s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">1.6s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">13.5s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>rust_src_edit</b><div class="muted">Add a function to rust/lib/lib.rs.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //rust/lib, its test and //rust/app.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
+
+
+<pre>append to rust/lib/lib.rs
+rust/lib/lib.rs | 4 &#43;&#43;&#43;&#43;
+ 1 file changed, 4 insertions(&#43;)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.2s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.6s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">11.6s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>data_file_edit</b><div class="muted">Edit data/a.json, consumed through a glob() filegroup.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Everything built from //data:json or //data:a.json: the bundles, :shout, :summary and :check_test.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//data:json</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+
+<pre>edit data/a.json
+data/a.json | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">7</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">1.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">5.2s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">34.0s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>new_globbed_file</b><div class="muted">Add data/c.json, picked up by glob([&#34;*.json&#34;]).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Consumers of //data:json; not //tools:shout (depends on a.json only).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//data:json</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:summary</code></li></ul></div>
+
+
+<pre>write data/c.json
+data/c.json | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)
+ create mode 100644 data/c.json</pre>
+</details></td>
+<td class="num">6</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.2s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.5s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">11.1s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>unreferenced_file</b><div class="muted">Add go/greet/NOTES.txt, which no target references.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>write go/greet/NOTES.txt
+go/greet/NOTES.txt | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)
+ create mode 100644 go/greet/NOTES.txt</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.4s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.7s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>docs_edit</b><div class="muted">Edit docs/README.md, which no target references.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>append to docs/README.md
+docs/README.md | 2 &#43;&#43;
+ 1 file changed, 2 insertions(&#43;)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.7s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>chmod_runfile</b><div class="muted">Add the exec bit to tools/fixture.txt, a data file in //tools:check_test&#39;s runfiles.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //tools:check_test (a file it ships changes mode).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//tools:check_test</code></li></ul></div>
+
+
+<pre>chmod 755 tools/fixture.txt
+tools/fixture.txt | 0
+ 1 file changed, 0 insertions(&#43;), 0 deletions(-)
+ mode change 100644 =&gt; 100755 tools/fixture.txt</pre>
+</details></td>
+<td class="num">1</td>
+<td class="bad">
+<b>1 missed</b>
+
+<div class="muted">0.1s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//tools:check_test</code></li></ul></div>
+
+</details>
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.4s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.8s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>chmod_source</b><div class="muted">Add the exec bit to go/greet/greet.go.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected (compiled outputs don&#39;t depend on source modes).</div>
+
+
+
+
+<pre>chmod 755 go/greet/greet.go
+go/greet/greet.go | 0
+ 1 file changed, 0 insertions(&#43;), 0 deletions(-)
+ mode change 100644 =&gt; 100755 go/greet/greet.go</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">0.4s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">10.4s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">source</div><b>rename_source</b><div class="muted">Rename go/greet/greet.go to greeting.go and update srcs.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Ideally nothing beyond what embeds file names; tools typically flag the go/greet closure.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+
+
+<pre>rename go/greet/greet.go -&gt; go/greet/greeting.go
+edit go/greet/BUILD.bazel
+go/greet/BUILD.bazel               | 2 &#43;-
+ go/greet/{greet.go =&gt; greeting.go} | 0
+ 2 files changed, 1 insertion(&#43;), 1 deletion(-)
+ rename go/greet/{greet.go =&gt; greeting.go} (100%)</pre>
+</details></td>
+<td class="num">9</td>
+<td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">10.8s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_add_dep</b><div class="muted">Add @pypi//six as a direct dep of //py/app.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Runfiles are unchanged (six was already transitive), so ideally nothing; //py/app at most.</div>
+
+
+
+
+<pre>edit py/app/BUILD.bazel
+py/app/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
+ 1 file changed, 4 insertions(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="warn">
+<b>+1</b> extra
+
+<div class="muted">0.2s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+1</b> extra
+
+<div class="muted">0.4s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+1</b> extra
+
+<div class="muted">9.9s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_copts</b><div class="muted">Add copts = [&#34;-O2&#34;] to //cc/app.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //cc/app only.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//cc/app:app</code></li></ul></div>
+
+
+<pre>edit cc/app/BUILD.bazel
+cc/app/BUILD.bazel | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">1</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.9s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_test_size</b><div class="muted">Set size = &#34;small&#34; on //go/greet:greet_test.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //go/greet:greet_test only (test attribute; outputs unchanged).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//go/greet:greet_test</code></li></ul></div>
+
+
+<pre>edit go/greet/BUILD.bazel
+go/greet/BUILD.bazel | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">1</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.9s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_delete_target</b><div class="muted">Delete //go/greet:greet_test.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> One target removed; nothing else affected.</div>
+
+
+<div><b>Removed:</b> <code>//go/greet:greet_test</code> </div>
+
+<pre>edit go/greet/BUILD.bazel
+go/greet/BUILD.bazel | 6 ------
+ 1 file changed, 6 deletions(-)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.9s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_comment</b><div class="muted">Add comments and blank lines to go/greet/BUILD.bazel.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>edit go/greet/BUILD.bazel
+go/greet/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
+ 1 file changed, 4 insertions(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.9s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_reorder</b><div class="muted">Reorder go_library kwargs (same values).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>edit go/greet/BUILD.bazel
+go/greet/BUILD.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.1s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.2s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_unused_load</b><div class="muted">Add an unused load() to go/greet/BUILD.bazel.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>prepend to go/greet/BUILD.bazel
+go/greet/BUILD.bazel | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.2s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.0s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">BUILD</div><b>build_visibility</b><div class="muted">Narrow //go/greet visibility.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Outputs unchanged, so nothing; tools typically flag the go/greet closure.</div>
+
+
+
+
+<pre>edit go/greet/BUILD.bazel
+go/greet/BUILD.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="warn">
+<b>+11</b> extra
+
+<div class="muted">0.2s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">0.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">11.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">.bzl</div><b>bzl_rule_impl</b><div class="muted">Change the text_bundle rule implementation (adds a blank line after the header).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //tools:notes, :pair_a, :pair_b; not :shout or :summary (rules in another file).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+
+
+<pre>edit tools/defs.bzl
+tools/defs.bzl | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">1.5s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">5.0s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">34.3s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">.bzl</div><b>bzl_macro</b><div class="muted">Change the header the bundle_pair macro passes to its second target.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //tools:pair_b only.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//tools:pair_b</code></li></ul></div>
+
+
+<pre>edit tools/defs.bzl
+tools/defs.bzl | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">1</td>
+<td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.7s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">1.7s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">12.5s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">.bzl</div><b>bzl_comment</b><div class="muted">Add a comment to tools/defs.bzl.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>prepend to tools/defs.bzl
+tools/defs.bzl | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.6s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">2.9s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">29.8s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">.bzl</div><b>bzl_unused_fn</b><div class="muted">Add an unused function to tools/defs.bzl.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>append to tools/defs.bzl
+tools/defs.bzl | 3 &#43;&#43;&#43;
+ 1 file changed, 3 insertions(&#43;)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.9s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">3.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">31.7s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>go_dep_bump</b><div class="muted">github.com/google/uuid v1.6.0 -&gt; v1.5.0 (go.mod &#43; go.sum).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Go targets linking uuid: //go/greet closure and the images.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+
+
+<pre>replace go.mod with data/go_dep/go.mod.fixture
+replace go.sum with data/go_dep/go.sum
+go.mod | 2 &#43;-
+ go.sum | 4 &#43;&#43;--
+ 2 files changed, 3 insertions(&#43;), 3 deletions(-)</pre>
+</details></td>
+<td class="num">9</td>
+<td class="warn">
+<b>+2</b> extra
+
+<div class="muted">1.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.9s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">12.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>pip_dep_bump</b><div class="muted">six 1.17.0 -&gt; 1.16.0 in the hashed requirements lock.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Python targets depending on six (//py/...).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li></ul></div>
+
+
+<pre>replace py/requirements_lock.txt with data/pip_dep/requirements_lock.txt
+py/requirements_lock.txt | 6 &#43;&#43;&#43;---
+ 1 file changed, 3 insertions(&#43;), 3 deletions(-)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">4.9s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">5.9s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">18.5s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>rust_crate_bump</b><div class="muted">itoa 1.0.18 -&gt; 1.0.17 in Cargo.lock.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //rust/... targets.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
+
+
+<pre>replace Cargo.lock with data/rust_crate/Cargo.lock
+Cargo.lock | 4 &#43;&#43;--
+ 1 file changed, 2 insertions(&#43;), 2 deletions(-)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">4.9s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">19.0s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>multitool_bump</b><div class="muted">rules_multitool: jq 1.7.1 -&gt; 1.8.1 in the lockfile.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Targets using jq: //tools:summary and //tools:check_test.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//tools:check_test</code></li><li><code>//tools:summary</code></li></ul></div>
+
+
+<pre>replace tools/multitool.lock.json with data/multitool/multitool.lock.json
+tools/multitool.lock.json | 12 &#43;&#43;&#43;&#43;&#43;&#43;------
+ 1 file changed, 6 insertions(&#43;), 6 deletions(-)</pre>
+</details></td>
+<td class="num">2</td>
+<td class="bad">
+<b>2 missed</b>
+
+<div class="muted">2.2s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//tools:check_test</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">2.4s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">13.2s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>oci_digest_bump</b><div class="muted">rules_oci: change the oci.pull digest of distroless/static.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Images built on @distroless_static: //oci:image and both //distroless images.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+
+
+<pre>edit MODULE.bazel
+MODULE.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">9</td>
+<td class="warn">
+<b>+3</b> extra
+
+<div class="muted">6.6s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">6.8s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">28.2s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>img_digest_bump</b><div class="muted">rules_img: change the pulled base image digest.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //img:image only.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//img:image</code></li></ul></div>
+
+
+<pre>edit MODULE.bazel
+MODULE.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">1</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">6.4s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.4s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">32.2s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>apko_package_add</b><div class="muted">rules_apko: add jq to apko.yaml and re-lock (new packages jq, oniguruma).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //apko:image only.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li></ul></div>
+
+
+<pre>replace apko/apko.yaml with data/apko/apko.yaml
+replace apko/apko.lock.json with data/apko/apko.lock.json
+apko/apko.lock.json | 40 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-
+ apko/apko.yaml      |  1 &#43;
+ 2 files changed, 40 insertions(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">2</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">6.2s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.3s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">21.1s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>distroless_pkg_bump</b><div class="muted">rules_distroless: tzdata 2024b -&gt; 2025b in the apt lock (only that package).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> //distroless:tzdata_image only.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li></ul></div>
+
+
+<pre>replace distroless/bookworm.lock.json with data/distroless_pkg/bookworm.lock.json
+distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;---------------------
+ 1 file changed, 129 insertions(&#43;), 129 deletions(-)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="warn">
+<b>+1</b> extra
+
+<div class="muted">0.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+5</b> extra
+
+<div class="muted">0.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+1</b> extra
+
+<div class="muted">10.4s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>distroless_snapshot_bump</b><div class="muted">rules_distroless: move the Debian snapshot four months (tzdata, libc6, openssl, libgcc change).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Both //distroless images.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li></ul></div>
+
+
+<pre>replace distroless/bookworm.yaml with data/distroless_snapshot/bookworm.yaml
+replace distroless/bookworm.lock.json with data/distroless_snapshot/bookworm.lock.json
+distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;----------------------
+ distroless/bookworm.yaml      |  2 &#43;-
+ 2 files changed, 37 insertions(&#43;), 37 deletions(-)</pre>
+</details></td>
+<td class="num">6</td>
+<td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">0.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">10.1s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">dependency</div><b>distroless_timestamp</b><div class="muted">rules_distroless: move the snapshot 12h; every package is byte-identical, only URLs change.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>replace distroless/bookworm.yaml with data/distroless_timestamp/bookworm.yaml
+replace distroless/bookworm.lock.json with data/distroless_timestamp/bookworm.lock.json
+distroless/bookworm.lock.json | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;--------
+ distroless/bookworm.yaml      |  2 &#43;-
+ 2 files changed, 9 insertions(&#43;), 9 deletions(-)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">0.2s</div>
+
+</td><td class="warn">
+<b>+8</b> extra
+
+<div class="muted">0.3s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.3s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">bzlmod</div><b>bzlmod_dep_bump</b><div class="muted">tar.bzl 0.10.8 -&gt; 0.10.9.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Targets built with tar.bzl rules (//oci:greeter_layer, //oci:image), if the bump changes their outputs.</div>
+
+
+
+
+<pre>edit MODULE.bazel
+MODULE.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">6.5s</div>
+
+</td><td class="warn">
+<b>+13</b> extra
+
+<div class="muted">6.5s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">28.5s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">bzlmod</div><b>module_comment</b><div class="muted">Add a comment to MODULE.bazel.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>prepend to MODULE.bazel
+MODULE.bazel | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">11.7s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">12.2s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">34.5s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">toolchain</div><b>go_toolchain</b><div class="muted">Go SDK 1.27.2 -&gt; 1.27.1.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Every Go target (compiled outputs change) and the images containing them.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+
+<pre>edit MODULE.bazel
+MODULE.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">16</td>
+<td class="bad">
+<b>16 missed</b>
+
+<div class="muted">15.1s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="bad">
+<b>16 missed</b>
+
+<div class="muted">11.6s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">37.6s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">toolchain</div><b>rust_toolchain</b><div class="muted">Rust toolchain 1.97.1 -&gt; 1.97.0.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Every Rust target.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
+
+
+<pre>edit MODULE.bazel
+MODULE.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="bad">
+<b>3 missed</b>
+
+<div class="muted">10.3s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
+
+</details>
+</td><td class="bad">
+<b>3 missed</b>
+
+<div class="muted">8.9s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
+
+</details>
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">32.8s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">toolchain</div><b>python_toolchain</b><div class="muted">Python 3.12 -&gt; 3.13 (interpreter and pip hub).</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Every Python target.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li></ul></div>
+
+
+<pre>edit MODULE.bazel
+MODULE.bazel | 4 &#43;&#43;--
+ 1 file changed, 2 insertions(&#43;), 2 deletions(-)</pre>
+</details></td>
+<td class="num">3</td>
+<td class="ok">
+<b>exact</b>
+
+<div class="muted">10.5s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">11.2s</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">33.4s</div>
+
+</td>
+</tr><tr>
+<td><div class="cat">toolchain</div><b>llvm_toolchain</b><div class="muted">Hermetic LLVM toolchain module 0.8.19 -&gt; 0.8.18.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Every C/C&#43;&#43; target (and anything else the toolchain compiles or links).</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+
+<pre>edit MODULE.bazel
+MODULE.bazel | 2 &#43;-
+ 1 file changed, 1 insertion(&#43;), 1 deletion(-)</pre>
+</details></td>
+<td class="num">20</td>
+<td class="bad">
+<b>20 missed</b>
+
+<div class="muted">11.1s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="bad">
+<b>20 missed</b>
+
+<div class="muted">10.7s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="warn">
+<b>+6</b> extra
+
+<div class="muted">36.0s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li><li><code>//py/app:app</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">config</div><b>bazelrc_copt</b><div class="muted">Add build --copt=-DHASHBENCH=1 to .bazelrc.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Every C/C&#43;&#43; compile (outputs change); invisible to unconfigured query graphs.</div>
+
+<div><b>Affected (oracle):</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
+
+
+<pre>append to .bazelrc
+.bazelrc | 1 &#43;
+ 1 file changed, 1 insertion(&#43;)</pre>
+</details></td>
+<td class="num">8</td>
+<td class="bad">
+<b>8 missed</b>
+
+<div class="muted">7.0s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
+
+</details>
+</td><td class="bad">
+<b>8 missed</b>
+
+<div class="muted">6.3s</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
+
+</details>
+</td><td class="warn">
+<b>+31</b> extra
+
+<div class="muted">21.8s</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//data:json</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//oci:image_write_entrypoint</code></li><li><code>//py/app:app</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/lib:lib</code></li><li><code>… and 6 more</code></li></ul></div>
+</details>
+</td>
+</tr></tbody></table></div>
+
+<h2>Warm performance</h2>
+<div class="wrap"><table>
+<thead><tr><th>Tool</th><th class="num">No change</th><th class="num">source</th><th class="num">BUILD</th><th class="num">.bzl</th><th class="num">dependency</th><th class="num">bzlmod</th><th class="num">toolchain</th><th class="num">config</th></tr></thead>
+<tbody><tr><td><b>custom</b></td><td class="num">0.2s</td>
+<td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.8s</td><td class="num">3.6s</td><td class="num">9.1s</td><td class="num">10.8s</td><td class="num">7.0s</td></tr><tr><td><b>bazel-diff</b></td><td class="num">0.4s</td>
+<td class="num">0.4s</td><td class="num">0.3s</td><td class="num">3.0s</td><td class="num">4.1s</td><td class="num">9.4s</td><td class="num">11.0s</td><td class="num">6.3s</td></tr><tr><td><b>target-determinator</b></td><td class="num">9.7s</td>
+<td class="num">10.8s</td><td class="num">9.9s</td><td class="num">30.7s</td><td class="num">15.9s</td><td class="num">31.5s</td><td class="num">34.7s</td><td class="num">21.8s</td></tr></tbody></table></div>
+<p class="muted">Medians of wall-clock time for the tool to produce its affected set for the head revision, with every tool's Bazel server warm and its base-revision state (hashes, worktree) already computed. For the hash-based tools this is hashing the head revision (plus bazel-diff's impacted-target diff); target-determinator inherently evaluates both revisions. Dependency and toolchain scenarios include fetching the changed external repositories. Each scenario also pays for reverting the previous one.</p>
+
+<h2>Method</h2>
+<div class="card"><ul class="l">
+<li>Each scenario is one change committed on top of the same base revision of the fixture workspace (rules_cc + hermetic LLVM, rules_go, rules_python, rules_rs, rules_oci, rules_img, rules_apko, rules_distroless, rules_multitool, plus a custom rule and macro).</li>
+<li><b>Ground truth</b>: the workspace is built with an aspect that digests every top-level target's output files, runfiles and executable (contents and file modes), plus test-execution attributes (<code>size</code>, <code>timeout</code>, <code>args</code>, <code>env</code>, …). A target is affected when that digest changes, or when it is new.</li>
+<li>Tools are scored on the targets the oracle digests (main-repository targets with outputs). Labels outside that set (source files, external repositories) are ignored.</li>
+<li>Tools run unmodified with default options: the custom Bazel's <code>query //... --generate_hashes</code>, bazel-diff <code>generate-hashes</code> + <code>get-impacted-targets</code>, and target-determinator with <code>-nocache_results</code>. Each tool has its own output base.</li>
+</ul></div>
+</main></body></html>

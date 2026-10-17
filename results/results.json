@@ -1,0 +1,3645 @@
+{
+ "meta": {
+  "bazel_diff": "v60.0.0",
+  "cpus": "16",
+  "custom_bazel": "bazel-hashes-9-2",
+  "date": "2026-10-17T12:24:35+02:00",
+  "host": "linux/amd64",
+  "stock_bazel": "9.2.0",
+  "target_determinator": "v0.34.0"
+ },
+ "tools": [
+  "custom",
+  "bazel-diff",
+  "target-determinator"
+ ],
+ "scale": 0,
+ "base_targets": 39,
+ "rule_targets": 39,
+ "scenarios": [
+  {
+   "name": "control",
+   "category": "control",
+   "description": "Empty commit: nothing changes.",
+   "expectation": "Nothing affected.",
+   "ops": null,
+   "diffstat": "",
+   "universe": 39,
+   "oracle_seconds": 33.290185789,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.102527988
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.323366849,
+      "phase_seconds": {
+       "generate-hashes": 0.288878881,
+       "get-impacted-targets": 0.034487968
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 9.720437889
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "go_src_edit",
+   "category": "source",
+   "description": "Add a function to go/greet/greet.go.",
+   "expectation": "//go/greet and everything that links it (greeter, its images, greet_test).",
+   "ops": [
+    "append to go/greet/greet.go"
+   ],
+   "diffstat": "go/greet/greet.go | 2 ++\n 1 file changed, 2 insertions(+)",
+   "truth": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "universe": 39,
+   "oracle_seconds": 32.273266156,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.121770736
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet.go",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:greeter_layer_mtree.txt",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.370368382,
+      "phase_seconds": {
+       "generate-hashes": 0.333877894,
+       "get-impacted-targets": 0.036490488
+      }
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 10.614775355
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "go_src_comment",
+   "category": "source",
+   "description": "Comment-only edit to go/greet/greet.go.",
+   "expectation": "Compiled outputs are identical, so ideally nothing; content-hashing tools flag the go/greet closure.",
+   "ops": [
+    "append to go/greet/greet.go"
+   ],
+   "diffstat": "go/greet/greet.go | 2 ++\n 1 file changed, 2 insertions(+)",
+   "truth": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "universe": 39,
+   "oracle_seconds": 31.175835633,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.089901565
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet.go",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:greeter_layer_mtree.txt",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.349455238,
+      "phase_seconds": {
+       "generate-hashes": 0.312818638,
+       "get-impacted-targets": 0.0366366
+      }
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 10.302263485
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "py_src_edit",
+   "category": "source",
+   "description": "Add a function to py/lib/greet.py.",
+   "expectation": "//py/lib, its test and //py/app (sources ship in runfiles).",
+   "ops": [
+    "append to py/lib/greet.py"
+   ],
+   "diffstat": "py/lib/greet.py | 4 ++++\n 1 file changed, 4 insertions(+)",
+   "truth": [
+    "//py/app:app",
+    "//py/lib:greet_test",
+    "//py/lib:lib"
+   ],
+   "outputs_changed": [
+    "//py/app:app",
+    "//py/lib:greet_test",
+    "//py/lib:lib"
+   ],
+   "universe": 39,
+   "oracle_seconds": 41.403007511,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 0.086913868
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet.py",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 0.34468274,
+      "phase_seconds": {
+       "generate-hashes": 0.310019323,
+       "get-impacted-targets": 0.034663417
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 9.924826993
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "cc_header_edit",
+   "category": "source",
+   "description": "Add an #include to cc/lib/hello.h.",
+   "expectation": "//cc/lib targets and //cc/app.",
+   "ops": [
+    "edit cc/lib/hello.h"
+   ],
+   "diffstat": "cc/lib/hello.h | 1 +\n 1 file changed, 1 insertion(+)",
+   "truth": [
+    "//cc/app:app",
+    "//cc/lib:hello",
+    "//cc/lib:hello_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 33.480541074,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test"
+      ],
+      "seconds": 0.386835523
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/app:app.dwp",
+       "//cc/app:app.stripped",
+       "//cc/lib:hello",
+       "//cc/lib:hello.h",
+       "//cc/lib:hello_test",
+       "//cc/lib:hello_test.dwp",
+       "//cc/lib:hello_test.stripped"
+      ],
+      "seconds": 1.5848281910000002,
+      "phase_seconds": {
+       "generate-hashes": 1.398567447,
+       "get-impacted-targets": 0.186260744
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 5
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test"
+      ],
+      "seconds": 13.504875541
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "rust_src_edit",
+   "category": "source",
+   "description": "Add a function to rust/lib/lib.rs.",
+   "expectation": "//rust/lib, its test and //rust/app.",
+   "ops": [
+    "append to rust/lib/lib.rs"
+   ],
+   "diffstat": "rust/lib/lib.rs | 4 ++++\n 1 file changed, 4 insertions(+)",
+   "truth": [
+    "//rust/app:app",
+    "//rust/lib:lib",
+    "//rust/lib:lib_test"
+   ],
+   "outputs_changed": [
+    "//rust/app:app",
+    "//rust/lib:lib"
+   ],
+   "universe": 39,
+   "oracle_seconds": 43.07819793,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 0.196088082
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib.rs",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 0.611179598,
+      "phase_seconds": {
+       "generate-hashes": 0.560643753,
+       "get-impacted-targets": 0.050535845
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 11.589646474
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "data_file_edit",
+   "category": "source",
+   "description": "Edit data/a.json, consumed through a glob() filegroup.",
+   "expectation": "Everything built from //data:json or //data:a.json: the bundles, :shout, :summary and :check_test.",
+   "ops": [
+    "edit data/a.json"
+   ],
+   "diffstat": "data/a.json | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "truth": [
+    "//data:json",
+    "//tools:check_test",
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b",
+    "//tools:shout",
+    "//tools:summary"
+   ],
+   "outputs_changed": [
+    "//data:json",
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b",
+    "//tools:shout"
+   ],
+   "universe": 39,
+   "oracle_seconds": 35.039945443,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 1.260843079
+     },
+     "true_positives": 7,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//data:a.json",
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 5.168748476,
+      "phase_seconds": {
+       "generate-hashes": 4.598770247,
+       "get-impacted-targets": 0.569978229
+      }
+     },
+     "true_positives": 7,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 33.956391299
+     },
+     "true_positives": 7,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "new_globbed_file",
+   "category": "source",
+   "description": "Add data/c.json, picked up by glob([\"*.json\"]).",
+   "expectation": "Consumers of //data:json; not //tools:shout (depends on a.json only).",
+   "ops": [
+    "write data/c.json"
+   ],
+   "diffstat": "data/c.json | 1 +\n 1 file changed, 1 insertion(+)\n create mode 100644 data/c.json",
+   "truth": [
+    "//data:json",
+    "//tools:check_test",
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b",
+    "//tools:summary"
+   ],
+   "outputs_changed": [
+    "//data:json",
+    "//tools:check_test",
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b",
+    "//tools:summary"
+   ],
+   "universe": 39,
+   "oracle_seconds": 25.203607888,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:summary"
+      ],
+      "seconds": 0.18423034
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//data:c.json",
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:summary"
+      ],
+      "seconds": 0.461483767,
+      "phase_seconds": {
+       "generate-hashes": 0.425687449,
+       "get-impacted-targets": 0.035796318
+      }
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:summary"
+      ],
+      "seconds": 11.108343282
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "unreferenced_file",
+   "category": "source",
+   "description": "Add go/greet/NOTES.txt, which no target references.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "write go/greet/NOTES.txt"
+   ],
+   "diffstat": "go/greet/NOTES.txt | 1 +\n 1 file changed, 1 insertion(+)\n create mode 100644 go/greet/NOTES.txt",
+   "universe": 39,
+   "oracle_seconds": 24.428309989,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.086271461
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.400951375,
+      "phase_seconds": {
+       "generate-hashes": 0.34617735,
+       "get-impacted-targets": 0.054774025
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 10.659629923
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "docs_edit",
+   "category": "source",
+   "description": "Edit docs/README.md, which no target references.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "append to docs/README.md"
+   ],
+   "diffstat": "docs/README.md | 2 ++\n 1 file changed, 2 insertions(+)",
+   "universe": 39,
+   "oracle_seconds": 24.842912401,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.107101285
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.294615003,
+      "phase_seconds": {
+       "generate-hashes": 0.265103358,
+       "get-impacted-targets": 0.029511645
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 10.703358855
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "chmod_runfile",
+   "category": "source",
+   "description": "Add the exec bit to tools/fixture.txt, a data file in //tools:check_test's runfiles.",
+   "expectation": "//tools:check_test (a file it ships changes mode).",
+   "ops": [
+    "chmod 755 tools/fixture.txt"
+   ],
+   "diffstat": "tools/fixture.txt | 0\n 1 file changed, 0 insertions(+), 0 deletions(-)\n mode change 100644 =\u003e 100755 tools/fixture.txt",
+   "truth": [
+    "//tools:check_test"
+   ],
+   "outputs_changed": [
+    "//tools:check_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 26.168540977,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.131884894
+     },
+     "true_positives": 0,
+     "missed": 1,
+     "over_selected": 0,
+     "missed_targets": [
+      "//tools:check_test"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//tools:check_test",
+       "//tools:fixture.txt"
+      ],
+      "seconds": 0.364655774,
+      "phase_seconds": {
+       "generate-hashes": 0.331521487,
+       "get-impacted-targets": 0.033134287
+      }
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//tools:check_test"
+      ],
+      "seconds": 10.81901294
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "chmod_source",
+   "category": "source",
+   "description": "Add the exec bit to go/greet/greet.go.",
+   "expectation": "Nothing affected (compiled outputs don't depend on source modes).",
+   "ops": [
+    "chmod 755 go/greet/greet.go"
+   ],
+   "diffstat": "go/greet/greet.go | 0\n 1 file changed, 0 insertions(+), 0 deletions(-)\n mode change 100644 =\u003e 100755 go/greet/greet.go",
+   "universe": 39,
+   "oracle_seconds": 25.111427713,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.106224419
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet.go",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:greeter_layer_mtree.txt",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.41133842,
+      "phase_seconds": {
+       "generate-hashes": 0.359671848,
+       "get-impacted-targets": 0.051666572
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 10.409603996
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "rename_source",
+   "category": "source",
+   "description": "Rename go/greet/greet.go to greeting.go and update srcs.",
+   "expectation": "Ideally nothing beyond what embeds file names; tools typically flag the go/greet closure.",
+   "ops": [
+    "rename go/greet/greet.go -\u003e go/greet/greeting.go",
+    "edit go/greet/BUILD.bazel"
+   ],
+   "diffstat": "go/greet/BUILD.bazel               | 2 +-\n go/greet/{greet.go =\u003e greeting.go} | 0\n 2 files changed, 1 insertion(+), 1 deletion(-)\n rename go/greet/{greet.go =\u003e greeting.go} (100%)",
+   "truth": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "outputs_changed": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "universe": 39,
+   "oracle_seconds": 25.216608586,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.129414841
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:BUILD.bazel",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//go/greet:greeting.go",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:greeter_layer_mtree.txt",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.334061166,
+      "phase_seconds": {
+       "generate-hashes": 0.296673046,
+       "get-impacted-targets": 0.03738812
+      }
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 5
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 10.815109389
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_add_dep",
+   "category": "BUILD",
+   "description": "Add @pypi//six as a direct dep of //py/app.",
+   "expectation": "Runfiles are unchanged (six was already transitive), so ideally nothing; //py/app at most.",
+   "ops": [
+    "edit py/app/BUILD.bazel"
+   ],
+   "diffstat": "py/app/BUILD.bazel | 5 ++++-\n 1 file changed, 4 insertions(+), 1 deletion(-)",
+   "universe": 39,
+   "oracle_seconds": 24.732156335,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//py/app:app"
+      ],
+      "seconds": 0.16622768
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 1,
+     "over_selected_targets": [
+      "//py/app:app"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//py/app:BUILD.bazel",
+       "//py/app:app"
+      ],
+      "seconds": 0.355811428,
+      "phase_seconds": {
+       "generate-hashes": 0.324409664,
+       "get-impacted-targets": 0.031401764
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 1,
+     "over_selected_targets": [
+      "//py/app:app"
+     ],
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//py/app:app"
+      ],
+      "seconds": 9.941186221
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 1,
+     "over_selected_targets": [
+      "//py/app:app"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_copts",
+   "category": "BUILD",
+   "description": "Add copts = [\"-O2\"] to //cc/app.",
+   "expectation": "//cc/app only.",
+   "ops": [
+    "edit cc/app/BUILD.bazel"
+   ],
+   "diffstat": "cc/app/BUILD.bazel | 1 +\n 1 file changed, 1 insertion(+)",
+   "truth": [
+    "//cc/app:app"
+   ],
+   "outputs_changed": [
+    "//cc/app:app"
+   ],
+   "universe": 39,
+   "oracle_seconds": 25.598659242,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//cc/app:app"
+      ],
+      "seconds": 0.09618343
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//cc/app:BUILD.bazel",
+       "//cc/app:app",
+       "//cc/app:app.dwp",
+       "//cc/app:app.stripped"
+      ],
+      "seconds": 0.319270252,
+      "phase_seconds": {
+       "generate-hashes": 0.286447616,
+       "get-impacted-targets": 0.032822636
+      }
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 3
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//cc/app:app"
+      ],
+      "seconds": 9.909020517
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_test_size",
+   "category": "BUILD",
+   "description": "Set size = \"small\" on //go/greet:greet_test.",
+   "expectation": "//go/greet:greet_test only (test attribute; outputs unchanged).",
+   "ops": [
+    "edit go/greet/BUILD.bazel"
+   ],
+   "diffstat": "go/greet/BUILD.bazel | 1 +\n 1 file changed, 1 insertion(+)",
+   "truth": [
+    "//go/greet:greet_test"
+   ],
+   "outputs_changed": [
+    "//go/greet:greet_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 27.344561052,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//go/greet:greet_test"
+      ],
+      "seconds": 0.119948649
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/greet:BUILD.bazel",
+       "//go/greet:greet_test"
+      ],
+      "seconds": 0.319835145,
+      "phase_seconds": {
+       "generate-hashes": 0.284315146,
+       "get-impacted-targets": 0.035519999
+      }
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/greet:greet_test"
+      ],
+      "seconds": 9.874534762
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_delete_target",
+   "category": "BUILD",
+   "description": "Delete //go/greet:greet_test.",
+   "expectation": "One target removed; nothing else affected.",
+   "ops": [
+    "edit go/greet/BUILD.bazel"
+   ],
+   "diffstat": "go/greet/BUILD.bazel | 6 ------\n 1 file changed, 6 deletions(-)",
+   "removed": [
+    "//go/greet:greet_test"
+   ],
+   "universe": 38,
+   "oracle_seconds": 24.967479554,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.100979017
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/greet:BUILD.bazel"
+      ],
+      "seconds": 0.299508036,
+      "phase_seconds": {
+       "generate-hashes": 0.26672357,
+       "get-impacted-targets": 0.032784466
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 9.868725865
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_comment",
+   "category": "BUILD",
+   "description": "Add comments and blank lines to go/greet/BUILD.bazel.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "edit go/greet/BUILD.bazel"
+   ],
+   "diffstat": "go/greet/BUILD.bazel | 5 ++++-\n 1 file changed, 4 insertions(+), 1 deletion(-)",
+   "universe": 39,
+   "oracle_seconds": 24.512820632,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.079109035
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/greet:BUILD.bazel"
+      ],
+      "seconds": 0.288978522,
+      "phase_seconds": {
+       "generate-hashes": 0.259735398,
+       "get-impacted-targets": 0.029243124
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 9.895546314
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_reorder",
+   "category": "BUILD",
+   "description": "Reorder go_library kwargs (same values).",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "edit go/greet/BUILD.bazel"
+   ],
+   "diffstat": "go/greet/BUILD.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "universe": 39,
+   "oracle_seconds": 25.307915182,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.080609629
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/greet:BUILD.bazel"
+      ],
+      "seconds": 0.311632083,
+      "phase_seconds": {
+       "generate-hashes": 0.277623342,
+       "get-impacted-targets": 0.034008741
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 10.202237231
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_unused_load",
+   "category": "BUILD",
+   "description": "Add an unused load() to go/greet/BUILD.bazel.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "prepend to go/greet/BUILD.bazel"
+   ],
+   "diffstat": "go/greet/BUILD.bazel | 1 +\n 1 file changed, 1 insertion(+)",
+   "universe": 39,
+   "oracle_seconds": 29.012912923,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.160141328
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/greet:BUILD.bazel"
+      ],
+      "seconds": 0.295124993,
+      "phase_seconds": {
+       "generate-hashes": 0.260057721,
+       "get-impacted-targets": 0.035067272
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 10.015590253
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "build_visibility",
+   "category": "BUILD",
+   "description": "Narrow //go/greet visibility.",
+   "expectation": "Outputs unchanged, so nothing; tools typically flag the go/greet closure.",
+   "ops": [
+    "edit go/greet/BUILD.bazel"
+   ],
+   "diffstat": "go/greet/BUILD.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "universe": 39,
+   "oracle_seconds": 44.655987881,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.151399666
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:BUILD.bazel",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:greeter_layer_mtree.txt",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.348490096,
+      "phase_seconds": {
+       "generate-hashes": 0.307130138,
+       "get-impacted-targets": 0.041359958
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 11.097938324
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "bzl_rule_impl",
+   "category": ".bzl",
+   "description": "Change the text_bundle rule implementation (adds a blank line after the header).",
+   "expectation": "//tools:notes, :pair_a, :pair_b; not :shout or :summary (rules in another file).",
+   "ops": [
+    "edit tools/defs.bzl"
+   ],
+   "diffstat": "tools/defs.bzl | 1 +\n 1 file changed, 1 insertion(+)",
+   "truth": [
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b"
+   ],
+   "outputs_changed": [
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b"
+   ],
+   "universe": 39,
+   "oracle_seconds": 37.699491953,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 1.527801018
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 5.017820697,
+      "phase_seconds": {
+       "generate-hashes": 4.542129174,
+       "get-impacted-targets": 0.475691523
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 34.270304304
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "bzl_macro",
+   "category": ".bzl",
+   "description": "Change the header the bundle_pair macro passes to its second target.",
+   "expectation": "//tools:pair_b only.",
+   "ops": [
+    "edit tools/defs.bzl"
+   ],
+   "diffstat": "tools/defs.bzl | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "truth": [
+    "//tools:pair_b"
+   ],
+   "outputs_changed": [
+    "//tools:pair_b"
+   ],
+   "universe": 39,
+   "oracle_seconds": 35.22931716,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.686410513
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 1.740772481,
+      "phase_seconds": {
+       "generate-hashes": 1.644188864,
+       "get-impacted-targets": 0.096583617
+      }
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 12.495814258
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "bzl_comment",
+   "category": ".bzl",
+   "description": "Add a comment to tools/defs.bzl.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "prepend to tools/defs.bzl"
+   ],
+   "diffstat": "tools/defs.bzl | 1 +\n 1 file changed, 1 insertion(+)",
+   "universe": 39,
+   "oracle_seconds": 42.600423521,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.582305872
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 2.9259110980000003,
+      "phase_seconds": {
+       "generate-hashes": 2.506775524,
+       "get-impacted-targets": 0.419135574
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 29.783939306
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "bzl_unused_fn",
+   "category": ".bzl",
+   "description": "Add an unused function to tools/defs.bzl.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "append to tools/defs.bzl"
+   ],
+   "diffstat": "tools/defs.bzl | 3 +++\n 1 file changed, 3 insertions(+)",
+   "universe": 39,
+   "oracle_seconds": 44.988335111,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.858877266
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 3.138196054,
+      "phase_seconds": {
+       "generate-hashes": 2.8396701159999997,
+       "get-impacted-targets": 0.298525938
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 31.674624242
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "go_dep_bump",
+   "category": "dependency",
+   "description": "github.com/google/uuid v1.6.0 -\u003e v1.5.0 (go.mod + go.sum).",
+   "expectation": "Go targets linking uuid: //go/greet closure and the images.",
+   "ops": [
+    "replace go.mod with data/go_dep/go.mod.fixture",
+    "replace go.sum with data/go_dep/go.sum"
+   ],
+   "diffstat": "go.mod | 2 +-\n go.sum | 4 ++--\n 2 files changed, 3 insertions(+), 3 deletions(-)",
+   "truth": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "outputs_changed": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "universe": 39,
+   "oracle_seconds": 24.927242966,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 1.113305273
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//:go.mod",
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:greeter_layer_mtree.txt",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.947834024,
+      "phase_seconds": {
+       "generate-hashes": 0.894082648,
+       "get-impacted-targets": 0.053751376
+      }
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 12.307496327
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "pip_dep_bump",
+   "category": "dependency",
+   "description": "six 1.17.0 -\u003e 1.16.0 in the hashed requirements lock.",
+   "expectation": "Python targets depending on six (//py/...).",
+   "ops": [
+    "replace py/requirements_lock.txt with data/pip_dep/requirements_lock.txt"
+   ],
+   "diffstat": "py/requirements_lock.txt | 6 +++---\n 1 file changed, 3 insertions(+), 3 deletions(-)",
+   "truth": [
+    "//py/app:app",
+    "//py/lib:greet_test",
+    "//py/lib:lib"
+   ],
+   "outputs_changed": [
+    "//py/app:app",
+    "//py/lib:greet_test",
+    "//py/lib:lib"
+   ],
+   "universe": 39,
+   "oracle_seconds": 25.034419451,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 4.949382109
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib",
+       "//py:requirements_lock.txt"
+      ],
+      "seconds": 5.889202974,
+      "phase_seconds": {
+       "generate-hashes": 5.859302563,
+       "get-impacted-targets": 0.029900411
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 18.546588002
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "rust_crate_bump",
+   "category": "dependency",
+   "description": "itoa 1.0.18 -\u003e 1.0.17 in Cargo.lock.",
+   "expectation": "//rust/... targets.",
+   "ops": [
+    "replace Cargo.lock with data/rust_crate/Cargo.lock"
+   ],
+   "diffstat": "Cargo.lock | 4 ++--\n 1 file changed, 2 insertions(+), 2 deletions(-)",
+   "truth": [
+    "//rust/app:app",
+    "//rust/lib:lib",
+    "//rust/lib:lib_test"
+   ],
+   "outputs_changed": [
+    "//rust/app:app",
+    "//rust/lib:lib",
+    "//rust/lib:lib_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 25.964117994,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 4.932654419
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//:Cargo.lock",
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 6.315366881,
+      "phase_seconds": {
+       "generate-hashes": 6.281617811,
+       "get-impacted-targets": 0.03374907
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 18.992656907
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "multitool_bump",
+   "category": "dependency",
+   "description": "rules_multitool: jq 1.7.1 -\u003e 1.8.1 in the lockfile.",
+   "expectation": "Targets using jq: //tools:summary and //tools:check_test.",
+   "ops": [
+    "replace tools/multitool.lock.json with data/multitool/multitool.lock.json"
+   ],
+   "diffstat": "tools/multitool.lock.json | 12 ++++++------\n 1 file changed, 6 insertions(+), 6 deletions(-)",
+   "truth": [
+    "//tools:check_test",
+    "//tools:summary"
+   ],
+   "universe": 39,
+   "oracle_seconds": 26.021799864,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 2.245372841
+     },
+     "true_positives": 0,
+     "missed": 2,
+     "over_selected": 0,
+     "missed_targets": [
+      "//tools:check_test",
+      "//tools:summary"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//tools:check_test",
+       "//tools:multitool.lock.json",
+       "//tools:summary"
+      ],
+      "seconds": 2.368772819,
+      "phase_seconds": {
+       "generate-hashes": 2.341947337,
+       "get-impacted-targets": 0.026825482
+      }
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//tools:check_test",
+       "//tools:summary"
+      ],
+      "seconds": 13.24305993
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "oci_digest_bump",
+   "category": "dependency",
+   "description": "rules_oci: change the oci.pull digest of distroless/static.",
+   "expectation": "Images built on @distroless_static: //oci:image and both //distroless images.",
+   "ops": [
+    "edit MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "truth": [
+    "//distroless:cacerts_image",
+    "//distroless:cacerts_image.digest",
+    "//distroless:cacerts_image_index_json_cp",
+    "//distroless:tzdata_image",
+    "//distroless:tzdata_image.digest",
+    "//distroless:tzdata_image_index_json_cp",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "outputs_changed": [
+    "//distroless:cacerts_image",
+    "//distroless:cacerts_image.digest",
+    "//distroless:cacerts_image_index_json_cp",
+    "//distroless:tzdata_image",
+    "//distroless:tzdata_image.digest",
+    "//distroless:tzdata_image_index_json_cp",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp"
+   ],
+   "universe": 39,
+   "oracle_seconds": 26.993807677,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 6.573837596
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image.json.sha256",
+       "//distroless:cacerts_image_index.json",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image.json.sha256",
+       "//distroless:tzdata_image_index.json",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 6.825414479,
+      "phase_seconds": {
+       "generate-hashes": 6.798143006,
+       "get-impacted-targets": 0.027271473
+      }
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 6
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 28.222324682
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "img_digest_bump",
+   "category": "dependency",
+   "description": "rules_img: change the pulled base image digest.",
+   "expectation": "//img:image only.",
+   "ops": [
+    "edit MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "truth": [
+    "//img:image"
+   ],
+   "outputs_changed": [
+    "//img:image"
+   ],
+   "universe": 39,
+   "oracle_seconds": 24.827080142,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//img:image"
+      ],
+      "seconds": 6.369574452
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//img:image"
+      ],
+      "seconds": 6.4274891069999995,
+      "phase_seconds": {
+       "generate-hashes": 6.392344025,
+       "get-impacted-targets": 0.035145082
+      }
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//img:image"
+      ],
+      "seconds": 32.163231323
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "apko_package_add",
+   "category": "dependency",
+   "description": "rules_apko: add jq to apko.yaml and re-lock (new packages jq, oniguruma).",
+   "expectation": "//apko:image only.",
+   "ops": [
+    "replace apko/apko.yaml with data/apko/apko.yaml",
+    "replace apko/apko.lock.json with data/apko/apko.lock.json"
+   ],
+   "diffstat": "apko/apko.lock.json | 40 +++++++++++++++++++++++++++++++++++++++-\n apko/apko.yaml      |  1 +\n 2 files changed, 40 insertions(+), 1 deletion(-)",
+   "truth": [
+    "//apko:image",
+    "//apko:image.lock"
+   ],
+   "outputs_changed": [
+    "//apko:image",
+    "//apko:image.lock"
+   ],
+   "universe": 39,
+   "oracle_seconds": 24.413856029,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//apko:image",
+       "//apko:image.lock"
+      ],
+      "seconds": 6.240213027
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//apko:apko.yaml",
+       "//apko:image",
+       "//apko:image.lock"
+      ],
+      "seconds": 6.346133144,
+      "phase_seconds": {
+       "generate-hashes": 6.311516703,
+       "get-impacted-targets": 0.034616441
+      }
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 1
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//apko:image",
+       "//apko:image.lock"
+      ],
+      "seconds": 21.070905971
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "distroless_pkg_bump",
+   "category": "dependency",
+   "description": "rules_distroless: tzdata 2024b -\u003e 2025b in the apt lock (only that package).",
+   "expectation": "//distroless:tzdata_image only.",
+   "ops": [
+    "replace distroless/bookworm.lock.json with data/distroless_pkg/bookworm.lock.json"
+   ],
+   "diffstat": "distroless/bookworm.lock.json | 258 +++++++++++++++++++++---------------------\n 1 file changed, 129 insertions(+), 129 deletions(-)",
+   "truth": [
+    "//distroless:tzdata_image",
+    "//distroless:tzdata_image.digest",
+    "//distroless:tzdata_image_index_json_cp"
+   ],
+   "outputs_changed": [
+    "//distroless:tzdata_image",
+    "//distroless:tzdata_image.digest",
+    "//distroless:tzdata_image_index_json_cp"
+   ],
+   "universe": 39,
+   "oracle_seconds": 25.158502357,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 0.10697789
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 1,
+     "over_selected_targets": [
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image.json.sha256",
+       "//distroless:cacerts_image_index.json",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image.json.sha256",
+       "//distroless:tzdata_image_index.json",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 0.316507257,
+      "phase_seconds": {
+       "generate-hashes": 0.281888939,
+       "get-impacted-targets": 0.034618318
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 5,
+     "over_selected_targets": [
+      "//distroless:cacerts_image",
+      "//distroless:cacerts_image.digest",
+      "//distroless:cacerts_image_index_json",
+      "//distroless:cacerts_image_index_json_cp",
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 10.418590457
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 1,
+     "over_selected_targets": [
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "distroless_snapshot_bump",
+   "category": "dependency",
+   "description": "rules_distroless: move the Debian snapshot four months (tzdata, libc6, openssl, libgcc change).",
+   "expectation": "Both //distroless images.",
+   "ops": [
+    "replace distroless/bookworm.yaml with data/distroless_snapshot/bookworm.yaml",
+    "replace distroless/bookworm.lock.json with data/distroless_snapshot/bookworm.lock.json"
+   ],
+   "diffstat": "distroless/bookworm.lock.json | 72 +++++++++++++++++++++----------------------\n distroless/bookworm.yaml      |  2 +-\n 2 files changed, 37 insertions(+), 37 deletions(-)",
+   "truth": [
+    "//distroless:cacerts_image",
+    "//distroless:cacerts_image.digest",
+    "//distroless:cacerts_image_index_json_cp",
+    "//distroless:tzdata_image",
+    "//distroless:tzdata_image.digest",
+    "//distroless:tzdata_image_index_json_cp"
+   ],
+   "outputs_changed": [
+    "//distroless:cacerts_image",
+    "//distroless:cacerts_image.digest",
+    "//distroless:cacerts_image_index_json_cp",
+    "//distroless:tzdata_image",
+    "//distroless:tzdata_image.digest",
+    "//distroless:tzdata_image_index_json_cp"
+   ],
+   "universe": 39,
+   "oracle_seconds": 25.768126214,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 0.126031583
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image.json.sha256",
+       "//distroless:cacerts_image_index.json",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image.json.sha256",
+       "//distroless:tzdata_image_index.json",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 0.304188784,
+      "phase_seconds": {
+       "generate-hashes": 0.276330448,
+       "get-impacted-targets": 0.027858336
+      }
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 10.1417391
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "distroless_timestamp",
+   "category": "dependency",
+   "description": "rules_distroless: move the snapshot 12h; every package is byte-identical, only URLs change.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "replace distroless/bookworm.yaml with data/distroless_timestamp/bookworm.yaml",
+    "replace distroless/bookworm.lock.json with data/distroless_timestamp/bookworm.lock.json"
+   ],
+   "diffstat": "distroless/bookworm.lock.json | 16 ++++++++--------\n distroless/bookworm.yaml      |  2 +-\n 2 files changed, 9 insertions(+), 9 deletions(-)",
+   "universe": 39,
+   "oracle_seconds": 26.727343899,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.153090509
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image.json.sha256",
+       "//distroless:cacerts_image_index.json",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image.json.sha256",
+       "//distroless:tzdata_image_index.json",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 0.281519585,
+      "phase_seconds": {
+       "generate-hashes": 0.249581225,
+       "get-impacted-targets": 0.03193836
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 8,
+     "over_selected_targets": [
+      "//distroless:cacerts_image",
+      "//distroless:cacerts_image.digest",
+      "//distroless:cacerts_image_index_json",
+      "//distroless:cacerts_image_index_json_cp",
+      "//distroless:tzdata_image",
+      "//distroless:tzdata_image.digest",
+      "//distroless:tzdata_image_index_json",
+      "//distroless:tzdata_image_index_json_cp"
+     ],
+     "out_of_universe": 4
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 10.26119365
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "bzlmod_dep_bump",
+   "category": "bzlmod",
+   "description": "tar.bzl 0.10.8 -\u003e 0.10.9.",
+   "expectation": "Targets built with tar.bzl rules (//oci:greeter_layer, //oci:image), if the bump changes their outputs.",
+   "ops": [
+    "edit MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "universe": 39,
+   "oracle_seconds": 26.089170926,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 6.505534507
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image.json.sha256",
+       "//distroless:cacerts_image_index.json",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image.json.sha256",
+       "//distroless:tzdata_image_index.json",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//oci:greeter_layer",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image.json.sha256",
+       "//oci:image_index.json",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 6.509865539,
+      "phase_seconds": {
+       "generate-hashes": 6.469599114,
+       "get-impacted-targets": 0.040266425
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 13,
+     "over_selected_targets": [
+      "//distroless:cacerts_image",
+      "//distroless:cacerts_image.digest",
+      "//distroless:cacerts_image_index_json",
+      "//distroless:cacerts_image_index_json_cp",
+      "//distroless:tzdata_image",
+      "//distroless:tzdata_image.digest",
+      "//distroless:tzdata_image_index_json",
+      "//distroless:tzdata_image_index_json_cp",
+      "//oci:greeter_layer",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
+     "out_of_universe": 6
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 28.480831525
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "module_comment",
+   "category": "bzlmod",
+   "description": "Add a comment to MODULE.bazel.",
+   "expectation": "Nothing affected.",
+   "ops": [
+    "prepend to MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 1 +\n 1 file changed, 1 insertion(+)",
+   "universe": 39,
+   "oracle_seconds": 28.945864696,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 11.696582867
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 12.24814701,
+      "phase_seconds": {
+       "generate-hashes": 12.214040155,
+       "get-impacted-targets": 0.034106855
+      }
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": null,
+      "seconds": 34.479392667
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "go_toolchain",
+   "category": "toolchain",
+   "description": "Go SDK 1.27.2 -\u003e 1.27.1.",
+   "expectation": "Every Go target (compiled outputs change) and the images containing them.",
+   "ops": [
+    "edit MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "truth": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp",
+    "//tools/fixturetool:fixturetool",
+    "//tools:check_test",
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b",
+    "//tools:shout",
+    "//tools:summary"
+   ],
+   "outputs_changed": [
+    "//go/cmd/greeter:greeter",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp",
+    "//tools/fixturetool:fixturetool",
+    "//tools:check_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 51.997634635,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 15.100244749
+     },
+     "true_positives": 0,
+     "missed": 16,
+     "over_selected": 0,
+     "missed_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json_cp",
+      "//tools/fixturetool:fixturetool",
+      "//tools:check_test",
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b",
+      "//tools:shout",
+      "//tools:summary"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 11.593663781,
+      "phase_seconds": {
+       "generate-hashes": 11.556961291,
+       "get-impacted-targets": 0.03670249
+      }
+     },
+     "true_positives": 0,
+     "missed": 16,
+     "over_selected": 0,
+     "missed_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json_cp",
+      "//tools/fixturetool:fixturetool",
+      "//tools:check_test",
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b",
+      "//tools:shout",
+      "//tools:summary"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 37.558912914
+     },
+     "true_positives": 16,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "rust_toolchain",
+   "category": "toolchain",
+   "description": "Rust toolchain 1.97.1 -\u003e 1.97.0.",
+   "expectation": "Every Rust target.",
+   "ops": [
+    "edit MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "truth": [
+    "//rust/app:app",
+    "//rust/lib:lib",
+    "//rust/lib:lib_test"
+   ],
+   "outputs_changed": [
+    "//rust/app:app",
+    "//rust/lib:lib",
+    "//rust/lib:lib_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 26.168588752,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 10.269771719
+     },
+     "true_positives": 0,
+     "missed": 3,
+     "over_selected": 0,
+     "missed_targets": [
+      "//rust/app:app",
+      "//rust/lib:lib",
+      "//rust/lib:lib_test"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 8.90453937,
+      "phase_seconds": {
+       "generate-hashes": 8.872760317000001,
+       "get-impacted-targets": 0.031779053
+      }
+     },
+     "true_positives": 0,
+     "missed": 3,
+     "over_selected": 0,
+     "missed_targets": [
+      "//rust/app:app",
+      "//rust/lib:lib",
+      "//rust/lib:lib_test"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 32.839841663
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "python_toolchain",
+   "category": "toolchain",
+   "description": "Python 3.12 -\u003e 3.13 (interpreter and pip hub).",
+   "expectation": "Every Python target.",
+   "ops": [
+    "edit MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 4 ++--\n 1 file changed, 2 insertions(+), 2 deletions(-)",
+   "truth": [
+    "//py/app:app",
+    "//py/lib:greet_test",
+    "//py/lib:lib"
+   ],
+   "outputs_changed": [
+    "//py/app:app",
+    "//py/lib:greet_test",
+    "//py/lib:lib"
+   ],
+   "universe": 39,
+   "oracle_seconds": 36.976979632,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 10.46626068
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 11.210137591,
+      "phase_seconds": {
+       "generate-hashes": 11.184179083,
+       "get-impacted-targets": 0.025958508
+      }
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 33.384292817
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "llvm_toolchain",
+   "category": "toolchain",
+   "description": "Hermetic LLVM toolchain module 0.8.19 -\u003e 0.8.18.",
+   "expectation": "Every C/C++ target (and anything else the toolchain compiles or links).",
+   "ops": [
+    "edit MODULE.bazel"
+   ],
+   "diffstat": "MODULE.bazel | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)",
+   "truth": [
+    "//cc/app:app",
+    "//cc/lib:hello",
+    "//cc/lib:hello_test",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//img:greeter_layer",
+    "//img:image",
+    "//oci:greeter_layer",
+    "//oci:image",
+    "//oci:image.digest",
+    "//oci:image_index_json_cp",
+    "//rust/app:app",
+    "//rust/lib:lib",
+    "//rust/lib:lib_test",
+    "//tools:check_test",
+    "//tools:notes",
+    "//tools:pair_a",
+    "//tools:pair_b",
+    "//tools:shout",
+    "//tools:summary"
+   ],
+   "outputs_changed": [
+    "//cc/app:app",
+    "//cc/lib:hello",
+    "//cc/lib:hello_test",
+    "//go/greet:greet_test",
+    "//rust/app:app",
+    "//rust/lib:lib_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 45.33358702,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 11.14267947
+     },
+     "true_positives": 0,
+     "missed": 20,
+     "over_selected": 0,
+     "missed_targets": [
+      "//cc/app:app",
+      "//cc/lib:hello",
+      "//cc/lib:hello_test",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json_cp",
+      "//rust/app:app",
+      "//rust/lib:lib",
+      "//rust/lib:lib_test",
+      "//tools:check_test",
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b",
+      "//tools:shout",
+      "//tools:summary"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 10.694789254,
+      "phase_seconds": {
+       "generate-hashes": 10.663835558,
+       "get-impacted-targets": 0.030953696
+      }
+     },
+     "true_positives": 0,
+     "missed": 20,
+     "over_selected": 0,
+     "missed_targets": [
+      "//cc/app:app",
+      "//cc/lib:hello",
+      "//cc/lib:hello_test",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json_cp",
+      "//rust/app:app",
+      "//rust/lib:lib",
+      "//rust/lib:lib_test",
+      "//tools:check_test",
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b",
+      "//tools:shout",
+      "//tools:summary"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test",
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 36.041338599
+     },
+     "true_positives": 20,
+     "missed": 0,
+     "over_selected": 6,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json",
+      "//py/app:app",
+      "//py/lib:greet_test",
+      "//tools/fixturetool:fixturetool"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  },
+  {
+   "name": "bazelrc_copt",
+   "category": "config",
+   "description": "Add build --copt=-DHASHBENCH=1 to .bazelrc.",
+   "expectation": "Every C/C++ compile (outputs change); invisible to unconfigured query graphs.",
+   "ops": [
+    "append to .bazelrc"
+   ],
+   "diffstat": ".bazelrc | 1 +\n 1 file changed, 1 insertion(+)",
+   "truth": [
+    "//cc/app:app",
+    "//cc/lib:hello",
+    "//cc/lib:hello_test",
+    "//go/greet:greet",
+    "//go/greet:greet_test",
+    "//rust/app:app",
+    "//rust/lib:lib_test",
+    "//tools:check_test"
+   ],
+   "universe": 39,
+   "oracle_seconds": 43.25819722,
+   "has_oracle": true,
+   "tools": [
+    {
+     "tool": "custom",
+     "outcome": {
+      "affected": null,
+      "seconds": 6.995875478
+     },
+     "true_positives": 0,
+     "missed": 8,
+     "over_selected": 0,
+     "missed_targets": [
+      "//cc/app:app",
+      "//cc/lib:hello",
+      "//cc/lib:hello_test",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//rust/app:app",
+      "//rust/lib:lib_test",
+      "//tools:check_test"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "bazel-diff",
+     "outcome": {
+      "affected": null,
+      "seconds": 6.341821643,
+      "phase_seconds": {
+       "generate-hashes": 6.311509217,
+       "get-impacted-targets": 0.030312426
+      }
+     },
+     "true_positives": 0,
+     "missed": 8,
+     "over_selected": 0,
+     "missed_targets": [
+      "//cc/app:app",
+      "//cc/lib:hello",
+      "//cc/lib:hello_test",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//rust/app:app",
+      "//rust/lib:lib_test",
+      "//tools:check_test"
+     ],
+     "out_of_universe": 0
+    },
+    {
+     "tool": "target-determinator",
+     "outcome": {
+      "affected": [
+       "//apko:image",
+       "//apko:image.lock",
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test",
+       "//data:json",
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//oci:image_write_entrypoint",
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib",
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 21.846124772
+     },
+     "true_positives": 8,
+     "missed": 0,
+     "over_selected": 31,
+     "over_selected_targets": [
+      "//apko:image",
+      "//apko:image.lock",
+      "//data:json",
+      "//distroless:cacerts_image",
+      "//distroless:cacerts_image.digest",
+      "//distroless:cacerts_image_index_json",
+      "//distroless:cacerts_image_index_json_cp",
+      "//distroless:tzdata_image",
+      "//distroless:tzdata_image.digest",
+      "//distroless:tzdata_image_index_json",
+      "//distroless:tzdata_image_index_json_cp",
+      "//go/cmd/greeter:greeter",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp",
+      "//oci:image_write_entrypoint",
+      "//py/app:app",
+      "//py/lib:greet_test",
+      "//py/lib:lib",
+      "//rust/lib:lib",
+      "//tools/fixturetool:fixturetool",
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b",
+      "//tools:shout",
+      "//tools:summary"
+     ],
+     "out_of_universe": 0
+    }
+   ]
+  }
+ ],
+ "no_change_seconds": {
+  "bazel-diff": [
+   0.767361255,
+   0.462955607,
+   0.370936684,
+   0.353438395,
+   0.323366849
+  ],
+  "custom": [
+   0.647413427,
+   0.229600076,
+   0.243148542,
+   0.123992121,
+   0.102527988
+  ],
+  "target-determinator": [
+   11.0471653,
+   9.737578954,
+   9.544342495,
+   9.599633141,
+   9.720437889
+  ]
+ },
+ "started": "2026-10-17T12:24:35.44723213+02:00",
+ "finished": "2026-10-17T13:07:39.191690093+02:00"
+}

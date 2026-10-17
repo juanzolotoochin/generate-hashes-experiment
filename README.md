@@ -10,6 +10,34 @@ correctness and warm-cache performance:
 | **bazel-diff** | [Tinder/bazel-diff](https://github.com/Tinder/bazel-diff) v60.0.0, unmodified, default options (`generate-hashes` + `get-impacted-targets`). |
 | **target-determinator** | [bazel-contrib/target-determinator](https://github.com/bazel-contrib/target-determinator) v0.34.0, unmodified, with `-nocache_results`. |
 
+## Results
+
+Latest run (Linux x86_64, 16 CPUs, 42 scenarios; full tables in
+[`results/summary.md`](results/summary.md), interactive report in
+[`results/report.html`](results/report.html), raw data in
+[`results/results.json`](results/results.json)):
+
+| Tool | Exact | Scenarios with misses | Missed targets | Over-selected targets | Recall | Precision | Warm no-change | Warm per change (median) |
+|---|---|---|---|---|---|---|---|---|
+| custom | 24/42 | 6 | 50 | 34 | 65.3% | 73.4% | 0.2s | 0.2s |
+| bazel-diff | 23/42 | 4 | 47 | 70 | 67.4% | 58.1% | 0.4s | 0.6s |
+| target-determinator | 26/42 | 0 | 0 | 84 | 100.0% | 63.2% | 9.7s | 11.6s |
+
+- **target-determinator** never missed a target that needed rebuilding, at
+  about 50× the time per change, and it over-selects (e.g. every C/C++
+  dependent on a `.bazelrc` `--copt` change).
+- **custom** and **bazel-diff** answer in well under a second, but both miss
+  every Go SDK, Rust and LLVM toolchain bump and the `.bazelrc` flag change:
+  configuration and toolchain resolution are invisible to an unconfigured
+  query graph.
+- **custom** also misses an exec-bit change on a runfile and a
+  rules_multitool tool bump.
+- **bazel-diff** over-selects on rules_distroless lock changes (including a
+  snapshot move where every package is byte-identical), on a `bazel_dep` bump,
+  and on exec-bit changes to source files.
+- All three over-select in the same places where outputs don't depend on the
+  change (visibility, .bzl comments, helper targets without outputs).
+
 ## Running it
 
 ```sh
@@ -74,17 +102,15 @@ Every command the harness runs is logged to `hashbench-work/commands.log`.
   pinned: the fully hermetic `llvm` C/C++ toolchain (no sysroot), Go SDK, Rust,
   and a Python interpreter. `BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1` stops Bazel from
   ever probing for a host compiler.
-- **No host tools in build actions.** Every build runs in Bazel's hermetic
-  Linux sandbox (`--experimental_use_hermetic_linux_sandbox`, strategy
-  `linux-sandbox` only). Inside it, `/bin` and `/usr/bin` contain only the
-  pinned static bash and busybox, and `--shell_executable` is that bash. The
-  fixture's own custom rules use a small Go tool rather than shell commands.
-  The oracle's digest action is the hermetic harness binary itself.
+- **No host tools in build actions.** The fixture's custom rules use a small
+  Go tool rather than shell commands, the oracle's digest action is the harness
+  binary itself, and `--shell_executable` is the pinned static bash.
 - **No host tools on PATH.** Every process the harness starts (Bazel, the
   tools, repository rules) gets a scrubbed environment whose `PATH` is only that
   toolbox plus `git`.
-- What remains from the host: the Linux kernel, and the glibc that the official
-  Bazel binaries (and your custom Bazel) are dynamically linked against.
+- What remains from the host: the Linux kernel, and glibc. The official Bazel
+  binaries, your custom Bazel and some prebuilt toolchains (the official
+  `rustc`, the Python interpreter) are dynamically linked against it.
 
 ## What is measured
 
