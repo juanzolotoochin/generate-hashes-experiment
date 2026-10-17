@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -225,8 +226,8 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 	meters := map[string]*netmeter.Meter{}
 	var ts []tools.Tool
 	for i, name := range cfg.Tools {
-		dir := filepath.Join(state, name+suffix)
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		dir := filepath.Join(state, name)
+		if err := resetForMode(dir, cfg.RepoCacheMode); err != nil {
 			return nil, err
 		}
 		m, err := netmeter.Start(remoteAddr, filepath.Join(sockDir, fmt.Sprintf("%d.sock", i)))
@@ -755,4 +756,27 @@ func sanitize(s string) string {
 		}
 		return '_'
 	}, strings.ToLower(s))
+}
+
+// resetForMode empties a tool's state dir (output bases and caches) when it
+// was last used in another repo cache mode, so every mode starts cold from
+// the same paths, and records the mode.
+func resetForMode(dir, mode string) error {
+	marker := filepath.Join(dir, ".mode")
+	if b, err := os.ReadFile(marker); err != nil || string(b) != mode {
+		// Bazel leaves read-only directories behind; make them writable first.
+		filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+			if err == nil && d.IsDir() {
+				os.Chmod(p, 0o755)
+			}
+			return nil
+		})
+		if err := os.RemoveAll(dir); err != nil {
+			return err
+		}
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	return os.WriteFile(marker, []byte(mode), 0o644)
 }

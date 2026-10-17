@@ -70,8 +70,13 @@ type Tool interface {
 
 // New returns the tool with the given name.
 func New(name string, env Env) (Tool, error) {
+	// The state dir (output bases, caches) is per tool, not per mode, so a
+	// tool's output base has the same path in both modes: anything that
+	// embeds the output base path (e.g. rules_java's local_jdk) then cannot
+	// show up as a difference between modes. The harness empties it when the
+	// mode changes.
 	full := name + env.Suffix
-	dir := filepath.Join(env.StateDir, full)
+	dir := filepath.Join(env.StateDir, name)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
 	}
