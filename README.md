@@ -8,7 +8,8 @@ correctness and warm-cache performance:
 |---|---|
 | **custom** | A custom Bazel build (based on Bazel 9.2) whose `bazel query` accepts `--generate_hashes` and prints a content hash for every target. Changed hashes between two revisions = affected targets. |
 | **custom-cquery** | The same custom Bazel running `bazel cquery --generate_hashes`: hashes of configured targets, so toolchains and build flags are included. |
-| **bazel-diff** | [Tinder/bazel-diff](https://github.com/Tinder/bazel-diff) v60.0.0, unmodified, default options (`generate-hashes` + `get-impacted-targets`). |
+| **bazel-diff** | [Tinder/bazel-diff](https://github.com/Tinder/bazel-diff) v60.0.0, unmodified, default options (`generate-hashes` + `get-impacted-targets`). Each external repo is hashed as one opaque blob. |
+| **bazel-diff-fine** | The same, with `--fineGrainedHashExternalReposFile` listing the third-party repos (pip, `go_deps`, crates) found in `deps(//...)` on each revision, as CI setups commonly use it: those repos are hashed per target, reading their files from disk. |
 | **target-determinator** | [bazel-contrib/target-determinator](https://github.com/bazel-contrib/target-determinator) v0.34.0, unmodified, with `-nocache_results`. |
 
 ## Results
@@ -231,6 +232,15 @@ time to produce the affected set for the scenario's head revision:
 Reports show the median of the no-change scenario (repeated `-perf-reps` times)
 and medians per scenario category.
 
+### Consistency
+
+With `--experimental_remote_repo_contents_cache`, cached external repos are
+served lazily and their files are not on disk. A tool that reads external
+files from disk can then compute different hashes for the same revision
+depending on what is materialized. When the results contain both modes, the
+report compares each hash-based tool's base-revision hashes between local and
+remote mode: they should be identical.
+
 ### Downloads
 
 Every tool has its own repository and repo-contents caches, so what it fetches
@@ -252,8 +262,8 @@ The oracle uses separate, shared caches and is not measured.
 | Area | Rulesets | Targets |
 |---|---|---|
 | C/C++ | rules_cc + the fully hermetic `llvm` toolchain module | `//cc/lib`, `//cc/app` |
-| Go | rules_go + gazelle `go_deps` | `//go/greet`, `//go/cmd/greeter` |
-| Python | rules_python (hermetic interpreter, hashed pip lock) | `//py/lib`, `//py/app` |
+| Go | rules_go + gazelle `go_deps` | `//go/greet` (uuid), `//go/diff` (go-difflib), `//go/cmd/greeter` |
+| Python | rules_python (hermetic interpreter, hashed pip lock) | `//py/lib` (six), `//py/extra` (idna), `//py/app` |
 | Rust | rules_rs (toolchain + crates from Cargo.lock) | `//rust/lib`, `//rust/app` |
 | Containers | rules_oci, rules_img, rules_apko, rules_distroless | `//oci`, `//img`, `//apko`, `//distroless` |
 | Tools | rules_multitool (jq), a custom rule, macro and Go tool | `//tools`, `//data` |

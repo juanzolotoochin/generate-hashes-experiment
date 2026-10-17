@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -62,6 +63,9 @@ type Tool interface {
 	Affected(ctx context.Context, baseRev, headRev string) Outcome
 	// Shutdown stops any Bazel servers the tool started.
 	Shutdown(ctx context.Context)
+	// BaseHashes returns the tool's per-target hashes of the base revision
+	// (main-repository targets), or nil for tools without hashes.
+	BaseHashes() map[string]string
 }
 
 // New returns the tool with the given name.
@@ -78,10 +82,12 @@ func New(name string, env Env) (Tool, error) {
 		return &customTool{env: env, dir: dir, name: full, command: "cquery"}, nil
 	case "bazel-diff":
 		return &bazelDiffTool{env: env, dir: dir, name: full}, nil
+	case "bazel-diff-fine":
+		return &bazelDiffTool{env: env, dir: dir, name: full, fine: true}, nil
 	case "target-determinator":
 		return &tdTool{env: env, dir: dir, name: full}, nil
 	}
-	return nil, fmt.Errorf("unknown tool %q (want custom, custom-cquery, bazel-diff or target-determinator)", name)
+	return nil, fmt.Errorf("unknown tool %q (want custom, custom-cquery, bazel-diff, bazel-diff-fine or target-determinator)", name)
 }
 
 // NormalizeLabel maps @@//pkg:name and @//pkg:name to //pkg:name, and expands
@@ -179,6 +185,8 @@ func (t *customTool) Affected(ctx context.Context, _, _ string) Outcome {
 	return finish(o)
 }
 
+func (t *customTool) BaseHashes() map[string]string { return t.base }
+
 func (t *customTool) Shutdown(ctx context.Context) {
 	t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel, append(t.env.startup(filepath.Join(t.dir, "output_base")), "shutdown")...)
 }
@@ -190,6 +198,55 @@ type bazelDiffTool struct {
 	dir  string
 	name string
 	base string
+	// fine hashes third-party repos (pip, go_deps, crates) per target with
+	// --fineGrainedHashExternalReposFile, reading their files from disk, as
+	// CI setups commonly do. The repo list is computed for every revision.
+	fine bool
+}
+
+var fineRepoRE = regexp.MustCompile(`^@@([^/]*\+(pip|go_deps|crate)\+[^/]*)//`)
+
+// fineRepos writes the canonical names of the third-party repos in
+// deps(//...) to a file and returns its path.
+func (t *bazelDiffTool) fineRepos(ctx context.Context) (string, time.Duration, error) {
+	args := append(t.env.startup(filepath.Join(t.dir, "output_base")), "query", "deps(//...)", "--output=label", "--consistent_labels", "--keep_going")
+	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.StockBazel, args...)
+	if len(res.Stdout) == 0 && res.Err != nil {
+		return "", res.Duration, res.Err
+	}
+	set := map[string]bool{}
+	for _, l := range strings.Split(string(res.Stdout), "\n") {
+		if m := fineRepoRE.FindStringSubmatch(l); m != nil {
+			set["@@"+m[1]] = true
+		}
+	}
+	var repos []string
+	for r := range set {
+		repos = append(repos, r)
+	}
+	sort.Strings(repos)
+	p := filepath.Join(t.dir, "fine-repos.txt")
+	return p, res.Duration, os.WriteFile(p, []byte(strings.Join(repos, "\n")+"\n"), 0o644)
+}
+
+func (t *bazelDiffTool) BaseHashes() map[string]string {
+	b, err := os.ReadFile(t.base)
+	if err != nil {
+		return nil
+	}
+	var v struct {
+		Hashes map[string]json.RawMessage `json:"hashes"`
+	}
+	if json.Unmarshal(b, &v) != nil {
+		return nil
+	}
+	m := map[string]string{}
+	for l, h := range v.Hashes {
+		if strings.HasPrefix(l, "//") && !strings.HasPrefix(l, "//external:") {
+			m[NormalizeLabel(l)] = string(h)
+		}
+	}
+	return m
 }
 
 func (t *bazelDiffTool) Name() string { return t.name }
@@ -199,8 +256,19 @@ func (t *bazelDiffTool) startup() string {
 }
 
 func (t *bazelDiffTool) generate(ctx context.Context, out string) ws.Result {
-	return t.env.Runner.Run(ctx, t.env.Workspace, t.env.BazelDiff, "generate-hashes",
-		"--workspacePath="+t.env.Workspace, "--bazelPath="+t.env.StockBazel, t.startup(), out)
+	args := []string{"generate-hashes", "--workspacePath=" + t.env.Workspace, "--bazelPath=" + t.env.StockBazel, t.startup()}
+	var listTime time.Duration
+	if t.fine {
+		list, d, err := t.fineRepos(ctx)
+		listTime = d
+		if err != nil {
+			return ws.Result{Duration: d, Err: err}
+		}
+		args = append(args, "--fineGrainedHashExternalReposFile="+list)
+	}
+	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.BazelDiff, append(args, out)...)
+	res.Duration += listTime
+	return res
 }
 
 func (t *bazelDiffTool) Prepare(ctx context.Context, baseRev string) error {
@@ -282,6 +350,8 @@ func (t *tdTool) Affected(ctx context.Context, baseRev, _ string) Outcome {
 	o.Affected = labelSet(strings.Split(string(res.Stdout), "\n"))
 	return finish(o)
 }
+
+func (t *tdTool) BaseHashes() map[string]string { return nil }
 
 func (t *tdTool) Shutdown(ctx context.Context) {
 	// Stop every server under the tool's output user root (normally one; a

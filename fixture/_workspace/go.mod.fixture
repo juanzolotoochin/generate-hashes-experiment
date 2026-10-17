@@ -2,4 +2,7 @@ module example.com/hashbench
 
 go 1.27
 
-require github.com/google/uuid v1.6.0
+require (
+	github.com/google/uuid v1.6.0
+	github.com/pmezard/go-difflib v1.0.0
+)

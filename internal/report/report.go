@@ -41,14 +41,45 @@ type ToolSummary struct {
 }
 
 type view struct {
-	R          *bench.Results
-	Summaries  []ToolSummary
-	Categories []string
+	R           *bench.Results
+	Summaries   []ToolSummary
+	Categories  []string
+	Consistency []Consistency
+}
+
+// Consistency compares one tool's hashes of the same base revision with the
+// remote repo contents cache off and on.
+type Consistency struct {
+	Tool      string
+	Compared  int
+	Different []string
+}
+
+func consistency(r *bench.Results) []Consistency {
+	var out []Consistency
+	for _, t := range r.Tools {
+		a, b := r.BaseHashes[t], r.BaseHashes[t+"@remote"]
+		if a == nil || b == nil {
+			continue
+		}
+		c := Consistency{Tool: t}
+		for l, h := range a {
+			if h2, ok := b[l]; ok {
+				c.Compared++
+				if h != h2 {
+					c.Different = append(c.Different, l)
+				}
+			}
+		}
+		sort.Strings(c.Different)
+		out = append(out, c)
+	}
+	return out
 }
 
 // Write renders report.html and summary.md into dir and returns their paths.
 func Write(dir string, r *bench.Results) ([]string, error) {
-	v := view{R: r, Summaries: summarize(r)}
+	v := view{R: r, Summaries: summarize(r), Consistency: consistency(r)}
 	seen := map[string]bool{}
 	for _, s := range r.Scenarios {
 		if !seen[s.Category] {
@@ -263,6 +294,14 @@ func markdown(v view) string {
 			}
 		}
 		b.WriteString("\n")
+	}
+	if len(v.Consistency) > 0 {
+		b.WriteString("\n## Consistency: same revision, remote repo contents cache off vs on\n\n")
+		b.WriteString("Each tool's hashes of the base revision, computed in local mode and with `--experimental_remote_repo_contents_cache` (where external repos are served lazily and are not on disk). A correct tool gives identical hashes; any difference means its hash snapshots depend on what is materialized locally.\n\n")
+		b.WriteString("| Tool | Targets compared | Different hashes | Examples |\n|---|---|---|---|\n")
+		for _, c := range v.Consistency {
+			fmt.Fprintf(&b, "| %s | %d | %d | %s |\n", c.Tool, c.Compared, len(c.Different), strings.Join(shortList(c.Different, 4), ", "))
+		}
 	}
 	if len(v.R.RepoSupport) > 0 {
 		b.WriteString("\n## Repo contents cache support by module\n\n")

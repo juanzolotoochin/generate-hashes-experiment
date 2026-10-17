@@ -1,0 +1,17 @@
+load("@rules_python//python:py_library.bzl", "py_library")
+load("@rules_python//python:py_test.bzl", "py_test")
+
+# A second consumer of a different pip package: a bump of one package should
+# select only its own consumers.
+py_library(
+    name = "extra",
+    srcs = ["extra.py"],
+    visibility = ["//visibility:public"],
+    deps = ["@pypi//idna"],
+)
+
+py_test(
+    name = "extra_test",
+    srcs = ["extra_test.py"],
+    deps = [":extra"],
+)

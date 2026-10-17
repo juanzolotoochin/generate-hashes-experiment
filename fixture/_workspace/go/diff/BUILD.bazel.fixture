@@ -1,0 +1,17 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+# A second consumer of a different Go module: a bump of one module should
+# select only its own consumers.
+go_library(
+    name = "diff",
+    srcs = ["diff.go"],
+    importpath = "example.com/hashbench/go/diff",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_pmezard_go_difflib//difflib"],
+)
+
+go_test(
+    name = "diff_test",
+    srcs = ["diff_test.go"],
+    embed = [":diff"],
+)

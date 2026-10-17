@@ -108,8 +108,11 @@ type Results struct {
 	// RepoSupport is the repo contents cache support of every repository the
 	// tools fetched for the base revision, by module.
 	RepoSupport []RepoSupport `json:"repo_support,omitempty"`
-	Started     time.Time     `json:"started"`
-	Finished    time.Time     `json:"finished"`
+	// BaseHashes are each hash-based tool's per-target hashes of the base
+	// revision, to compare the same revision across modes (consistency).
+	BaseHashes map[string]map[string]string `json:"base_hashes,omitempty"`
+	Started    time.Time                    `json:"started"`
+	Finished   time.Time                    `json:"finished"`
 }
 
 // Setup is a tool's preparation on the base revision.
@@ -121,7 +124,7 @@ type Setup struct {
 // Run executes the benchmark and returns its results. Results are also
 // written to <WorkDir>/results.json after every scenario.
 func Run(ctx context.Context, cfg Config) (*Results, error) {
-	res := &Results{Meta: cfg.Meta, Scale: cfg.Scale, NoChange: map[string][]float64{}, Setup: map[string]Setup{}, Started: time.Now()}
+	res := &Results{Meta: cfg.Meta, Scale: cfg.Scale, NoChange: map[string][]float64{}, Setup: map[string]Setup{}, BaseHashes: map[string]map[string]string{}, Started: time.Now()}
 	remote := cfg.RepoCacheMode == "remote"
 	suffix := ""
 	if remote {
@@ -346,6 +349,9 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		}
 		d := meters[t.Name()].Counts().Sub(c0)
 		res.Setup[t.Name()] = Setup{Seconds: time.Since(start).Seconds(), Download: d}
+		if h := t.BaseHashes(); h != nil {
+			res.BaseHashes[t.Name()] = h
+		}
 		say("  %s ready in %s, downloaded %s", t.Name(), time.Since(start).Round(time.Second), MB(d))
 	}
 	if dirty := git.Dirty(ctx); len(dirty) > 0 {
@@ -408,6 +414,9 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 				}
 				if len(res.RepoSupport) == 0 {
 					res.RepoSupport = cfg.Prior.RepoSupport
+				}
+				if h, ok := cfg.Prior.BaseHashes[t]; ok {
+					res.BaseHashes[t] = h
 				}
 			}
 		}
