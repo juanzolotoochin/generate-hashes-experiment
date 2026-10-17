@@ -7,6 +7,7 @@ correctness and warm-cache performance:
 | Tool | What it is |
 |---|---|
 | **custom** | A custom Bazel build (based on Bazel 9.2) whose `bazel query` accepts `--generate_hashes` and prints a content hash for every target. Changed hashes between two revisions = affected targets. |
+| **custom-cquery** | The same custom Bazel running `bazel cquery --generate_hashes`: hashes of configured targets, so toolchains and build flags are included. |
 | **bazel-diff** | [Tinder/bazel-diff](https://github.com/Tinder/bazel-diff) v60.0.0, unmodified, default options (`generate-hashes` + `get-impacted-targets`). |
 | **target-determinator** | [bazel-contrib/target-determinator](https://github.com/bazel-contrib/target-determinator) v0.34.0, unmodified, with `-nocache_results`. |
 
@@ -15,28 +16,35 @@ correctness and warm-cache performance:
 Latest run (Linux x86_64, 16 CPUs, 42 scenarios; full tables in
 [`results/summary.md`](results/summary.md), interactive report in
 [`results/report.html`](results/report.html), raw data in
-[`results/results.json`](results/results.json)):
+[`results/results.json`](results/results.json)). `custom` and `custom-cquery`
+are the same custom Bazel running `query --generate_hashes` (unconfigured
+graph) and `cquery --generate_hashes` (configured graph).
 
 | Tool | Exact | Scenarios with misses | Missed targets | Over-selected targets | Recall | Precision | Warm no-change | Warm per change (median) |
 |---|---|---|---|---|---|---|---|---|
+| custom-cquery | 26/42 | 1 | 1 | 73 | 99.3% | 66.2% | 0.6s | 0.7s |
 | custom | 24/42 | 6 | 50 | 34 | 65.3% | 73.4% | 0.2s | 0.2s |
 | bazel-diff | 23/42 | 4 | 47 | 70 | 67.4% | 58.1% | 0.4s | 0.6s |
 | target-determinator | 26/42 | 0 | 0 | 84 | 100.0% | 63.2% | 9.7s | 11.6s |
 
-- **target-determinator** never missed a target that needed rebuilding, at
-  about 50× the time per change, and it over-selects (e.g. every C/C++
-  dependent on a `.bazelrc` `--copt` change).
-- **custom** and **bazel-diff** answer in well under a second, but both miss
-  every Go SDK, Rust and LLVM toolchain bump and the `.bazelrc` flag change:
-  configuration and toolchain resolution are invisible to an unconfigured
-  query graph.
-- **custom** also misses an exec-bit change on a runfile and a
-  rules_multitool tool bump.
+- **custom-cquery** catches every toolchain bump (Go SDK, Rust, LLVM), the
+  `.bazelrc` flag change and the rules_multitool tool bump, all of which the
+  query-based tools miss. Its only miss is an exec-bit change on a test's data
+  file. Configured hashes over-select in the same places target-determinator
+  does, at a median 0.7s per change versus 11.6s. Changes to `MODULE.bazel`
+  or lock files take 5–15s because they invalidate the analysis cache.
+- **target-determinator** never missed a target that needed rebuilding, but
+  it's the slowest and over-selects (e.g. every C/C++ dependent on a `.bazelrc`
+  `--copt` change).
+- **custom** (query) and **bazel-diff** answer in well under a second, but both
+  miss every toolchain bump and the `.bazelrc` flag change: configuration and
+  toolchain resolution are invisible to an unconfigured query graph.
+  **custom** also misses the exec-bit change and the rules_multitool bump.
 - **bazel-diff** over-selects on rules_distroless lock changes (including a
   snapshot move where every package is byte-identical), on a `bazel_dep` bump,
   and on exec-bit changes to source files.
-- All three over-select in the same places where outputs don't depend on the
-  change (visibility, .bzl comments, helper targets without outputs).
+- All tools over-select where outputs don't depend on the change (visibility,
+  .bzl comments, helper targets without outputs).
 
 ## Running it
 
@@ -84,7 +92,8 @@ representative scenario subset runs, unless you override them.
 | Flag | Default | Meaning |
 |---|---|---|
 | `-custom-bazel` | (required) | Bazel binary that supports `query --generate_hashes`. |
-| `-tools` | `custom,bazel-diff,target-determinator` | Which tools to benchmark. |
+| `-tools` | `custom,bazel-diff,target-determinator` | Which tools to benchmark (also available: `custom-cquery`). |
+| `-reuse-truth` | | `results.json` of an earlier run: reuse its ground truth instead of re-running the oracle per scenario, and merge its tools' scores. Handy for adding a tool. |
 | `-scenarios` | all | Comma-separated scenario names or categories, e.g. `source,toolchain` or `go_dep_bump`. See `-list`. |
 | `-list` | | Print the scenarios and exit. |
 | `-scale` | `0` | Comma-separated workspace sizes (generated packages). Several values run a sweep. |

@@ -3,12 +3,13 @@
   "bazel_diff": "v60.0.0",
   "cpus": "16",
   "custom_bazel": "bazel-hashes-9-2",
-  "date": "2026-10-17T12:24:35+02:00",
+  "date": "2026-10-17T13:10:33+02:00",
   "host": "linux/amd64",
   "stock_bazel": "9.2.0",
   "target_determinator": "v0.34.0"
  },
  "tools": [
+  "custom-cquery",
   "custom",
   "bazel-diff",
   "target-determinator"
@@ -28,6 +29,17 @@
    "oracle_seconds": 33.290185789,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.628016402
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -91,6 +103,33 @@
    "oracle_seconds": 32.273266156,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.655587672
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -207,6 +246,33 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.642379776
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -321,6 +387,21 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 0.559540104
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -390,6 +471,21 @@
    "oracle_seconds": 33.480541074,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test"
+      ],
+      "seconds": 0.610107957
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -468,6 +564,21 @@
    "oracle_seconds": 43.07819793,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 0.614011686
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -549,6 +660,25 @@
    "oracle_seconds": 35.039945443,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 0.602629124
+     },
+     "true_positives": 7,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -643,6 +773,24 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//data:json",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:summary"
+      ],
+      "seconds": 0.749706508
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -717,6 +865,17 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.647921656
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": null,
@@ -768,6 +927,17 @@
    "oracle_seconds": 24.842912401,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.630320991
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -826,6 +996,20 @@
    "oracle_seconds": 26.168540977,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.64828936
+     },
+     "true_positives": 0,
+     "missed": 1,
+     "over_selected": 0,
+     "missed_targets": [
+      "//tools:check_test"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -886,6 +1070,17 @@
    "oracle_seconds": 25.111427713,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.614910125
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -1016,6 +1211,33 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.732595719
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -1121,6 +1343,22 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//py/app:app"
+      ],
+      "seconds": 0.747176857
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 1,
+     "over_selected_targets": [
+      "//py/app:app"
+     ],
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -1195,6 +1433,19 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//cc/app:app"
+      ],
+      "seconds": 0.749850973
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -1262,6 +1513,19 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/greet:greet_test"
+      ],
+      "seconds": 0.709168914
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -1324,6 +1588,17 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.758639337
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": null,
@@ -1377,6 +1652,17 @@
    "oracle_seconds": 24.512820632,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.735291426
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -1432,6 +1718,17 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.754429329
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": null,
@@ -1486,6 +1783,17 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.736579369
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": null,
@@ -1539,6 +1847,42 @@
    "oracle_seconds": 44.655987881,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.749173087
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 11,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//go/greet:greet",
+      "//go/greet:greet_test",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -1681,6 +2025,21 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.706212316
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -1750,6 +2109,25 @@
    "oracle_seconds": 35.22931716,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.667074818
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -1826,6 +2204,26 @@
    "oracle_seconds": 42.600423521,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.685513062
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -1906,6 +2304,26 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b"
+      ],
+      "seconds": 0.762430138
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b"
+     ],
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -1935,7 +2353,7 @@
       ],
       "seconds": 3.138196054,
       "phase_seconds": {
-       "generate-hashes": 2.8396701159999997,
+       "generate-hashes": 2.839670115,
        "get-impacted-targets": 0.298525938
       }
      },
@@ -2006,6 +2424,33 @@
    "oracle_seconds": 24.927242966,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 0.91941622
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -2121,6 +2566,21 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 5.731693384
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -2196,6 +2656,21 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 4.783628532
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -2264,6 +2739,20 @@
    "oracle_seconds": 26.021799864,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//tools:check_test",
+       "//tools:summary"
+      ],
+      "seconds": 4.655353788
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -2349,6 +2838,35 @@
    "oracle_seconds": 26.993807677,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp"
+      ],
+      "seconds": 13.470242622
+     },
+     "true_positives": 9,
+     "missed": 0,
+     "over_selected": 3,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -2468,6 +2986,19 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//img:image"
+      ],
+      "seconds": 13.787641749
+     },
+     "true_positives": 1,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -2503,7 +3034,7 @@
       "affected": [
        "//img:image"
       ],
-      "seconds": 32.163231323
+      "seconds": 32.163231322
      },
      "true_positives": 1,
      "missed": 0,
@@ -2534,6 +3065,20 @@
    "oracle_seconds": 24.413856029,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//apko:image",
+       "//apko:image.lock"
+      ],
+      "seconds": 12.299942709
+     },
+     "true_positives": 2,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -2606,6 +3151,25 @@
    "oracle_seconds": 25.158502357,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 1.170306778
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 1,
+     "over_selected_targets": [
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -2712,6 +3276,30 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp"
+      ],
+      "seconds": 0.786572758
+     },
+     "true_positives": 6,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//distroless:cacerts_image_index_json",
+      "//distroless:tzdata_image_index_json"
+     ],
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": [
@@ -2808,6 +3396,17 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 0.668045017
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": null,
@@ -2882,6 +3481,17 @@
    "oracle_seconds": 26.089170926,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 12.234334596
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -2970,6 +3580,17 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": null,
+      "seconds": 12.35798763
+     },
+     "true_positives": 0,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": null,
@@ -3052,6 +3673,40 @@
    "oracle_seconds": 51.997634635,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 14.681776295
+     },
+     "true_positives": 16,
+     "missed": 0,
+     "over_selected": 2,
+     "over_selected_targets": [
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -3174,6 +3829,21 @@
    "has_oracle": true,
    "tools": [
     {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test"
+      ],
+      "seconds": 12.106849616
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
+    {
      "tool": "custom",
      "outcome": {
       "affected": null,
@@ -3249,6 +3919,21 @@
    "oracle_seconds": 36.976979632,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib"
+      ],
+      "seconds": 11.73659429
+     },
+     "true_positives": 3,
+     "missed": 0,
+     "over_selected": 0,
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -3343,6 +4028,52 @@
    "oracle_seconds": 45.33358702,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test",
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 12.308270782
+     },
+     "true_positives": 20,
+     "missed": 0,
+     "over_selected": 6,
+     "over_selected_targets": [
+      "//go/cmd/greeter:greeter",
+      "//oci:greeter_layer_mtree",
+      "//oci:image_index_json",
+      "//py/app:app",
+      "//py/lib:greet_test",
+      "//tools/fixturetool:fixturetool"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -3484,6 +4215,90 @@
    "oracle_seconds": 43.25819722,
    "has_oracle": true,
    "tools": [
+    {
+     "tool": "custom-cquery",
+     "outcome": {
+      "affected": [
+       "//apko:image",
+       "//apko:image.lock",
+       "//cc/app:app",
+       "//cc/lib:hello",
+       "//cc/lib:hello_test",
+       "//data:json",
+       "//distroless:cacerts_image",
+       "//distroless:cacerts_image.digest",
+       "//distroless:cacerts_image_index_json",
+       "//distroless:cacerts_image_index_json_cp",
+       "//distroless:tzdata_image",
+       "//distroless:tzdata_image.digest",
+       "//distroless:tzdata_image_index_json",
+       "//distroless:tzdata_image_index_json_cp",
+       "//go/cmd/greeter:greeter",
+       "//go/greet:greet",
+       "//go/greet:greet_test",
+       "//img:greeter_layer",
+       "//img:image",
+       "//oci:greeter_layer",
+       "//oci:greeter_layer_mtree",
+       "//oci:image",
+       "//oci:image.digest",
+       "//oci:image_index_json",
+       "//oci:image_index_json_cp",
+       "//oci:image_write_entrypoint",
+       "//py/app:app",
+       "//py/lib:greet_test",
+       "//py/lib:lib",
+       "//rust/app:app",
+       "//rust/lib:lib",
+       "//rust/lib:lib_test",
+       "//tools/fixturetool:fixturetool",
+       "//tools:check_test",
+       "//tools:notes",
+       "//tools:pair_a",
+       "//tools:pair_b",
+       "//tools:shout",
+       "//tools:summary"
+      ],
+      "seconds": 13.057159503
+     },
+     "true_positives": 8,
+     "missed": 0,
+     "over_selected": 31,
+     "over_selected_targets": [
+      "//apko:image",
+      "//apko:image.lock",
+      "//data:json",
+      "//distroless:cacerts_image",
+      "//distroless:cacerts_image.digest",
+      "//distroless:cacerts_image_index_json",
+      "//distroless:cacerts_image_index_json_cp",
+      "//distroless:tzdata_image",
+      "//distroless:tzdata_image.digest",
+      "//distroless:tzdata_image_index_json",
+      "//distroless:tzdata_image_index_json_cp",
+      "//go/cmd/greeter:greeter",
+      "//img:greeter_layer",
+      "//img:image",
+      "//oci:greeter_layer",
+      "//oci:greeter_layer_mtree",
+      "//oci:image",
+      "//oci:image.digest",
+      "//oci:image_index_json",
+      "//oci:image_index_json_cp",
+      "//oci:image_write_entrypoint",
+      "//py/app:app",
+      "//py/lib:greet_test",
+      "//py/lib:lib",
+      "//rust/lib:lib",
+      "//tools/fixturetool:fixturetool",
+      "//tools:notes",
+      "//tools:pair_a",
+      "//tools:pair_b",
+      "//tools:shout",
+      "//tools:summary"
+     ],
+     "out_of_universe": 0
+    },
     {
      "tool": "custom",
      "outcome": {
@@ -3632,6 +4447,13 @@
    0.123992121,
    0.102527988
   ],
+  "custom-cquery": [
+   0.869410316,
+   0.59662682,
+   0.524895047,
+   0.569367812,
+   0.628016402
+  ],
   "target-determinator": [
    11.0471653,
    9.737578954,
@@ -3640,6 +4462,6 @@
    9.720437889
   ]
  },
- "started": "2026-10-17T12:24:35.44723213+02:00",
- "finished": "2026-10-17T13:07:39.191690093+02:00"
+ "started": "2026-10-17T13:10:33.064875638+02:00",
+ "finished": "2026-10-17T13:14:34.541882624+02:00"
 }

@@ -6,6 +6,8 @@
   complete. See the README.
 - Correctness results for all 42 scenarios are in `results/`, from a run in
   which every target built (no excluded targets).
+- `custom-cquery` (the custom Bazel's `cquery --generate_hashes`) was added and
+  scored with `-reuse-truth`, merged into `results/`.
 - The experimental hermetic sandbox
   (`--experimental_use_hermetic_linux_sandbox`) was removed. It hid the host's
   glibc, which prebuilt toolchains (the official `rustc`, the Python
@@ -16,7 +18,7 @@
 ## Next steps
 
 1. **Scaling sweep:** run
-   `-scale=0,2000,8000,16000 -tools=custom,bazel-diff`, then publish
+   `-scale=0,2000,8000,16000 -tools=custom,custom-cquery,bazel-diff`, then publish
    `scaling.md` and `scaling.html` under `results/`. Expect about an hour.
 2. **Custom Bazel:** link the fork and its build instructions in the README
    (there's a TODO).

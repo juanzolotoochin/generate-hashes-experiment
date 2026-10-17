@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -54,13 +55,15 @@ func New(name string, env Env) (Tool, error) {
 	}
 	switch name {
 	case "custom":
-		return &customTool{env: env, dir: dir}, nil
+		return &customTool{env: env, dir: dir, name: name, command: "query"}, nil
+	case "custom-cquery":
+		return &customTool{env: env, dir: dir, name: name, command: "cquery"}, nil
 	case "bazel-diff":
 		return &bazelDiffTool{env: env, dir: dir}, nil
 	case "target-determinator":
 		return &tdTool{env: env, dir: dir}, nil
 	}
-	return nil, fmt.Errorf("unknown tool %q (want custom, bazel-diff or target-determinator)", name)
+	return nil, fmt.Errorf("unknown tool %q (want custom, custom-cquery, bazel-diff or target-determinator)", name)
 }
 
 // NormalizeLabel maps @@//pkg:name and @//pkg:name to //pkg:name, and expands
@@ -97,31 +100,43 @@ func finish(o Outcome) Outcome {
 	return o
 }
 
-// ---- custom Bazel with `query --generate_hashes` ----
+// ---- custom Bazel with `query/cquery --generate_hashes` ----
 
 type customTool struct {
-	env  Env
-	dir  string
-	base map[string]string
+	env     Env
+	dir     string
+	name    string
+	command string // "query" (unconfigured graph) or "cquery" (configured graph)
+	base    map[string]string
 }
 
-func (t *customTool) Name() string { return "custom" }
+func (t *customTool) Name() string { return t.name }
 
+// hashes parses "<label> <hash>" (query) or "<label> (<config>) <hash>"
+// (cquery) lines. A label configured more than once gets the combination of
+// its hashes.
 func (t *customTool) hashes(ctx context.Context) (map[string]string, time.Duration, error) {
 	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel,
 		"--output_base="+filepath.Join(t.dir, "output_base"),
-		"query", "//...", "--generate_hashes")
+		t.command, "//...", "--generate_hashes")
 	if res.Err != nil {
 		return nil, res.Duration, res.Err
 	}
-	m := map[string]string{}
+	perLabel := map[string][]string{}
 	sc := bufio.NewScanner(bytes.NewReader(res.Stdout))
 	sc.Buffer(make([]byte, 1<<20), 1<<26)
 	for sc.Scan() {
-		label, hash, ok := strings.Cut(strings.TrimSpace(sc.Text()), " ")
-		if ok {
-			m[NormalizeLabel(label)] = hash
+		f := strings.Fields(sc.Text())
+		if len(f) < 2 {
+			continue
 		}
+		l := NormalizeLabel(f[0])
+		perLabel[l] = append(perLabel[l], f[len(f)-1])
+	}
+	m := map[string]string{}
+	for l, hs := range perLabel {
+		sort.Strings(hs)
+		m[l] = strings.Join(hs, ",")
 	}
 	return m, res.Duration, sc.Err()
 }
@@ -270,4 +285,26 @@ func (o Outcome) MarshalJSON() ([]byte, error) {
 		PhaseSeconds map[string]float64 `json:"phase_seconds,omitempty"`
 		Err          string             `json:"error,omitempty"`
 	}{o.Labels, o.Duration.Seconds(), phases, o.Err})
+}
+
+// UnmarshalJSON reads what MarshalJSON writes.
+func (o *Outcome) UnmarshalJSON(b []byte) error {
+	var v struct {
+		Affected     []string           `json:"affected"`
+		Seconds      float64            `json:"seconds"`
+		PhaseSeconds map[string]float64 `json:"phase_seconds"`
+		Err          string             `json:"error"`
+	}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	*o = Outcome{Labels: v.Affected, Duration: time.Duration(v.Seconds * float64(time.Second)), Err: v.Err,
+		Affected: map[string]bool{}, Phases: map[string]time.Duration{}}
+	for _, l := range v.Affected {
+		o.Affected[l] = true
+	}
+	for k, sec := range v.PhaseSeconds {
+		o.Phases[k] = time.Duration(sec * float64(time.Second))
+	}
+	return nil
 }

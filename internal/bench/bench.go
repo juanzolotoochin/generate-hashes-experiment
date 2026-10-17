@@ -39,6 +39,11 @@ type Config struct {
 	KeepServers bool
 	Out         io.Writer
 	Meta        map[string]string
+	// Prior, if set, holds results of an earlier run of the same fixture and
+	// scenarios. Its per-scenario ground truth is reused instead of
+	// rebuilding with the oracle (only the base revision is built, to know
+	// the target universe), and its tools' scores are merged into the output.
+	Prior *Results
 }
 
 // ToolScore is one tool's result for one scenario, scored against the oracle.
@@ -214,14 +219,29 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		say("  oracle: %d targets fingerprinted, %d failed, %s", len(base.Inputs), len(base.Failed), base.Duration.Round(time.Second))
 	}
 
+	prior := map[string]ScenarioResult{}
+	if cfg.Prior != nil {
+		for _, sc := range cfg.Prior.Scenarios {
+			prior[sc.Name] = sc
+		}
+	}
+
 	save := func() {
 		b, _ := json.MarshalIndent(res, "", " ")
 		os.WriteFile(filepath.Join(cfg.WorkDir, "results.json"), b, 0o644)
 	}
 
+	if cfg.Prior != nil {
+		for _, t := range cfg.Prior.Tools {
+			if !contains(res.Tools, t) {
+				res.Tools = append(res.Tools, t)
+				res.NoChange[t] = cfg.Prior.NoChange[t]
+			}
+		}
+	}
 	for i, sc := range cfg.Scenarios {
 		say("[%d/%d] %s: %s", i+1, len(cfg.Scenarios), sc.Name, sc.Description)
-		sr := runScenario(ctx, cfg, git, baseRev, sc, ts, orc, base, res, say)
+		sr := runScenario(ctx, cfg, git, baseRev, sc, ts, orc, base, res, say, prior)
 		res.Scenarios = append(res.Scenarios, sr)
 		save()
 	}
@@ -234,7 +254,8 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 }
 
 func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, sc scenario.Scenario,
-	ts []tools.Tool, orc *oracle.Oracle, base oracle.Snapshot, res *Results, say func(string, ...any)) ScenarioResult {
+	ts []tools.Tool, orc *oracle.Oracle, base oracle.Snapshot, res *Results, say func(string, ...any),
+	prior map[string]ScenarioResult) ScenarioResult {
 	sr := ScenarioResult{Name: sc.Name, Category: sc.Category, Description: sc.Description, Expectation: sc.Expectation}
 	for _, op := range sc.Ops {
 		sr.Ops = append(sr.Ops, op.String())
@@ -281,7 +302,27 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 
 	universe := map[string]bool{}
 	truth := map[string]bool{}
-	if orc != nil {
+	if p, ok := prior[sc.Name]; ok && p.HasOracle && orc != nil {
+		// Reuse the earlier run's ground truth for this scenario.
+		sr.HasOracle = true
+		sr.Truth, sr.Removed, sr.OutputsChanged = p.Truth, p.Removed, p.OutputsChanged
+		sr.OracleSeconds, sr.OracleFailed = p.OracleSeconds, p.OracleFailed
+		removedSet := map[string]bool{}
+		for _, l := range p.Removed {
+			removedSet[l] = true
+		}
+		for l := range base.Inputs {
+			if !removedSet[l] {
+				universe[l] = true
+			}
+		}
+		for _, l := range p.Truth {
+			universe[l] = true
+			truth[l] = true
+		}
+		sr.Universe = len(universe)
+		say("  %-20s          %d need rebuild (ground truth from prior run)", "oracle", len(truth))
+	} else if orc != nil {
 		head, err := orc.Build(ctx, sc.Name)
 		sr.OracleSeconds = head.Duration.Seconds()
 		if err != nil {
@@ -352,6 +393,17 @@ func runScenario(ctx context.Context, cfg Config, git *ws.Git, baseRev string, s
 		}
 		sr.Tools = append(sr.Tools, score)
 	}
+	if p, ok := prior[sc.Name]; ok {
+		have := map[string]bool{}
+		for _, t := range sr.Tools {
+			have[t.Tool] = true
+		}
+		for _, t := range p.Tools {
+			if !have[t.Tool] {
+				sr.Tools = append(sr.Tools, t)
+			}
+		}
+	}
 	return sr
 }
 
@@ -404,6 +456,15 @@ func SetupToolbox(dir, bash, busybox, git string) error {
 	}
 	// git versions the benchmark workspace; target-determinator runs it too.
 	return os.Symlink(git, filepath.Join(bin, "git"))
+}
+
+func contains(xs []string, x string) bool {
+	for _, y := range xs {
+		if y == x {
+			return true
+		}
+	}
+	return false
 }
 
 func sortedKeys(m map[string]bool) []string {

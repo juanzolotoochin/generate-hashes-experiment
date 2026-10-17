@@ -11,6 +11,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -67,6 +68,7 @@ func run() error {
 		useOracle   = flag.Bool("oracle", true, "build every target to compute ground truth (default: on for scale 0, off otherwise)")
 		keepServers = flag.Bool("keep-servers", false, "leave Bazel servers running after the run")
 		list        = flag.Bool("list", false, "list scenarios and exit")
+		reuseTruth  = flag.String("reuse-truth", "", "results.json of an earlier run: reuse its ground truth (skips per-scenario oracle builds) and merge its tools' scores")
 	)
 	flag.Parse()
 
@@ -111,6 +113,17 @@ func run() error {
 		}
 		a, _ := filepath.Abs(p)
 		return a
+	}
+	var prior *bench.Results
+	if *reuseTruth != "" {
+		b, err := os.ReadFile(userPath(*reuseTruth))
+		if err != nil {
+			return err
+		}
+		prior = &bench.Results{}
+		if err := json.Unmarshal(b, prior); err != nil {
+			return fmt.Errorf("-reuse-truth: %w", err)
+		}
 	}
 	runfile := func(name, p string) (string, error) {
 		if p == "" {
@@ -168,7 +181,7 @@ func run() error {
 			WorkDir: dir, CacheDir: cache, Toolbox: toolbox, Git: git,
 			CustomBazel: *customBazel, StockBazel: *stockBazel, BazelDiff: *bazelDiff, TD: *td,
 			Tools: toolNames, Scenarios: selected, Scale: n, PerfReps: *perfReps,
-			Oracle: oracleOn, KeepServers: *keepServers, Out: os.Stdout,
+			Oracle: oracleOn || prior != nil, KeepServers: *keepServers, Out: os.Stdout, Prior: prior,
 			Meta: map[string]string{
 				"stock_bazel":         "9.2.0",
 				"bazel_diff":          "v60.0.0",
