@@ -1,0 +1,14 @@
+load("@rules_oci//oci:defs.bzl", "oci_image")
+
+# One image per package so a single package bump has a precise expected impact.
+oci_image(
+    name = "tzdata_image",
+    base = "@distroless_static",
+    tars = ["@bookworm//tzdata"],
+)
+
+oci_image(
+    name = "cacerts_image",
+    base = "@distroless_static",
+    tars = ["@bookworm//ca-certificates"],
+)

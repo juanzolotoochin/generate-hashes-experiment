@@ -1,0 +1,8 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "scale",
+    srcs = ["scale.go"],
+    importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/scale",
+    visibility = ["//:__subpackages__"],
+)

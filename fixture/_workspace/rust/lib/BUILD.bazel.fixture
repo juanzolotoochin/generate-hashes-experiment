@@ -1,0 +1,15 @@
+load("@rules_rs//rs:rust_library.bzl", "rust_library")
+load("@rules_rs//rs:rust_test.bzl", "rust_test")
+
+rust_library(
+    name = "lib",
+    srcs = ["lib.rs"],
+    crate_name = "hashbench_lib",
+    visibility = ["//visibility:public"],
+    deps = ["@crates//:itoa"],
+)
+
+rust_test(
+    name = "lib_test",
+    crate = ":lib",
+)

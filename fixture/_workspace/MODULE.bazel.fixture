@@ -1,0 +1,130 @@
+"""Benchmark fixture: a small polyglot monorepo exercising popular rulesets.
+
+Every scenario in hashbench mutates this workspace in one specific way, so keep
+each section self-contained and avoid incidental coupling between rulesets.
+"""
+
+module(name = "hashbench_fixture")
+
+bazel_dep(name = "bazel_skylib", version = "1.9.2")
+bazel_dep(name = "platforms", version = "1.1.0")
+bazel_dep(name = "rules_shell", version = "0.8.0")
+bazel_dep(name = "tar.bzl", version = "0.10.8")
+
+# ------------------------------------------------------------------------------
+# C/C++: rules_cc with the fully hermetic LLVM toolchain (no host sysroot).
+# ------------------------------------------------------------------------------
+bazel_dep(name = "rules_cc", version = "0.2.22")
+bazel_dep(name = "llvm", version = "0.8.19")
+
+register_toolchains("@llvm//toolchain:all")
+
+# ------------------------------------------------------------------------------
+# Go: rules_go + gazelle go_deps from go.mod/go.sum.
+# ------------------------------------------------------------------------------
+bazel_dep(name = "rules_go", version = "0.64.2")
+bazel_dep(name = "gazelle", version = "0.52.2")
+
+go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
+go_sdk.download(version = "1.27.2")
+
+go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
+go_deps.from_file(go_mod = "//:go.mod")
+use_repo(go_deps, "com_github_google_uuid")
+
+# ------------------------------------------------------------------------------
+# Python: rules_python hermetic interpreter + pip wheels from a hashed lockfile.
+# ------------------------------------------------------------------------------
+bazel_dep(name = "rules_python", version = "2.0.0")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    is_default = True,
+    python_version = "3.12",
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.12",
+    requirements_lock = "//py:requirements_lock.txt",
+)
+use_repo(pip, "pypi")
+
+# ------------------------------------------------------------------------------
+# Rust: rules_rs toolchains + crates from Cargo.toml/Cargo.lock.
+# ------------------------------------------------------------------------------
+bazel_dep(name = "rules_rs", version = "0.1.0")
+
+rust_toolchains = use_extension("@rules_rs//rs/toolchains:module_extension.bzl", "toolchains")
+rust_toolchains.toolchain(
+    edition = "2024",
+    version = "1.97.1",
+)
+use_repo(rust_toolchains, "default_rust_toolchains")
+
+register_toolchains("@default_rust_toolchains//...")
+
+crate = use_extension("@rules_rs//rs:extensions.bzl", "crate")
+crate.from_cargo(
+    name = "crates",
+    cargo_lock = "//:Cargo.lock",
+    cargo_toml = "//:Cargo.toml",
+    platform_triples = ["x86_64-unknown-linux-gnu"],
+)
+use_repo(crate, "crates")
+
+# ------------------------------------------------------------------------------
+# Containers: rules_oci, rules_img, rules_apko, rules_distroless.
+# ------------------------------------------------------------------------------
+bazel_dep(name = "rules_oci", version = "2.3.0")
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "distroless_static",
+    digest = "sha256:d75cdd72874d4790092fcb1b058493ecf6bb5bf2b2b897045b00ff01d91843f2",
+    image = "gcr.io/distroless/static-debian12",
+    platforms = ["linux/amd64"],
+)
+use_repo(oci, "distroless_static", "distroless_static_linux_amd64")
+
+bazel_dep(name = "rules_img", version = "0.3.17")
+
+img_pull = use_repo_rule("@rules_img//img:pull.bzl", "pull")
+
+img_pull(
+    name = "distroless_base",
+    digest = "sha256:fabbf1c0c357a3d42550111351daed089b20a2c954df13ee2fcff60602515e84",
+    downloader = "bazel",
+    layer_handling = "shallow",
+    registry = "gcr.io",
+    repository = "distroless/base-debian12",
+)
+
+bazel_dep(name = "rules_apko", version = "1.5.56")
+
+apko = use_extension("@rules_apko//apko:extensions.bzl", "apko")
+apko.translate_lock(
+    name = "wolfi_base",
+    lock = "//apko:apko.lock.json",
+)
+use_repo(apko, "wolfi_base")
+
+bazel_dep(name = "rules_distroless", version = "0.8.0")
+
+apt = use_extension("@rules_distroless//apt:extensions.bzl", "apt")
+apt.install(
+    name = "bookworm",
+    lock = "//distroless:bookworm.lock.json",
+    manifest = "//distroless:bookworm.yaml",
+)
+use_repo(apt, "bookworm")
+
+# ------------------------------------------------------------------------------
+# Prebuilt tools: rules_multitool from a lockfile of release binaries.
+# ------------------------------------------------------------------------------
+bazel_dep(name = "rules_multitool", version = "1.11.1")
+
+multitool = use_extension("@rules_multitool//multitool:extension.bzl", "multitool")
+multitool.hub(lockfile = "//tools:multitool.lock.json")
+use_repo(multitool, "multitool")

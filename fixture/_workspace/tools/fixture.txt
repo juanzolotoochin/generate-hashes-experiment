@@ -1,0 +1,1 @@
+fixture data shipped in check_test's runfiles

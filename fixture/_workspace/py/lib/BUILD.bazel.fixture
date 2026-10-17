@@ -1,0 +1,15 @@
+load("@rules_python//python:py_library.bzl", "py_library")
+load("@rules_python//python:py_test.bzl", "py_test")
+
+py_library(
+    name = "lib",
+    srcs = ["greet.py"],
+    visibility = ["//visibility:public"],
+    deps = ["@pypi//six"],
+)
+
+py_test(
+    name = "greet_test",
+    srcs = ["greet_test.py"],
+    deps = [":lib"],
+)

@@ -1,0 +1,4 @@
+alias(
+    name = "hashbench",
+    actual = "//cmd/hashbench",
+)

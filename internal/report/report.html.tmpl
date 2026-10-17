@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>hashbench Results</title>
+<style>
+:root { --bg:#fbfbfa; --fg:#1d1d1b; --muted:#6b6b66; --card:#fff; --line:#e6e5e0; --ok:#1f7a4d; --okbg:#e6f4ec; --bad:#b42318; --badbg:#fdecea; --warn:#8a5a00; --warnbg:#fdf3dc; --code:#f3f2ee; --accent:#3b5bdb; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#161615; --fg:#ecebe6; --muted:#9a9993; --card:#1e1e1c; --line:#33332f; --ok:#5fd39a; --okbg:#173326; --bad:#ff8a80; --badbg:#3a1a17; --warn:#f2c25b; --warnbg:#3a2f12; --code:#2a2a27; --accent:#8fa8ff; } }
+:root[data-theme="dark"] { --bg:#161615; --fg:#ecebe6; --muted:#9a9993; --card:#1e1e1c; --line:#33332f; --ok:#5fd39a; --okbg:#173326; --bad:#ff8a80; --badbg:#3a1a17; --warn:#f2c25b; --warnbg:#3a2f12; --code:#2a2a27; --accent:#8fa8ff; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif }
+main { max-width:1280px; margin:0 auto; padding:32px 16px 64px }
+h1 { font-size:26px; margin:0 0 4px } h2 { font-size:18px; margin:36px 0 10px }
+.muted { color:var(--muted) } .cat { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted) }
+.wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--card) }
+table { border-collapse:collapse; width:100%; min-width:760px }
+th,td { text-align:left; vertical-align:top; padding:9px 12px; border-bottom:1px solid var(--line) }
+th { font-size:12px; color:var(--muted); font-weight:600 }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap }
+td.ok { background:var(--okbg) } td.bad { background:var(--badbg) } td.warn { background:var(--warnbg) } td.err { background:var(--code) }
+td.ok b { color:var(--ok) } td.bad b { color:var(--bad) } td.warn b { color:var(--warn) }
+code,pre { font:12px ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--code); border-radius:4px }
+code { padding:1px 4px; word-break:break-all } pre { padding:8px; white-space:pre-wrap; margin:4px 0 }
+details summary { cursor:pointer; color:var(--accent); font-size:12px }
+ul.l { margin:2px 0 6px 18px; padding:0 } .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px }
+.legend span { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px; margin-right:6px }
+</style></head>
+<body><main>
+<h1>hashbench</h1>
+<p class="muted">Correctness against a build-output oracle and warm-cache performance of Bazel target-selection tools.
+Stock Bazel {{index .R.Meta "stock_bazel"}} · bazel-diff {{index .R.Meta "bazel_diff"}} · target-determinator {{index .R.Meta "target_determinator"}} ·
+scale {{.R.Scale}} · {{.R.BaseSize}} targets · {{index .R.Meta "host"}}, {{index .R.Meta "cpus"}} CPUs · {{index .R.Meta "date"}}</p>
+
+<h2>Summary</h2>
+<div class="wrap"><table>
+<thead><tr><th>Tool</th><th class="num">Exact</th><th class="num">Scenarios with misses</th><th class="num">Missed targets</th><th class="num">Over-selected targets</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">Warm no-change</th><th class="num">Warm per change (median)</th></tr></thead>
+<tbody>{{range .Summaries}}<tr>
+<td><b>{{.Tool}}</b>{{if .Errors}}<div class="muted">{{.Errors}} errored: {{join .ErroredScenarios ", "}}</div>{{end}}</td>
+<td class="num">{{.Exact}}/{{.Scored}}</td><td class="num">{{.WithMisses}}</td><td class="num">{{.Missed}}</td><td class="num">{{.Extra}}</td>
+<td class="num">{{.Recall}}</td><td class="num">{{.Precision}}</td><td class="num">{{.NoChangeMedian}}</td><td class="num">{{.ScenarioMedian}}</td>
+</tr>{{end}}</tbody></table></div>
+<p class="muted">A <b>miss</b> is a target whose outputs, runfiles or test attributes changed but the tool did not select it: CI would skip a target that needs rebuilding or retesting. An <b>over-selection</b> is a target the tool selected although nothing it produces changed: wasted CI work.</p>
+
+<h2>Scenarios</h2>
+<p class="legend"><span style="background:var(--okbg);color:var(--ok)">exact</span><span style="background:var(--warnbg);color:var(--warn)">over-selects only</span><span style="background:var(--badbg);color:var(--bad)">misses targets</span></p>
+<div class="wrap"><table>
+<thead><tr><th style="width:30%">Scenario</th><th class="num">Truth</th>{{range .R.Tools}}<th>{{.}}</th>{{end}}</tr></thead>
+<tbody>{{range $sc := .R.Scenarios}}<tr>
+<td><div class="cat">{{.Category}}</div><b>{{.Name}}</b><div class="muted">{{.Description}}</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> {{.Expectation}}</div>
+{{if .Err}}<div><b>Error:</b> <pre>{{.Err}}</pre></div>{{end}}
+{{if .Truth}}<div><b>Affected (oracle):</b><ul class="l">{{range short .Truth 40}}<li><code>{{.}}</code></li>{{end}}</ul></div>{{end}}
+{{if .Removed}}<div><b>Removed:</b> {{range .Removed}}<code>{{.}}</code> {{end}}</div>{{end}}
+{{if .OracleFailed}}<div><b>Failed to build (excluded):</b> {{range .OracleFailed}}<code>{{.}}</code> {{end}}</div>{{end}}
+<pre>{{join .Ops "\n"}}
+{{.DiffStat}}</pre>
+</details></td>
+<td class="num">{{if .HasOracle}}{{len .Truth}}{{else}}–{{end}}</td>
+{{range .Tools}}<td class="{{cell . $sc.HasOracle}}">
+{{if .Outcome.Err}}<b>error</b><details><summary>log</summary><pre>{{.Outcome.Err}}</pre></details>
+{{else if $sc.HasOracle}}{{if and (eq .FN 0) (eq .FP 0)}}<b>exact</b>{{else}}{{if .FN}}<b>{{.FN}} missed</b>{{end}}{{if and .FN .FP}} · {{end}}{{if .FP}}<b>+{{.FP}}</b> extra{{end}}{{end}}
+{{else}}{{len .Outcome.Labels}} selected{{end}}
+<div class="muted">{{secs .Outcome.Duration.Seconds}}</div>
+{{if or .Missed .Extra}}<details><summary>targets</summary>
+{{if .Missed}}<div><b>Missed</b><ul class="l">{{range short .Missed 25}}<li><code>{{.}}</code></li>{{end}}</ul></div>{{end}}
+{{if .Extra}}<div><b>Over-selected</b><ul class="l">{{range short .Extra 25}}<li><code>{{.}}</code></li>{{end}}</ul></div>{{end}}
+</details>{{end}}
+</td>{{end}}
+</tr>{{end}}</tbody></table></div>
+
+<h2>Warm performance</h2>
+<div class="wrap"><table>
+<thead><tr><th>Tool</th><th class="num">No change</th>{{range .Categories}}{{if ne . "control"}}<th class="num">{{.}}</th>{{end}}{{end}}</tr></thead>
+<tbody>{{range $s := .Summaries}}<tr><td><b>{{.Tool}}</b></td><td class="num">{{.NoChangeMedian}}</td>
+{{range $.Categories}}{{if ne . "control"}}<td class="num">{{index $s.CategoryMedians .}}</td>{{end}}{{end}}</tr>{{end}}</tbody></table></div>
+<p class="muted">Medians of wall-clock time for the tool to produce its affected set for the head revision, with every tool's Bazel server warm and its base-revision state (hashes, worktree) already computed. For the hash-based tools this is hashing the head revision (plus bazel-diff's impacted-target diff); target-determinator inherently evaluates both revisions. Dependency and toolchain scenarios include fetching the changed external repositories. Each scenario also pays for reverting the previous one.</p>
+
+<h2>Method</h2>
+<div class="card"><ul class="l">
+<li>Each scenario is one change committed on top of the same base revision of the fixture workspace (rules_cc + hermetic LLVM, rules_go, rules_python, rules_rs, rules_oci, rules_img, rules_apko, rules_distroless, rules_multitool, plus a custom rule and macro).</li>
+<li><b>Ground truth</b>: the workspace is built with an aspect that digests every top-level target's output files, runfiles and executable (contents and file modes), plus test-execution attributes (<code>size</code>, <code>timeout</code>, <code>args</code>, <code>env</code>, …). A target is affected when that digest changes, or when it is new.</li>
+<li>Tools are scored on the targets the oracle digests (main-repository targets with outputs). Labels outside that set (source files, external repositories) are ignored.</li>
+<li>Tools run unmodified with default options: the custom Bazel's <code>query //... --generate_hashes</code>, bazel-diff <code>generate-hashes</code> + <code>get-impacted-targets</code>, and target-determinator with <code>-nocache_results</code>. Each tool has its own output base.</li>
+</ul></div>
+</main></body></html>

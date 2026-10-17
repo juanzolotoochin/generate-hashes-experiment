@@ -1,0 +1,4 @@
+common --incompatible_strict_action_env
+# The harness is pure Go: never probe the host for a C/C++ compiler.
+common --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build --@rules_go//go/config:pure

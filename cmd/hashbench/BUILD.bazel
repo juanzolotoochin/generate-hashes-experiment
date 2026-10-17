@@ -1,0 +1,31 @@
+load("@rules_go//go:def.bzl", "go_binary")
+
+go_binary(
+    name = "hashbench",
+    srcs = ["main.go"],
+    # Defaults for `bazel run`: every pinned tool, as paths relative to the
+    # runfiles directory `bazel run` starts in.
+    args = [
+        "-stock-bazel=$(rootpath @stock_bazel//file)",
+        "-bazel-diff=$(rootpath @bazel_diff//file)",
+        "-target-determinator=$(rootpath @target_determinator//file)",
+        "-bash=$(rootpath @static_bash//file)",
+        "-busybox=$(rootpath @static_busybox//file)",
+    ],
+    data = [
+        "@bazel_diff//file",
+        "@static_bash//file",
+        "@static_busybox//file",
+        "@stock_bazel//file",
+        "@target_determinator//file",
+    ],
+    pure = "on",
+    static = "on",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//internal/bench",
+        "//internal/oracle",
+        "//internal/report",
+        "//internal/scenario",
+    ],
+)

@@ -1,0 +1,9 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "fixture",
+    srcs = ["embed.go"],
+    embedsrcs = glob(["_workspace/**"]),
+    importpath = "github.com/juanzolotoochin/generate-hashes-experiment/fixture",
+    visibility = ["//visibility:public"],
+)

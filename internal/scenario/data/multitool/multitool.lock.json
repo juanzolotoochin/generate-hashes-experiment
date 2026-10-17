@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/theoremlp/rules_multitool/main/lockfile.schema.json",
+  "jq": {
+    "binaries": [
+      {
+        "kind": "file",
+        "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux-amd64",
+        "sha256": "020468de7539ce70ef1bceaf7cde2e8c4f2ca6c3afb84642aabc5c97d9fc2a0d",
+        "os": "linux",
+        "cpu": "x86_64"
+      },
+      {
+        "kind": "file",
+        "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux-arm64",
+        "sha256": "6bc62f25981328edd3cfcfe6fe51b073f2d7e7710d7ef7fcdac28d4e384fc3d4",
+        "os": "linux",
+        "cpu": "arm64"
+      },
+      {
+        "kind": "file",
+        "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-macos-arm64",
+        "sha256": "a9fe3ea2f86dfc72f6728417521ec9067b343277152b114f4e98d8cb0e263603",
+        "os": "macos",
+        "cpu": "arm64"
+      }
+    ]
+  }
+}

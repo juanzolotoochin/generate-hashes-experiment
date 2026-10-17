@@ -1,0 +1,10 @@
+[package]
+name = "hashbench-lib"
+edition.workspace = true
+version.workspace = true
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+itoa = { workspace = true }

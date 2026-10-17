@@ -1,0 +1,18 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "oracle",
+    srcs = [
+        "digest.go",
+        "embed.go",
+        "merkle.go",
+        "oracle.go",
+    ],
+    embedsrcs = glob(["repo/**"]),
+    importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/oracle",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/tools",
+        "//internal/ws",
+    ],
+)

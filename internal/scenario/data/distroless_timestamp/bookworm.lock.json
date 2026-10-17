@@ -1,0 +1,130 @@
+{
+	"packages": [
+		{
+			"arch": "amd64",
+			"dependencies": [
+				{
+					"key": "debconf_1.5.82_amd64",
+					"name": "debconf",
+					"version": "1.5.82"
+				},
+				{
+					"key": "openssl_3.0.15-1_deb12u1_amd64",
+					"name": "openssl",
+					"version": "3.0.15-1~deb12u1"
+				},
+				{
+					"key": "libssl3_3.0.15-1_deb12u1_amd64",
+					"name": "libssl3",
+					"version": "3.0.15-1~deb12u1"
+				},
+				{
+					"key": "libc6_2.36-9-p-deb12u9_amd64",
+					"name": "libc6",
+					"version": "2.36-9+deb12u9"
+				},
+				{
+					"key": "libgcc-s1_12.2.0-14_amd64",
+					"name": "libgcc-s1",
+					"version": "12.2.0-14"
+				},
+				{
+					"key": "gcc-12-base_12.2.0-14_amd64",
+					"name": "gcc-12-base",
+					"version": "12.2.0-14"
+				}
+			],
+			"key": "ca-certificates_20230311_amd64",
+			"name": "ca-certificates",
+			"sha256": "5308b9bd88eebe2a48be3168cb3d87677aaec5da9c63ad0cf561a29b8219115c",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/c/ca-certificates/ca-certificates_20230311_all.deb"
+			],
+			"version": "20230311"
+		},
+		{
+			"arch": "amd64",
+			"dependencies": [],
+			"key": "debconf_1.5.82_amd64",
+			"name": "debconf",
+			"sha256": "74ab14194a3762b2fc717917dcfda42929ab98e3c59295a063344dc551cd7cc8",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/d/debconf/debconf_1.5.82_all.deb"
+			],
+			"version": "1.5.82"
+		},
+		{
+			"arch": "amd64",
+			"dependencies": [],
+			"key": "openssl_3.0.15-1_deb12u1_amd64",
+			"name": "openssl",
+			"sha256": "c9c37660d902f2a43dfbbf619b3f5f413cee298d8f317829e3c11cfff9e174aa",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/o/openssl/openssl_3.0.15-1~deb12u1_amd64.deb"
+			],
+			"version": "3.0.15-1~deb12u1"
+		},
+		{
+			"arch": "amd64",
+			"dependencies": [],
+			"key": "libssl3_3.0.15-1_deb12u1_amd64",
+			"name": "libssl3",
+			"sha256": "d7897e6c55a8d9e229dcf16b0b1d472d7f7be741b2b3b2ac624908ff63215a93",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/o/openssl/libssl3_3.0.15-1~deb12u1_amd64.deb"
+			],
+			"version": "3.0.15-1~deb12u1"
+		},
+		{
+			"arch": "amd64",
+			"dependencies": [],
+			"key": "libc6_2.36-9-p-deb12u9_amd64",
+			"name": "libc6",
+			"sha256": "3a043b9dbf1a8c8b5a9e2268253e6dca8c7d431bd7a202fea96364abf374fea9",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/g/glibc/libc6_2.36-9+deb12u9_amd64.deb"
+			],
+			"version": "2.36-9+deb12u9"
+		},
+		{
+			"arch": "amd64",
+			"dependencies": [],
+			"key": "libgcc-s1_12.2.0-14_amd64",
+			"name": "libgcc-s1",
+			"sha256": "f3d1d48c0599aea85b7f2077a01d285badc42998c1a1e7473935d5cf995c8141",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/g/gcc-12/libgcc-s1_12.2.0-14_amd64.deb"
+			],
+			"version": "12.2.0-14"
+		},
+		{
+			"arch": "amd64",
+			"dependencies": [],
+			"key": "gcc-12-base_12.2.0-14_amd64",
+			"name": "gcc-12-base",
+			"sha256": "1a03df5a57833d65b5bb08cfa19d50e76f29088dc9e64fb934af42d9023a0807",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/g/gcc-12/gcc-12-base_12.2.0-14_amd64.deb"
+			],
+			"version": "12.2.0-14"
+		},
+		{
+			"arch": "amd64",
+			"dependencies": [
+				{
+					"key": "debconf_1.5.82_amd64",
+					"name": "debconf",
+					"version": "1.5.82"
+				}
+			],
+			"key": "tzdata_2024b-0-p-deb12u1_amd64",
+			"name": "tzdata",
+			"sha256": "9426e641cdcea0b890fa270930e2577c71ce2085c445e058b08870b2adee554d",
+			"urls": [
+				"https://snapshot-cloudflare.debian.org/archive/debian/20250201T120000Z/pool/main/t/tzdata/tzdata_2024b-0+deb12u1_all.deb"
+			],
+			"version": "2024b-0+deb12u1"
+		}
+	],
+	"version": 1
+}

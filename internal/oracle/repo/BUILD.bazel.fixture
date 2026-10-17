@@ -1,0 +1,2 @@
+# `digest` is a copy of the hashbench binary, installed by the harness.
+exports_files(["digest"])

@@ -1,0 +1,12 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "scenario",
+    srcs = [
+        "ops.go",
+        "scenarios.go",
+    ],
+    embedsrcs = glob(["data/**"]),
+    importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/scenario",
+    visibility = ["//:__subpackages__"],
+)

@@ -1,0 +1,40 @@
+load("@rules_go//go:def.bzl", "go_test")
+load(":defs.bzl", "bundle_pair", "text_bundle")
+load(":other.bzl", "tool_output", "upper")
+
+exports_files(["multitool.lock.json"])
+
+text_bundle(
+    name = "notes",
+    srcs = ["//data:json"],
+)
+
+bundle_pair(
+    name = "pair",
+    srcs = ["//data:json"],
+)
+
+upper(
+    name = "shout",
+    src = "//data:a.json",
+)
+
+tool_output(
+    name = "summary",
+    srcs = ["//data:json"],
+    args = [
+        "-s",
+        "length",
+    ],
+    tool = "@multitool//tools/jq",
+)
+
+go_test(
+    name = "check_test",
+    srcs = ["check_test.go"],
+    args = ["$(rootpath :summary)"],
+    data = [
+        "fixture.txt",
+        ":summary",
+    ],
+)

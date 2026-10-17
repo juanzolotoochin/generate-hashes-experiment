@@ -1,0 +1,16 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "report",
+    srcs = [
+        "report.go",
+        "scaling.go",
+    ],
+    embedsrcs = [
+        "report.html.tmpl",
+        "scaling.html.tmpl",
+    ],
+    importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/report",
+    visibility = ["//:__subpackages__"],
+    deps = ["//internal/bench"],
+)

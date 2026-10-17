@@ -1,0 +1,7 @@
+exports_files(["a.json"])
+
+filegroup(
+    name = "json",
+    srcs = glob(["*.json"]),
+    visibility = ["//visibility:public"],
+)

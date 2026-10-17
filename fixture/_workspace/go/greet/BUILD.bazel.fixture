@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "greet",
+    srcs = ["greet.go"],
+    importpath = "example.com/hashbench/go/greet",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_google_uuid//:uuid"],
+)
+
+go_test(
+    name = "greet_test",
+    srcs = ["greet_test.go"],
+    embed = [":greet"],
+)

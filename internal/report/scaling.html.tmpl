@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>hashbench Scaling</title>
+<style>
+:root { color-scheme: light; --surface-1:#fcfcfb; --surface-2:#ffffff; --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#7a7974; --grid:#e8e7e2; --line:#e6e5e0;
+  --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a; --accent:#2a78d6; }
+@media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { color-scheme: dark; --surface-1:#1a1a19; --surface-2:#222220; --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#8f8e87; --grid:#30302d; --line:#33332f;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --accent:#3987e5; } }
+:root[data-theme="dark"] { color-scheme: dark; --surface-1:#1a1a19; --surface-2:#222220; --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#8f8e87; --grid:#30302d; --line:#33332f;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --accent:#3987e5; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--surface-1); color:var(--text-primary); font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif }
+main { max-width:1200px; margin:0 auto; padding:32px 16px 64px }
+h1 { font-size:26px; margin:0 0 4px } h2 { font-size:18px; margin:32px 0 8px } h3 { font-size:15px; margin:0 }
+.muted { color:var(--text-secondary) }
+.legend { display:flex; gap:16px; flex-wrap:wrap; margin:12px 0 4px; font-size:13px; color:var(--text-secondary) }
+.legend i { display:inline-block; width:14px; height:3px; border-radius:2px; vertical-align:middle; margin-right:6px }
+.charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px }
+.panel { background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:14px 14px 6px; position:relative }
+.panel svg { width:100%; height:auto; display:block; overflow:visible }
+.axis text { fill:var(--text-muted); font-size:11px } .grid line { stroke:var(--grid); stroke-width:1 }
+.series path { fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round }
+.series circle { stroke:var(--surface-2); stroke-width:2 }
+.series .hit { fill:transparent; stroke:none; cursor:default }
+.endlabel { font-size:11px; fill:var(--text-secondary) }
+.tip { position:absolute; pointer-events:none; background:var(--surface-1); border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-size:12px; color:var(--text-primary); box-shadow:0 2px 8px rgba(0,0,0,.12); display:none; white-space:nowrap }
+.wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface-2) }
+table { border-collapse:collapse; width:100%; min-width:560px }
+th,td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--line) } th { font-size:12px; color:var(--text-secondary); font-weight:600 }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap }
+details summary { cursor:pointer; color:var(--accent); font-size:13px }
+</style></head>
+<body><main>
+<h1>hashbench scaling</h1>
+<p class="muted">Warm wall-clock time to compute the affected targets as the workspace grows. Each size adds generated service packages (Go, Python, C++, Rust, genrule, filegroup and custom-rule targets chained to the fixture libraries). Stock Bazel {{index .Meta "stock_bazel"}} · bazel-diff {{index .Meta "bazel_diff"}} · target-determinator {{index .Meta "target_determinator"}} · {{index .Meta "host"}}, {{index .Meta "cpus"}} CPUs.</p>
+
+<div class="legend">{{range .Series}}{{if .Var}}<span><i style="background:{{cssVar .Var}}"></i>{{.Tool}}</span>{{end}}{{end}}</div>
+<div class="charts">{{range .Charts}}
+<div class="panel">
+<h3>{{.Title}}</h3><div class="muted" style="font-size:12px">{{.Subtitle}} · seconds vs. rule targets</div>
+{{$c := .}}<svg viewBox="0 0 {{.Width}} {{.Height}}" role="img" aria-label="{{.Title}}: seconds by workspace size per tool">
+<g class="grid">{{range .YTicks}}<line x1="{{$c.PlotLeft}}" y1="{{.Pos}}" x2="{{$c.PlotRight}}" y2="{{.Pos}}"></line>{{end}}</g>
+<g class="axis">{{range .YTicks}}<text x="{{$c.PlotLeft}}" y="{{.Pos}}" dx="-8" dy="4" text-anchor="end">{{.Label}}</text>{{end}}
+{{range .XTicks}}<text x="{{.Pos}}" y="{{$c.PlotBottom}}" dy="18" text-anchor="middle">{{.Label}}</text>{{end}}</g>
+{{range $l := .Lines}}<g class="series"><path d="{{.Path}}" style="stroke:{{cssVar .Var}}"></path>
+{{range .Points}}<circle cx="{{.X}}" cy="{{.Y}}" r="4" style="fill:{{cssVar $l.Var}}"></circle>{{end}}
+{{range .Points}}<circle class="hit" cx="{{.X}}" cy="{{.Y}}" r="12" data-label="{{.Label}}"></circle>{{end}}
+<text class="endlabel" x="{{.EndX}}" y="{{.EndY}}" dx="10" dy="4">{{.Tool}} {{.EndLabel}}</text></g>{{end}}
+</svg>
+<div class="tip"></div>
+</div>{{end}}
+</div>
+
+<h2>Table</h2>
+<div class="wrap"><table>
+<thead><tr><th class="num">Rule targets</th>{{range .Series}}<th class="num">{{.Tool}} · no change</th><th class="num">{{.Tool}} · per change</th>{{end}}</tr></thead>
+<tbody>{{range $i, $r := .Results}}<tr><td class="num">{{num $r.RuleTargets}}</td>{{range $.Series}}{{with index .Points $i}}<td class="num">{{secs .NoChange}}</td><td class="num">{{secs .Change}}{{if .Errors}} ({{.Errors}} errors){{end}}</td>{{end}}{{end}}</tr>{{end}}</tbody>
+</table></div>
+
+<h2>Per scenario</h2>
+<details><summary>Show every scenario at every size</summary>
+<div class="wrap" style="margin-top:8px"><table>
+<thead><tr><th>Scenario</th><th class="num">Rule targets</th>{{range .Tools}}<th class="num">{{.}}</th>{{end}}</tr></thead>
+<tbody>{{range .Scenarios}}<tr><td>{{.Name}}</td><td class="num">{{num .Targets}}</td>{{range .Cells}}<td class="num">{{.}}</td>{{end}}</tr>{{end}}</tbody>
+</table></div></details>
+
+<p class="muted" style="margin-top:24px">Every tool runs against its own warm Bazel server with the base revision already processed. bazel-diff time is <code>generate-hashes</code> on the head revision plus <code>get-impacted-targets</code>; the custom Bazel time is one <code>query //... --generate_hashes</code>; target-determinator evaluates both revisions on every run by design.</p>
+</main>
+<script>
+document.querySelectorAll('.panel').forEach(panel => {
+  const tip = panel.querySelector('.tip');
+  panel.querySelectorAll('.hit').forEach(h => {
+    h.addEventListener('mouseenter', () => { tip.textContent = h.dataset.label; tip.style.display = 'block'; });
+    h.addEventListener('mousemove', e => { const r = panel.getBoundingClientRect(); tip.style.left = (e.clientX - r.left + 12) + 'px'; tip.style.top = (e.clientY - r.top - 28) + 'px'; });
+    h.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  });
+});
+</script>
+</body></html>

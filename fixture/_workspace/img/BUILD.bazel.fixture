@@ -1,0 +1,14 @@
+load("@rules_img//img:image.bzl", "image_manifest")
+load("@rules_img//img:layer.bzl", "image_layer")
+
+image_layer(
+    name = "greeter_layer",
+    srcs = {"/app/greeter": "//go/cmd/greeter"},
+)
+
+image_manifest(
+    name = "image",
+    base = "@distroless_base",
+    entrypoint = ["/app/greeter"],
+    layers = [":greeter_layer"],
+)

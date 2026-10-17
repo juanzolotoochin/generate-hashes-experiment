@@ -1,0 +1,13 @@
+# Hermetic, reproducible builds.
+common --incompatible_strict_action_env
+common --nolegacy_external_runfiles
+# Never probe the host for a C/C++ compiler; the hermetic LLVM toolchain is registered.
+common --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build --incompatible_enable_cc_toolchain_resolution
+build --host_platform=@llvm//platforms:linux_x86_64
+build --platforms=@llvm//platforms:linux_x86_64
+
+# Keep runs quiet and comparable across tools.
+common --show_progress_rate_limit=30
+
+try-import %workspace%/user.bazelrc

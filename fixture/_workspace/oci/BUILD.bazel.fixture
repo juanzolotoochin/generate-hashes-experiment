@@ -1,0 +1,14 @@
+load("@rules_oci//oci:defs.bzl", "oci_image")
+load("@tar.bzl", "tar")
+
+tar(
+    name = "greeter_layer",
+    srcs = ["//go/cmd/greeter"],
+)
+
+oci_image(
+    name = "image",
+    base = "@distroless_static",
+    entrypoint = ["/go/cmd/greeter/greeter_/greeter"],
+    tars = [":greeter_layer"],
+)

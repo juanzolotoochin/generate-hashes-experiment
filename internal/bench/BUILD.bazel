@@ -1,0 +1,16 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "bench",
+    srcs = ["bench.go"],
+    importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/bench",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//fixture",
+        "//internal/oracle",
+        "//internal/scale",
+        "//internal/scenario",
+        "//internal/tools",
+        "//internal/ws",
+    ],
+)
