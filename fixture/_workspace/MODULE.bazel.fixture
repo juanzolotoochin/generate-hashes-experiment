@@ -128,7 +128,9 @@ apko.translate_lock(
 )
 use_repo(apko, "wolfi_base")
 
-bazel_dep(name = "rules_distroless", version = "0.9.4")
+# 0.8.0 on purpose: 0.9 replaced the apt extension API (sources_list/lock),
+# and the distroless scenarios' lock data is in the 0.8 format.
+bazel_dep(name = "rules_distroless", version = "0.8.0")
 
 apt = use_extension("@rules_distroless//apt:extensions.bzl", "apt")
 apt.install(

@@ -13,8 +13,8 @@ reflect the changes below yet.
   remote cache in Rust (`cmd/remotecache`, rules_rs).
 - Repo contents cache support table by module.
 - Fixture bumped to the latest BCR releases (rules_python 2.4.2, gazelle
-  0.54.0, llvm 0.8.24, rules_cc 0.2.26, tar.bzl 0.10.9, rules_img 0.3.23,
-  rules_distroless 0.9.4), plus a rules_python patch so interpreter repos are
+  0.54.0, llvm 0.8.24, rules_cc 0.2.26, tar.bzl 0.10.9, rules_img 0.3.23;
+  rules_distroless stays at 0.8.0 because 0.9 replaced its apt API), plus a rules_python patch so interpreter repos are
   cacheable. Not validated yet.
 
 ## Fixes applied (for the report)
