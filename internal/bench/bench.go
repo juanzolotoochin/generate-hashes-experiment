@@ -38,10 +38,12 @@ type Config struct {
 	RemoteCache   string // grpc:// or grpcs:// URL
 	RemoteName    string // "local" or the URL, keys the seeder's state
 	SeedOnly      bool   // remote mode: seed the base revision and stop
-	// Relocate (local mode) hashes the base revision a second time with each
-	// hash-based tool, from a clone of the checkout at another path and with
-	// fresh output bases and caches at other paths, stored as <tool>@relocated.
-	Relocate bool
+	// Determinism, if set, carries the determinism results of an earlier
+	// -determinism run into this run's results.
+	Determinism     []DetResult
+	DeterminismMeta map[string]string
+	// OnDetSave, in a determinism run, is called after every tool.
+	OnDetSave func([]DetResult)
 	// LockfileSrc, if set, is the source checkout: regenerate the fixture's
 	// MODULE.bazel.lock and the scenarios' lockfiles there, and stop.
 	LockfileSrc string
@@ -117,6 +119,10 @@ type Results struct {
 	// BaseHashes are each hash-based tool's per-target hashes of the base
 	// revision, to compare the same revision across modes (consistency).
 	BaseHashes map[string]map[string]string `json:"base_hashes,omitempty"`
+	// Determinism is the latest -determinism run (see determinism.go), with
+	// its own metadata: it is run separately and carried across runs.
+	Determinism     []DetResult       `json:"determinism,omitempty"`
+	DeterminismMeta map[string]string `json:"determinism_meta,omitempty"`
 	Started    time.Time                    `json:"started"`
 	Finished   time.Time                    `json:"finished"`
 }
@@ -130,7 +136,8 @@ type Setup struct {
 // Run executes the benchmark and returns its results. Results are also
 // written to <ResultsDir>/results.json after every scenario.
 func Run(ctx context.Context, cfg Config) (*Results, error) {
-	res := &Results{Meta: cfg.Meta, Scale: cfg.Scale, NoChange: map[string][]float64{}, Setup: map[string]Setup{}, BaseHashes: map[string]map[string]string{}, Started: time.Now()}
+	res := &Results{Meta: cfg.Meta, Scale: cfg.Scale, NoChange: map[string][]float64{}, Setup: map[string]Setup{}, BaseHashes: map[string]map[string]string{}, Started: time.Now(),
+		Determinism: cfg.Determinism, DeterminismMeta: cfg.DeterminismMeta}
 	remote := cfg.RepoCacheMode == "remote"
 	suffix := ""
 	if remote {
@@ -293,8 +300,8 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		if cfg.CustomBazel != "" {
 			ob := filepath.Join(seedDir, "custom", "output_base")
 			steps = append(steps,
-				step{cfg.CustomBazel, ob, []string{"query", "//...", "--generate_hashes"}},
-				step{cfg.CustomBazel, ob, []string{"cquery", "//...", "--generate_hashes"}})
+				step{cfg.CustomBazel, ob, []string{"query", "//...", tools.HashFlag}},
+				step{cfg.CustomBazel, ob, []string{"cquery", "//...", tools.HashFlag}})
 		}
 		ob := filepath.Join(seedDir, "stock", "output_base")
 		steps = append(steps,
@@ -370,11 +377,6 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 	if !remote {
 		res.RepoSupport = RepoSupportFor(cfg.WorkDir)
 	}
-	if cfg.Relocate && !remote {
-		if err := relocate(ctx, cfg, runner, logf, repo, baseRev, res, say); err != nil {
-			return nil, err
-		}
-	}
 
 	var base oracle.Snapshot
 	if cfg.Oracle {
@@ -437,9 +439,6 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 				}
 				if h, ok := cfg.Prior.BaseHashes[t]; ok {
 					res.BaseHashes[t] = h
-				}
-				if h, ok := cfg.Prior.BaseHashes[t+"@relocated"]; ok {
-					res.BaseHashes[t+"@relocated"] = h
 				}
 			}
 		}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/scenario"
+	"github.com/juanzolotoochin/generate-hashes-experiment/internal/tools"
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/ws"
 )
 
@@ -30,8 +31,8 @@ func updateLockfiles(ctx context.Context, cfg Config, git *ws.Git, runner *ws.Ru
 	if cfg.CustomBazel != "" {
 		ob := filepath.Join(state, "lock-custom", "output_base")
 		steps = append(steps,
-			step{cfg.CustomBazel, ob, []string{"query", "//...", "--generate_hashes"}},
-			step{cfg.CustomBazel, ob, []string{"cquery", "//...", "--generate_hashes"}})
+			step{cfg.CustomBazel, ob, []string{"query", "//...", tools.HashFlag}},
+			step{cfg.CustomBazel, ob, []string{"cquery", "//...", tools.HashFlag}})
 	}
 	defer func() {
 		for _, st := range steps {

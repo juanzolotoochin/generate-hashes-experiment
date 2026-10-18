@@ -29,5 +29,6 @@ go_binary(
         "//internal/oracle",
         "//internal/report",
         "//internal/scenario",
+        "//internal/tools",
     ],
 )

@@ -27,6 +27,7 @@ import (
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/oracle"
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/report"
 	"github.com/juanzolotoochin/generate-hashes-experiment/internal/scenario"
+	"github.com/juanzolotoochin/generate-hashes-experiment/internal/tools"
 )
 
 func main() {
@@ -53,7 +54,8 @@ var perfScenarios = []string{
 func run() error {
 	home, _ := os.UserHomeDir()
 	var (
-		customBazel = flag.String("custom-bazel", "", "Bazel binary that supports `query --generate_hashes` (required when the custom tool is selected)")
+		customBazel = flag.String("custom-bazel", "", "Bazel binary that supports `query --experimental_generate_hashes` (required when the custom tool is selected)")
+		hashFlag    = flag.String("hash-flag", tools.HashFlag, "the custom Bazel's hashing flag (--generate_hashes for builds before October 2026)")
 		stockBazel  = flag.String("stock-bazel", "", "stock Bazel for bazel-diff, target-determinator and the oracle (set by bazel run)")
 		bazelDiff   = flag.String("bazel-diff", "", "bazel-diff binary (set by bazel run)")
 		td          = flag.String("target-determinator", "", "target-determinator binary (set by bazel run)")
@@ -75,11 +77,12 @@ func run() error {
 		rcServer    = flag.String("remote-cache-server", "", "the bundled local remote cache server (set by bazel run)")
 		updLocks    = flag.Bool("update-lockfiles", false, "regenerate fixture/_workspace/MODULE.bazel.lock and the scenarios' lockfiles in the source tree (run with bazel run) and exit")
 		rereport    = flag.Bool("rereport", false, "regenerate the report from <results-dir>/results.json (adding the repo contents cache support table if missing) and exit")
-		relocate    = flag.Bool("relocate", true, "local mode: also hash the base revision from a second checkout with fresh output bases at other paths, and report whether the hashes match")
+		determinism = flag.Bool("determinism", false, "run only the determinism suite: hash the base revision twice per tool with one thing changed in between (see README), and add the results to <results-dir>/results.json")
 		seedOnly    = flag.Bool("seed-only", false, "with -repo-cache-mode=remote: seed the remote repo contents cache with the base revision's repositories and exit")
 		reuseTruth  = flag.String("reuse-truth", "", "results.json of an earlier run: reuse its ground truth (skips per-scenario oracle builds) and merge its tools' scores")
 	)
 	flag.Parse()
+	tools.HashFlag = *hashFlag
 
 	all := scenario.All()
 	if *list {
@@ -223,7 +226,7 @@ func run() error {
 	}
 
 	remoteURL := *remoteCache
-	if *cacheMode == "remote" && remoteURL == "local" {
+	if (*cacheMode == "remote" || *determinism) && remoteURL == "local" {
 		addr, stopServer, err := bench.StartLocalCache(*rcServer, filepath.Join(cache, "remotecache"))
 		if err != nil {
 			return fmt.Errorf("local remote cache: %w", err)
@@ -242,6 +245,59 @@ func run() error {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
+
+	// The determinism suite is run separately; its results are kept in
+	// <results-dir>/results.json across runs of either kind.
+	var kept bench.Results
+	if b, err := os.ReadFile(filepath.Join(results, "results.json")); err == nil {
+		json.Unmarshal(b, &kept)
+	}
+	meta := func() map[string]string {
+		return map[string]string{
+			"stock_bazel":         "9.2.0",
+			"bazel_diff":          "v60.0.0",
+			"target_determinator": "v0.34.0",
+			"custom_bazel":        filepath.Base(*customBazel),
+			"extra_bazelrc":       strings.Join(rcNames, ","),
+			"repo_cache_mode":     *cacheMode,
+			"remote_cache":        remoteCacheMeta(*cacheMode, *remoteCache),
+			"host":                runtime.GOOS + "/" + runtime.GOARCH,
+			"cpus":                fmt.Sprint(runtime.NumCPU()),
+			"date":                time.Now().Format(time.RFC3339),
+		}
+	}
+	if *determinism {
+		dir := userPath(*workDir)
+		if err := os.MkdirAll(results, 0o755); err != nil {
+			return err
+		}
+		m := meta()
+		m["remote_cache"] = remoteCacheMeta("remote", *remoteCache)
+		delete(m, "repo_cache_mode")
+		save := func(det []bench.DetResult) error {
+			res := kept
+			res.Determinism, res.DeterminismMeta = det, m
+			b, _ := json.MarshalIndent(&res, "", " ")
+			if err := os.WriteFile(filepath.Join(results, "results.json"), b, 0o644); err != nil {
+				return err
+			}
+			_, err := report.Write(results, &res)
+			return err
+		}
+		det, err := bench.RunDeterminism(ctx, bench.Config{
+			WorkDir: dir, CacheDir: cache, Toolbox: toolbox, Git: git, ExtraRC: rcs, RemoteCache: remoteURL,
+			CustomBazel: *customBazel, StockBazel: *stockBazel, BazelDiff: *bazelDiff, TD: *td,
+			Tools: toolNames, Out: os.Stdout, OnDetSave: func(d []bench.DetResult) { save(d) },
+		})
+		if err != nil {
+			return err
+		}
+		if err := save(det); err != nil {
+			return err
+		}
+		fmt.Println("\nReport:\n  " + filepath.Join(results, "report.html"))
+		return nil
+	}
 	var sweep []*bench.Results
 	for _, n := range scales {
 		dir, out := userPath(*workDir), results
@@ -255,22 +311,11 @@ func run() error {
 		}
 		cfg := bench.Config{
 			WorkDir: dir, ResultsDir: out, CacheDir: cache, Toolbox: toolbox, Git: git, ExtraRC: rcs,
-			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, LockfileSrc: lockSrc, SeedOnly: *seedOnly, Relocate: *relocate,
+			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, LockfileSrc: lockSrc, SeedOnly: *seedOnly,
 			CustomBazel: *customBazel, StockBazel: *stockBazel, BazelDiff: *bazelDiff, TD: *td,
 			Tools: toolNames, Scenarios: selected, Scale: n, PerfReps: *perfReps,
 			Oracle: oracleOn || prior != nil, KeepServers: *keepServers, Out: os.Stdout, Prior: prior,
-			Meta: map[string]string{
-				"stock_bazel":         "9.2.0",
-				"bazel_diff":          "v60.0.0",
-				"target_determinator": "v0.34.0",
-				"custom_bazel":        filepath.Base(*customBazel),
-				"extra_bazelrc":       strings.Join(rcNames, ","),
-				"repo_cache_mode":     *cacheMode,
-				"remote_cache":        remoteCacheMeta(*cacheMode, *remoteCache),
-				"host":                runtime.GOOS + "/" + runtime.GOARCH,
-				"cpus":                fmt.Sprint(runtime.NumCPU()),
-				"date":                time.Now().Format(time.RFC3339),
-			},
+			Meta: meta(), Determinism: kept.Determinism, DeterminismMeta: kept.DeterminismMeta,
 		}
 		for _, d := range []string{cfg.WorkDir, cfg.ResultsDir} {
 			if err := os.MkdirAll(d, 0o755); err != nil {

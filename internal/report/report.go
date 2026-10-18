@@ -45,6 +45,50 @@ type view struct {
 	Summaries   []ToolSummary
 	Categories  []string
 	Consistency []Consistency
+	Det         *DetTable
+}
+
+// DetTable is the determinism suite: one row per check, one cell per tool.
+type DetTable struct {
+	Tools []string
+	Rows  []DetRow
+	Meta  map[string]string
+}
+
+type DetRow struct {
+	Check, Description string
+	Cells              []bench.DetResult
+}
+
+func detTable(r *bench.Results) *DetTable {
+	if len(r.Determinism) == 0 {
+		return nil
+	}
+	t := &DetTable{Meta: r.DeterminismMeta}
+	by := map[string]map[string]bench.DetResult{}
+	for _, d := range r.Determinism {
+		if by[d.Check] == nil {
+			by[d.Check] = map[string]bench.DetResult{}
+		}
+		if _, seen := by["*"+d.Tool]; !seen {
+			by["*"+d.Tool] = nil
+			t.Tools = append(t.Tools, d.Tool)
+		}
+		by[d.Check][d.Tool] = d
+	}
+	checks := append([]bench.DetCheck{{Name: "setup", Description: "First snapshot."}}, bench.DetChecks...)
+	for _, c := range checks {
+		cells, ok := by[c.Name]
+		if !ok {
+			continue
+		}
+		row := DetRow{Check: c.Name, Description: c.Description}
+		for _, tool := range t.Tools {
+			row.Cells = append(row.Cells, cells[tool])
+		}
+		t.Rows = append(t.Rows, row)
+	}
+	return t
 }
 
 // Consistency compares one tool's hashes of the same base revision in two
@@ -58,7 +102,6 @@ type Consistency struct {
 }
 
 var consistencyChecks = []struct{ suffix, desc string }{
-	{"@relocated", "another checkout and output base"},
 	{"@remote", "remote repo contents cache on"},
 }
 
@@ -94,7 +137,7 @@ func compareHashes(r *bench.Results, t, suffix, desc string) (Consistency, bool)
 
 // Write renders report.html and summary.md into dir and returns their paths.
 func Write(dir string, r *bench.Results) ([]string, error) {
-	v := view{R: r, Summaries: summarize(r), Consistency: consistency(r)}
+	v := view{R: r, Summaries: summarize(r), Consistency: consistency(r), Det: detTable(r)}
 	seen := map[string]bool{}
 	for _, s := range r.Scenarios {
 		if !seen[s.Category] {
@@ -108,6 +151,7 @@ func Write(dir string, r *bench.Results) ([]string, error) {
 		"short": shortList,
 		"cell":  cellClass,
 		"mb":    mb,
+		"det":   detCell,
 		"gb":    gb,
 	}).Parse(htmlTmpl)
 	if err != nil {
@@ -318,6 +362,34 @@ func markdown(v view) string {
 			fmt.Fprintf(&b, "| %s | %s | %d | %d | %s |\n", c.Tool, c.Against, c.Compared, len(c.Different), strings.Join(shortList(c.Different, 4), ", "))
 		}
 	}
+	if d := v.Det; d != nil {
+		b.WriteString("\n## Determinism: the same revision hashed twice\n\n")
+		fmt.Fprintf(&b, "Each check hashes the same revision twice with one thing changed in between; every target whose hash differs would be selected although nothing changed. The checkout adds three hazard repos to the fixture, each with its own target: an absolute symlink (//hazard:symlink), a local repo with its path in a string attribute like local_jdk (//hazard:path_attr), and a fetched repo with its path in a BUILD file comment (//hazard:path_content). Custom Bazel: %s, %s.\n\n", d.Meta["custom_bazel"], d.Meta["date"])
+		b.WriteString("| Check |")
+		for _, t := range d.Tools {
+			b.WriteString(" " + t + " |")
+		}
+		b.WriteString(" What changes |\n|---|")
+		for range d.Tools {
+			b.WriteString("---|")
+		}
+		b.WriteString("---|\n")
+		for _, row := range d.Rows {
+			fmt.Fprintf(&b, "| %s |", row.Check)
+			for _, c := range row.Cells {
+				fmt.Fprintf(&b, " %s |", detCell(c))
+			}
+			fmt.Fprintf(&b, " %s |\n", row.Description)
+		}
+		for _, row := range d.Rows {
+			for _, c := range row.Cells {
+				if len(c.Different) > 0 {
+					fmt.Fprintf(&b, "\n- %s, %s: %s", row.Check, c.Tool, strings.Join(shortList(c.Different, 8), ", "))
+				}
+			}
+		}
+		b.WriteString("\n")
+	}
 	if len(v.R.RepoSupport) > 0 {
 		b.WriteString("\n## Repo contents cache support by module\n\n")
 		b.WriteString("Every repository the tools fetched for the base revision. Only repositories whose rule declares them reproducible are cached (locally and by `--experimental_remote_repo_contents_cache`); the rest are fetched from the internet even with a remote cache. **Bold**: a direct `bazel_dep` of the fixture.\n\n")
@@ -344,4 +416,19 @@ func markdown(v view) string {
 		b.WriteString("\n")
 	}
 	return b.String()
+}
+
+// detCell is a determinism cell: ✅, ❌ N of M, or the error.
+func detCell(c bench.DetResult) string {
+	switch {
+	case c.Tool == "":
+		return "–"
+	case c.Err != "" && c.Compared == 0:
+		return "error"
+	case len(c.Different) > 0:
+		return fmt.Sprintf("❌ %d of %d", len(c.Different), c.Compared)
+	case c.Err != "":
+		return "✅ (with errors)"
+	}
+	return "✅"
 }

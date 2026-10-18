@@ -77,6 +77,13 @@ scale {{.R.Scale}} · {{.R.BaseSize}} targets · {{index .R.Meta "host"}}, {{ind
 <td>{{if .Different}}<details><summary>{{len .Different}} targets</summary><ul class="l">{{range .Different}}<li><code>{{.}}</code></li>{{end}}</ul></details>{{end}}</td></tr>{{end}}</tbody></table></div>
 {{end}}
 
+{{with .Det}}<h2>Determinism: the same revision hashed twice</h2>
+<p class="muted">Each check hashes the same revision twice with one thing changed in between; every target whose hash differs would be selected although nothing changed. The checkout adds three hazard repos to the fixture, each with its own target: an absolute symlink (<code>//hazard:symlink</code>), a local repo with its own path in a string attribute, like rules_java's <code>local_jdk</code> (<code>//hazard:path_attr</code>), and a fetched repo with its path in a BUILD file comment (<code>//hazard:path_content</code>). target-determinator keeps no snapshots, so it isn't listed. Custom Bazel: {{index .Meta "custom_bazel"}}, {{index .Meta "date"}}.</p>
+<div class="wrap"><table>
+<thead><tr><th>Check</th>{{range .Tools}}<th>{{.}}</th>{{end}}<th>What changes between the snapshots</th></tr></thead>
+<tbody>{{range .Rows}}<tr><td><b>{{.Check}}</b></td>{{range .Cells}}<td class="{{if .Different}}bad{{else if .Tool}}ok{{end}}">{{det .}}{{if .Different}}<details><summary>targets</summary><ul class="l">{{range .Different}}<li><code>{{.}}</code></li>{{end}}</ul></details>{{end}}{{if .Err}}<div class="muted" title="{{.Err}}">error</div>{{end}}</td>{{end}}<td class="muted">{{.Description}}</td></tr>{{end}}</tbody></table></div>
+{{end}}
+
 {{if .R.RepoSupport}}<h2>Repo contents cache support by module</h2>
 <p class="muted">Every repository the tools fetched for the base revision, by owning module. Bazel only caches repositories whose rule declares them reproducible; those can come from <code>--experimental_remote_repo_contents_cache</code>, the rest are fetched from the internet even with a remote cache. <b>Bold</b>: a direct <code>bazel_dep</code> of the fixture.</p>
 <div class="wrap"><table>

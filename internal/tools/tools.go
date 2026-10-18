@@ -129,7 +129,11 @@ func finish(o Outcome) Outcome {
 	return o
 }
 
-// ---- custom Bazel with `query/cquery --generate_hashes` ----
+// HashFlag is the custom Bazel's query/cquery flag that prints per-target
+// hashes. It was --generate_hashes in builds before October 2026.
+var HashFlag = "--experimental_generate_hashes"
+
+// ---- custom Bazel with `query/cquery --experimental_generate_hashes` ----
 
 type customTool struct {
 	env     Env
@@ -145,7 +149,7 @@ func (t *customTool) Name() string { return t.name }
 // (cquery) lines. A label configured more than once gets the combination of
 // its hashes.
 func (t *customTool) hashes(ctx context.Context) (map[string]string, time.Duration, error) {
-	args := append(t.env.startup(filepath.Join(t.dir, "output_base")), t.command, "//...", "--generate_hashes")
+	args := append(t.env.startup(filepath.Join(t.dir, "output_base")), t.command, "//...", HashFlag)
 	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel, args...)
 	if res.Err != nil {
 		return nil, res.Duration, res.Err
@@ -191,6 +195,20 @@ func (t *customTool) Affected(ctx context.Context, _, _ string) Outcome {
 }
 
 func (t *customTool) BaseHashes() map[string]string { return t.base }
+
+// Bazeler is a tool with its own Bazel binary and output base; Bazel runs
+// that binary there (e.g. a build between two hash snapshots).
+type Bazeler interface {
+	Bazel(ctx context.Context, args ...string) ws.Result
+}
+
+func (t *customTool) Bazel(ctx context.Context, args ...string) ws.Result {
+	return t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel, append(t.env.startup(filepath.Join(t.dir, "output_base")), args...)...)
+}
+
+func (t *bazelDiffTool) Bazel(ctx context.Context, args ...string) ws.Result {
+	return t.env.Runner.Run(ctx, t.env.Workspace, t.env.StockBazel, append(t.env.startup(filepath.Join(t.dir, "output_base")), args...)...)
+}
 
 func (t *customTool) Shutdown(ctx context.Context) {
 	t.env.Runner.Run(ctx, t.env.Workspace, t.env.CustomBazel, append(t.env.startup(filepath.Join(t.dir, "output_base")), "shutdown")...)

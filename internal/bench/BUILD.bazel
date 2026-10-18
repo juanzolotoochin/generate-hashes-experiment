@@ -4,9 +4,9 @@ go_library(
     name = "bench",
     srcs = [
         "bench.go",
+        "determinism.go",
         "localcache.go",
         "lockfiles.go",
-        "relocate.go",
         "repos.go",
     ],
     importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/bench",
