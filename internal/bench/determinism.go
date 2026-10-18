@@ -117,6 +117,12 @@ func RunDeterminism(ctx context.Context, cfg Config) ([]DetResult, error) {
 	if err != nil {
 		return nil, err
 	}
+	// An empty commit on top: target-determinator compares rev with it, and
+	// should select nothing. The hash-based tools hash this (identical) tree.
+	empty, err := git.Commit(ctx, "empty")
+	if err != nil {
+		return nil, err
+	}
 	elsewhere := filepath.Join(root, "elsewhere", "another", "checkout")
 	if r := runner.Run(ctx, root, cfg.Git, "clone", "-q", checkout, elsewhere); r.Err != nil {
 		return nil, r.Err
@@ -158,12 +164,13 @@ func RunDeterminism(ctx context.Context, cfg Config) ([]DetResult, error) {
 
 	var out []DetResult
 	for _, name := range cfg.Tools {
-		if name == "target-determinator" {
-			continue // keeps no snapshots: it hashes both revisions in one run
-		}
 		say("Determinism checks for %s:", name)
-		d := detTool{cfg: cfg, ctx: ctx, name: name, rev: rev, say: say, root: root}
-		out = append(out, d.run(runner, otherRunner, checkout, elsewhere, cfgL, cfgR, remote)...)
+		d := detTool{cfg: cfg, ctx: ctx, name: name, rev: rev, empty: empty, say: say, root: root}
+		if name == "target-determinator" {
+			out = append(out, d.runTD(runner, otherRunner, checkout, elsewhere, cfgL, cfgR, remote)...)
+		} else {
+			out = append(out, d.run(runner, otherRunner, checkout, elsewhere, cfgL, cfgR, remote)...)
+		}
 		if cfg.OnDetSave != nil {
 			cfg.OnDetSave(out)
 		}
@@ -175,6 +182,7 @@ type detTool struct {
 	cfg       Config
 	ctx       context.Context
 	name, rev string
+	empty     string // an empty commit on top of rev
 	root      string
 	say       func(string, ...any)
 }
@@ -460,4 +468,108 @@ hazard_local_repo(name = "hazard_path_attr", kind = "path_attr")
 hazard_repo(name = "hazard_path_content", kind = "path_content")
 `)
 	return err
+}
+
+// runTD runs the checks for target-determinator, which keeps no snapshots:
+// in each setup it compares the base revision with an empty commit on top, in
+// one run, so every selected target is a wrong selection. Compared is 0.
+func (d *detTool) runTD(runner, otherRunner *ws.Runner, checkout, elsewhere string, cfgL, cfgR Config, remote bool) []DetResult {
+	var out []DetResult
+	start := time.Now()
+	run := func(check string, t tools.Tool, errs ...error) {
+		o := t.Affected(d.ctx, d.rev, d.empty)
+		r := DetResult{Check: check, Tool: d.name, Seconds: time.Since(start).Seconds(), Different: o.Labels}
+		var msgs []string
+		for _, e := range errs {
+			if e != nil {
+				msgs = append(msgs, firstLine(e.Error()))
+			}
+		}
+		if o.Err != "" {
+			msgs = append(msgs, firstLine(o.Err))
+		}
+		r.Err = strings.Join(msgs, "; ")
+		status := fmt.Sprintf("%d targets selected", len(r.Different))
+		if r.Err != "" {
+			status += " (error: " + r.Err + ")"
+		}
+		d.say("  %-24s %6.1fs  %s", check, r.Seconds, status)
+		out = append(out, r)
+		start = time.Now()
+	}
+	build := func(t tools.Tool) error {
+		if r := t.(tools.Bazeler).Bazel(d.ctx, "build", "//...", "--keep_going"); r.Err != nil {
+			return fmt.Errorf("build: %w", r.Err)
+		}
+		return nil
+	}
+	root := func(state string) string { return filepath.Join(state, d.name, "output_user_root") }
+	wipe := func(t tools.Tool, dirs ...string) {
+		t.Shutdown(d.ctx)
+		for _, p := range dirs {
+			removeAll(p)
+		}
+	}
+	a := filepath.Join(d.root, "a")
+	cachesA := filepath.Join(a, d.name)
+	rcA, err := writeRC(cfgL, filepath.Join(d.root, "rc", d.name), cachesA)
+	if err != nil {
+		return []DetResult{{Check: "setup", Tool: d.name, Err: err.Error()}}
+	}
+	mk := func(state, co, rc string, r *ws.Runner) tools.Tool {
+		t, _ := d.inst(state, co, rc, r)
+		return t
+	}
+	tA := mk(a, checkout, rcA, runner)
+	run("setup", tA)
+	run("repeat", tA)
+	tA.Shutdown(d.ctx)
+	run("restart", tA)
+	tA.Shutdown(d.ctx)
+	t := mk(a, checkout, rcA, otherRunner)
+	run("environment", t)
+	t.Shutdown(d.ctx)
+	b := filepath.Join(d.root, "b")
+	t = mk(b, checkout, rcA, runner)
+	run("output_base_path", t)
+	wipe(t, filepath.Join(b, d.name))
+	wipe(tA, root(a))
+	run("fresh_output_base", tA)
+	wipe(tA, root(a))
+	t = mk(a, elsewhere, rcA, runner)
+	run("checkout_path", t)
+	wipe(t, root(a))
+	wipe(tA, cachesA)
+	tA = mk(a, checkout, rcA, runner)
+	run("fresh_caches", tA)
+	err = build(tA)
+	run("build_between", tA, err)
+	wipe(tA, cachesA)
+	if !remote {
+		return out
+	}
+	r := filepath.Join(d.root, "r")
+	cachesR := filepath.Join(r, d.name)
+	rcR, err1 := writeRC(cfgR, filepath.Join(d.root, "rc-remote", d.name), cachesR)
+	rcL, err2 := writeRC(cfgL, filepath.Join(d.root, "rc-local", d.name), cachesR)
+	if err1 != nil || err2 != nil {
+		return out
+	}
+	tR := mk(r, checkout, rcR, runner)
+	run("remote_cache", tR)
+	tR.Shutdown(d.ctx)
+	tL := mk(r, checkout, rcL, runner)
+	run("remote_off_same_output_base", tL)
+	tL.Shutdown(d.ctx)
+	run("remote_on_again", tR)
+	wipe(tR, cachesR)
+	tR = mk(r, checkout, rcR, runner)
+	err = build(tR)
+	run("build_between_remote", tR, err)
+	wipe(tR, root(r))
+	tL = mk(r, checkout, rcL, runner)
+	err = build(tL)
+	run("remote_then_local_build", tL, err)
+	wipe(tL, cachesR)
+	return out
 }

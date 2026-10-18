@@ -84,6 +84,11 @@ func WriteScaling(dir string, runs []*bench.Results) ([]string, error) {
 	if len(runs) == 0 {
 		return nil, fmt.Errorf("no runs")
 	}
+	named := make([]*bench.Results, len(runs))
+	for i, r := range runs {
+		named[i] = renamed(r)
+	}
+	runs = named
 	sort.Slice(runs, func(i, j int) bool { return runs[i].Scale < runs[j].Scale })
 	v := scalingView{Results: runs, Tools: runs[0].Tools, Meta: runs[0].Meta}
 	for i, tool := range v.Tools {

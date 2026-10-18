@@ -376,6 +376,12 @@ func (t *tdTool) Affected(ctx context.Context, baseRev, _ string) Outcome {
 
 func (t *tdTool) BaseHashes() map[string]string { return nil }
 
+// Bazel runs stock Bazel in the output base target-determinator uses for the
+// checkout (same output user root and bazelrc).
+func (t *tdTool) Bazel(ctx context.Context, args ...string) ws.Result {
+	return t.env.Runner.Run(ctx, t.env.Workspace, t.env.StockBazel, append([]string{"--output_user_root=" + t.userRoot(), "--bazelrc=" + t.env.RC}, args...)...)
+}
+
 func (t *tdTool) Shutdown(ctx context.Context) {
 	// Stop every server under the tool's output user root (normally one; a
 	// worktree, if target-determinator ever needed one, gets its own).

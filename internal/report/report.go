@@ -137,6 +137,7 @@ func compareHashes(r *bench.Results, t, suffix, desc string) (Consistency, bool)
 
 // Write renders report.html and summary.md into dir and returns their paths.
 func Write(dir string, r *bench.Results) ([]string, error) {
+	r = renamed(r)
 	v := view{R: r, Summaries: summarize(r), Consistency: consistency(r), Det: detTable(r)}
 	seen := map[string]bool{}
 	for _, s := range r.Scenarios {
@@ -364,7 +365,7 @@ func markdown(v view) string {
 	}
 	if d := v.Det; d != nil {
 		b.WriteString("\n## Determinism: the same revision hashed twice\n\n")
-		fmt.Fprintf(&b, "Each check hashes the same revision twice with one thing changed in between; every target whose hash differs would be selected although nothing changed. The checkout adds three hazard repos to the fixture, each with its own target: an absolute symlink (//hazard:symlink), a local repo with its path in a string attribute like local_jdk (//hazard:path_attr), and a fetched repo with its path in a BUILD file comment (//hazard:path_content). Custom Bazel: %s, %s.\n\n", d.Meta["custom_bazel"], d.Meta["date"])
+		fmt.Fprintf(&b, "Each check hashes the same revision twice with one thing changed in between; every target whose hash differs would be selected although nothing changed. target-determinator keeps no snapshots: in each setup it compares the revision with an empty commit on top, and every target it selects is wrong. The checkout adds three hazard repos to the fixture, each with its own target: an absolute symlink (//hazard:symlink), a local repo with its path in a string attribute like local_jdk (//hazard:path_attr), and a fetched repo with its path in a BUILD file comment (//hazard:path_content). Custom Bazel: %s, %s.\n\n", d.Meta["custom_bazel"], d.Meta["date"])
 		b.WriteString("| Check |")
 		for _, t := range d.Tools {
 			b.WriteString(" " + t + " |")
@@ -403,6 +404,9 @@ func markdown(v view) string {
 				strings.Join(shortList(r.NotCachedRepos, 4), ", "))
 		}
 	}
+	if len(v.R.Scenarios) == 0 {
+		return b.String()
+	}
 	b.WriteString("\n### Downloads per scenario\n\n| Scenario |")
 	for _, t := range v.R.Tools {
 		fmt.Fprintf(&b, " %s |", t)
@@ -425,6 +429,8 @@ func detCell(c bench.DetResult) string {
 		return "–"
 	case c.Err != "" && c.Compared == 0:
 		return "error"
+	case len(c.Different) > 0 && c.Compared == 0:
+		return fmt.Sprintf("❌ %d selected", len(c.Different))
 	case len(c.Different) > 0:
 		return fmt.Sprintf("❌ %d of %d", len(c.Different), c.Compared)
 	case c.Err != "":
