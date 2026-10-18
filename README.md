@@ -26,11 +26,11 @@ Each tool ran twice in the same work dir:
 
 | Tool | Exact | Scenarios with misses | Missed targets | Over-selected targets | Recall | Precision | Warm no-change | Warm per change (median) |
 |---|---|---|---|---|---|---|---|---|
-| custom | 26/47 | 2 | 28 | 128 | 84.2% | 53.8% | 0.1s | 0.2s |
-| custom-cquery | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.6s | 1.0s |
-| bazel-diff | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.4s | 0.6s |
-| bazel-diff-fine | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.5s | 0.7s |
-| target-determinator | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 9.4s | 10.4s |
+| custom | 25/47 | 1 | 10 | 150 | 94.4% | 52.7% | 0.1s | 0.2s |
+| custom-cquery | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.7s | 1.0s |
+| bazel-diff | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.6s | 0.6s |
+| bazel-diff-fine | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.7s | 0.8s |
+| target-determinator | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 10.3s | 12.2s |
 
 Correctness with the remote repo contents cache is the same as in local mode
 for every tool (see the `@remote` rows in the full tables).
@@ -47,14 +47,14 @@ remote repo contents cache:
 
 - **custom-cquery** (`cquery --generate_hashes`) never missed a target. It
   selects close to what target-determinator selects, at about 1s per change
-  versus about 10s. Its hashes don't depend on whether external repos are
+  versus about 12s. Its hashes don't depend on whether external repos are
   materialized.
 - **custom** (`query --generate_hashes`) is the fastest tool (0.2s per change)
-  and catches toolchain changes through the toolchain repos' definitions. It
-  misses two kinds of change:
-  - the `.bazelrc` `--copt` change, which is invisible to an unconfigured query;
-  - an edit to the contents of a toolchain's patch file (`toolchain_patch_edit`),
-    because the toolchain repo's definition doesn't change.
+  and catches toolchain changes through the toolchain repos' definitions,
+  including the contents of files those definitions point to, such as patches.
+  Its only misses are the `.bazelrc` `--copt` change, which is invisible to an
+  unconfigured query. It over-selects for a toolchain patch edit that doesn't
+  change any output (`toolchain_patch_noop`), as custom-cquery does.
 - **bazel-diff** misses every toolchain change (Go SDK, Rust, LLVM, the Go SDK
   patch) and the `.bazelrc` change.
 - **bazel-diff-fine** hashes third-party repos (pip, `go_deps`, crates) per

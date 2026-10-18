@@ -4,16 +4,16 @@ Stock Bazel 9.2.0 · bazel-diff v60.0.0 · target-determinator v0.34.0 · scale 
 
 | Tool | Exact | Scenarios with misses | Missed targets | Over-selected targets | Recall | Precision | Warm no-change | Warm per change (median) |
 |---|---|---|---|---|---|---|---|---|
-| custom | 26/47 | 2 | 28 | 128 | 84.2% | 53.8% | 0.1s | 0.2s |
-| custom-cquery | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.6s | 1.0s |
-| bazel-diff | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.4s | 0.6s |
-| bazel-diff-fine | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.5s | 0.7s |
-| target-determinator | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 9.4s | 10.4s |
-| custom@remote | 26/47 | 2 | 28 | 128 | 84.2% | 53.8% | 0.1s | 0.2s |
-| custom-cquery@remote | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.6s | 1.1s |
-| bazel-diff@remote | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.4s | 0.4s |
-| bazel-diff-fine@remote | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.6s | 0.8s |
-| target-determinator@remote | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 8.5s | 7.7s |
+| custom | 25/47 | 1 | 10 | 150 | 94.4% | 52.7% | 0.1s | 0.2s |
+| custom-cquery | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.7s | 1.0s |
+| bazel-diff | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.6s | 0.6s |
+| bazel-diff-fine | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.7s | 0.8s |
+| target-determinator | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 10.3s | 12.2s |
+| custom@remote | 25/47 | 1 | 10 | 150 | 94.4% | 52.7% | 0.1s | 0.1s |
+| custom-cquery@remote | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.6s | 0.8s |
+| bazel-diff@remote | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.5s | 0.4s |
+| bazel-diff-fine@remote | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.6s | 0.6s |
+| target-determinator@remote | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 7.4s | 8.4s |
 
 ## Downloads
 
@@ -21,16 +21,16 @@ Bytes each tool's Bazel received over the network (internet and remote cache), s
 
 | Tool | Setup (base revision) | Setup time | All changes (total) |
 |---|---|---|---|
-| custom | 413.4 MB | 46s | 281.0 MB |
-| custom-cquery | 820.4 MB | 60s | 662.3 MB |
-| bazel-diff | 140.8 MB | 17s | 84.6 MB |
-| bazel-diff-fine | 236.3 MB | 30s | 98.3 MB |
-| target-determinator | 820.4 MB | 74s | 662.3 MB |
-| custom@remote | 389.0 MB (97% remote) | 22s | 298.2 MB (100% remote) |
-| custom-cquery@remote | 407.5 MB (93% remote) | 21s | 467.0 MB (99% remote) |
+| custom | 413.4 MB | 55s | 281.0 MB |
+| custom-cquery | 820.5 MB | 76s | 662.3 MB |
+| bazel-diff | 140.8 MB | 21s | 84.6 MB |
+| bazel-diff-fine | 236.3 MB | 34s | 98.3 MB |
+| target-determinator | 820.4 MB | 118s | 662.3 MB |
+| custom@remote | 389.0 MB (97% remote) | 21s | 298.2 MB (100% remote) |
+| custom-cquery@remote | 407.5 MB (93% remote) | 22s | 467.0 MB (99% remote) |
 | bazel-diff@remote | 401.6 MB (100% remote) | 14s | 1484.2 MB (100% remote) |
-| bazel-diff-fine@remote | 414.6 MB (97% remote) | 31s | 781.6 MB (100% remote) |
-| target-determinator@remote | 421.7 MB (93% remote) | 80s | 1086.9 MB (100% remote) |
+| bazel-diff-fine@remote | 414.6 MB (97% remote) | 28s | 781.6 MB (100% remote) |
+| target-determinator@remote | 421.6 MB (93% remote) | 38s | 1086.9 MB (100% remote) |
 
 | Scenario | Category | Truth | custom | custom-cquery | bazel-diff | bazel-diff-fine | target-determinator | custom@remote | custom-cquery@remote | bazel-diff@remote | bazel-diff-fine@remote | target-determinator@remote |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -74,8 +74,8 @@ Bytes each tool's Bazel received over the network (internet and remote cache), s
 | bzlmod_patch_add | patch | 9 | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra |
 | bzlmod_patch_edit | patch | 9 | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra | +3 extra |
 | bzlmod_patch_noop | patch | 0 | +12 extra | +12 extra | +12 extra | +12 extra | ✅ | +12 extra | +12 extra | +12 extra | +12 extra | ✅ |
-| toolchain_patch_edit | patch | 18 | ❌ 18 missed | +2 extra | ❌ 18 missed | ❌ 18 missed | +2 extra | ❌ 18 missed | +2 extra | ❌ 18 missed | ❌ 18 missed | +2 extra |
-| toolchain_patch_noop | patch | 0 | ✅ | +20 extra | ✅ | ✅ | ✅ | ✅ | +20 extra | ✅ | ✅ | ✅ |
+| toolchain_patch_edit | patch | 18 | +2 extra | +2 extra | ❌ 18 missed | ❌ 18 missed | +2 extra | +2 extra | +2 extra | ❌ 18 missed | ❌ 18 missed | +2 extra |
+| toolchain_patch_noop | patch | 0 | +20 extra | +20 extra | ✅ | ✅ | ✅ | +20 extra | +20 extra | ✅ | ✅ | ✅ |
 | go_toolchain | toolchain | 18 | +2 extra | +2 extra | ❌ 18 missed | ❌ 18 missed | +2 extra | +2 extra | +2 extra | ❌ 18 missed | ❌ 18 missed | +2 extra |
 | rust_toolchain | toolchain | 3 | ✅ | ✅ | ❌ 3 missed | ❌ 3 missed | ✅ | ✅ | ✅ | ❌ 3 missed | ❌ 3 missed | ✅ |
 | python_toolchain | toolchain | 5 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
