@@ -16,7 +16,7 @@ import (
 // (default --lockfile_mode=update) after running everything the tools run on
 // that revision, so no tool needs to rewrite it during a benchmark: stock
 // query and cquery of deps(//...), and the custom Bazel's --generate_hashes
-// queries. A scenario gets its own lockfile only if it differs from the base's.
+// queries, plus bazel-diff's generate-hashes. A scenario gets its own lockfile only if it differs from the base's.
 func updateLockfiles(ctx context.Context, cfg Config, git *ws.Git, runner *ws.Runner, sharedRC string, say func(string, ...any)) error {
 	state := filepath.Join(cfg.WorkDir, "state")
 	type step struct {
@@ -46,6 +46,13 @@ func updateLockfiles(ctx context.Context, cfg Config, git *ws.Git, runner *ws.Ru
 			if r.Err != nil {
 				say("  %s: %s %s failed (see commands.log)", rev, filepath.Base(st.bazel), st.args[0])
 			}
+		}
+		// bazel-diff evaluates module extensions the queries don't (it
+		// inspects the module graph), so it runs too.
+		stockOB := filepath.Join(state, "lock-stock", "output_base")
+		if r := runner.Run(ctx, git.Dir, cfg.BazelDiff, "generate-hashes", "--workspacePath="+git.Dir, "--bazelPath="+cfg.StockBazel,
+			"--bazelStartupOptions=--bazelrc="+sharedRC+" --output_base="+stockOB, filepath.Join(state, "lock-bazel-diff.json")); r.Err != nil {
+			say("  %s: bazel-diff failed (see commands.log)", rev)
 		}
 		b, err := os.ReadFile(lockPath)
 		say("  %-28s %6.1fs  %d bytes", rev, time.Since(start).Seconds(), len(b))
