@@ -25,7 +25,8 @@ import (
 
 // Config controls a benchmark run.
 type Config struct {
-	WorkDir  string
+	WorkDir    string // checkout, output bases and logs
+	ResultsDir string // results.json (and the report, via OnSave); defaults to WorkDir
 	CacheDir string
 	Toolbox  string // from SetupToolbox
 	Git      string
@@ -123,7 +124,7 @@ type Setup struct {
 }
 
 // Run executes the benchmark and returns its results. Results are also
-// written to <WorkDir>/results.json after every scenario.
+// written to <ResultsDir>/results.json after every scenario.
 func Run(ctx context.Context, cfg Config) (*Results, error) {
 	res := &Results{Meta: cfg.Meta, Scale: cfg.Scale, NoChange: map[string][]float64{}, Setup: map[string]Setup{}, BaseHashes: map[string]map[string]string{}, Started: time.Now()}
 	remote := cfg.RepoCacheMode == "remote"
@@ -402,7 +403,11 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 
 	save := func() {
 		b, _ := json.MarshalIndent(res, "", " ")
-		os.WriteFile(filepath.Join(cfg.WorkDir, "results.json"), b, 0o644)
+		dir := cfg.ResultsDir
+		if dir == "" {
+			dir = cfg.WorkDir
+		}
+		os.WriteFile(filepath.Join(dir, "results.json"), b, 0o644)
 		if cfg.OnSave != nil {
 			cfg.OnSave(res)
 		}

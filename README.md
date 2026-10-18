@@ -96,8 +96,11 @@ All other modules are at their latest BCR releases.
 /path/to/custom-bazel run //cmd/hashbench -- -custom-bazel=/path/to/custom-bazel
 ```
 
-That's the whole benchmark. Then open `hashbench-work/report.html`. A Markdown
+That's the whole benchmark. Then open `results/report.html`. A Markdown
 summary (`summary.md`) and the raw data (`results.json`) are written next to it.
+All three are rewritten after every scenario, so you can watch a run fill in, and
+git keeps the previous results. Bazel state, checkouts and logs go in
+`hashbench-work/`.
 
 The custom Bazel under test builds the harness and is the only thing taken from
 your machine besides `git`, which versions the benchmark workspace. Everything
@@ -126,8 +129,9 @@ shown above. <!-- TODO: link the fork and build instructions once public. -->
 
 Each size adds that many generated service packages (Go, Python, C++, Rust,
 filegroup and custom-rule targets, chained to each other and to the fixture's
-libraries) and runs in its own `hashbench-work/scale-N`. The sweep writes
-`hashbench-work/scaling.html` and `scaling.md` with per-tool timings by
+libraries) and runs in its own `hashbench-work/scale-N`, with results in
+`results/scale-N`. The sweep writes `results/scaling.html` and `scaling.md`
+with per-tool timings by
 workspace size. For runs with `-scale` above 0, the oracle is off and a
 representative scenario subset runs, unless you override them.
 
@@ -139,11 +143,13 @@ local pass and then the remote pass with its ground truth:
 ```sh
 /path/to/custom-bazel run //cmd/hashbench -- -custom-bazel=/path/to/custom-bazel \
     -tools=custom,custom-cquery,bazel-diff,target-determinator
-cp hashbench-work/results.json local.json
 /path/to/custom-bazel run //cmd/hashbench -- -custom-bazel=/path/to/custom-bazel \
     -tools=custom,custom-cquery,bazel-diff,target-determinator \
-    -repo-cache-mode=remote -reuse-truth=local.json
+    -repo-cache-mode=remote -reuse-truth=results/results.json
 ```
+
+The remote pass reads the local pass's results before it starts and writes the
+combined results back to `results/`.
 
 By default the remote pass uses the bundled cache server (`cmd/remotecache`, a
 minimal Remote Execution API cache in Rust), which the harness starts on
@@ -169,7 +175,8 @@ repositories (the custom Bazel's `--generate_hashes` queries, stock `query` and
 | `-scale` | `0` | Comma-separated workspace sizes (generated packages). Several values run a sweep. |
 | `-oracle` | on at scale 0 | Build every target to compute ground truth. |
 | `-perf-reps` | `5` | Warm repetitions of the no-change scenario. |
-| `-work-dir` | `hashbench-work` | Benchmark checkout, per-tool output bases, logs and results (relative to where you ran `bazel run`). |
+| `-work-dir` | `hashbench-work` | Benchmark checkout, per-tool output bases and logs (relative to where you ran `bazel run`). |
+| `-results-dir` | `results/` | Where `report.html`, `summary.md` and `results.json` go. |
 | `-cache-dir` | `~/.cache/hashbench` | Shared repository, repo-contents and disk caches, plus the toolbox. |
 | `-keep-servers` | `false` | Leave the Bazel servers running afterwards. |
 | `-repo-cache-mode` | `local` | `local`, or `remote` to add `--experimental_remote_repo_contents_cache` (tools are reported as `<tool>@remote`). |

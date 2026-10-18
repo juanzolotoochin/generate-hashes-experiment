@@ -59,7 +59,8 @@ func run() error {
 		td          = flag.String("target-determinator", "", "target-determinator binary (set by bazel run)")
 		bash        = flag.String("bash", "", "static bash (set by bazel run)")
 		busybox     = flag.String("busybox", "", "static busybox (set by bazel run)")
-		workDir     = flag.String("work-dir", "hashbench-work", "benchmark checkout, output bases and results (relative to where you ran bazel run)")
+		workDir     = flag.String("work-dir", "hashbench-work", "benchmark checkout, output bases and logs (relative to where you ran bazel run)")
+		resultsDir  = flag.String("results-dir", "", "where results.json, report.html and summary.md go, rewritten after every scenario (default: results/ in the source tree under bazel run, else <work-dir>)")
 		cacheDir    = flag.String("cache-dir", filepath.Join(home, ".cache", "hashbench"), "shared repository, repo-contents and disk caches")
 		toolList    = flag.String("tools", "custom,bazel-diff,target-determinator", "comma-separated tools to benchmark")
 		only        = flag.String("scenarios", "", "comma-separated scenario names or categories (default: all; for scaling runs a representative set)")
@@ -73,7 +74,7 @@ func run() error {
 		remoteCache = flag.String("remote-cache", "local", "remote cache for -repo-cache-mode=remote: local (the bundled cache server on localhost, data in -cache-dir) or a grpc:// or grpcs:// URL (credentials go in a -bazelrc file)")
 		rcServer    = flag.String("remote-cache-server", "", "the bundled local remote cache server (set by bazel run)")
 		updLocks    = flag.Bool("update-lockfiles", false, "regenerate fixture/_workspace/MODULE.bazel.lock and the scenarios' lockfiles in the source tree (run with bazel run) and exit")
-		rereport    = flag.Bool("rereport", false, "regenerate the report from <work-dir>/results.json (adding the repo contents cache support table if missing) and exit")
+		rereport    = flag.Bool("rereport", false, "regenerate the report from <results-dir>/results.json (adding the repo contents cache support table if missing) and exit")
 		seedOnly    = flag.Bool("seed-only", false, "with -repo-cache-mode=remote: seed the remote repo contents cache with the base revision's repositories and exit")
 		reuseTruth  = flag.String("reuse-truth", "", "results.json of an earlier run: reuse its ground truth (skips per-scenario oracle builds) and merge its tools' scores")
 	)
@@ -121,8 +122,16 @@ func run() error {
 		a, _ := filepath.Abs(p)
 		return a
 	}
+	results := userPath(*resultsDir)
+	if results == "" {
+		if src := os.Getenv("BUILD_WORKSPACE_DIRECTORY"); src != "" {
+			results = filepath.Join(src, "results")
+		} else {
+			results = userPath(*workDir)
+		}
+	}
 	if *rereport {
-		dir := userPath(*workDir)
+		dir := results
 		b, err := os.ReadFile(filepath.Join(dir, "results.json"))
 		if err != nil {
 			return err
@@ -132,7 +141,7 @@ func run() error {
 			return err
 		}
 		if len(res.RepoSupport) == 0 {
-			res.RepoSupport = bench.RepoSupportFor(dir)
+			res.RepoSupport = bench.RepoSupportFor(userPath(*workDir))
 			b, _ := json.MarshalIndent(&res, "", " ")
 			if err := os.WriteFile(filepath.Join(dir, "results.json"), b, 0o644); err != nil {
 				return err
@@ -234,16 +243,17 @@ func run() error {
 	defer stop()
 	var sweep []*bench.Results
 	for _, n := range scales {
-		dir := userPath(*workDir)
+		dir, out := userPath(*workDir), results
 		if len(scales) > 1 {
 			dir = filepath.Join(dir, fmt.Sprintf("scale-%d", n))
+			out = filepath.Join(out, fmt.Sprintf("scale-%d", n))
 		}
 		oracleOn := *useOracle
 		if !explicit["oracle"] {
 			oracleOn = n == 0
 		}
 		cfg := bench.Config{
-			WorkDir: dir, CacheDir: cache, Toolbox: toolbox, Git: git, ExtraRC: rcs,
+			WorkDir: dir, ResultsDir: out, CacheDir: cache, Toolbox: toolbox, Git: git, ExtraRC: rcs,
 			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, LockfileSrc: lockSrc, SeedOnly: *seedOnly,
 			CustomBazel: *customBazel, StockBazel: *stockBazel, BazelDiff: *bazelDiff, TD: *td,
 			Tools: toolNames, Scenarios: selected, Scale: n, PerfReps: *perfReps,
@@ -261,14 +271,16 @@ func run() error {
 				"date":                time.Now().Format(time.RFC3339),
 			},
 		}
-		if err := os.MkdirAll(cfg.WorkDir, 0o755); err != nil {
-			return err
+		for _, d := range []string{cfg.WorkDir, cfg.ResultsDir} {
+			if err := os.MkdirAll(d, 0o755); err != nil {
+				return err
+			}
 		}
-		fmt.Printf("\n=== scale %d (%s) ===\n", n, cfg.WorkDir)
-		cfg.OnSave = func(r *bench.Results) { report.Write(cfg.WorkDir, r) }
+		fmt.Printf("\n=== scale %d (%s, results in %s) ===\n", n, cfg.WorkDir, cfg.ResultsDir)
+		cfg.OnSave = func(r *bench.Results) { report.Write(cfg.ResultsDir, r) }
 		res, err := bench.Run(ctx, cfg)
 		if res != nil {
-			paths, rerr := report.Write(cfg.WorkDir, res)
+			paths, rerr := report.Write(cfg.ResultsDir, res)
 			if rerr != nil {
 				return rerr
 			}
@@ -283,7 +295,7 @@ func run() error {
 		}
 	}
 	if len(scales) > 1 {
-		paths, err := report.WriteScaling(userPath(*workDir), sweep)
+		paths, err := report.WriteScaling(results, sweep)
 		if err != nil {
 			return err
 		}
