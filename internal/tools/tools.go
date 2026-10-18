@@ -270,8 +270,9 @@ func (t *bazelDiffTool) BaseHashes() map[string]string {
 	}
 	m := map[string]string{}
 	for l, h := range v.Hashes {
-		if strings.HasPrefix(l, "//") && !strings.HasPrefix(l, "//external:") {
-			m[NormalizeLabel(l)] = string(h)
+		// Labels are //pkg:name, or @@//pkg:name with --useCquery.
+		if l = NormalizeLabel(l); strings.HasPrefix(l, "//") && !strings.HasPrefix(l, "//external:") {
+			m[l] = string(h)
 		}
 	}
 	return m
