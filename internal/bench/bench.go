@@ -38,6 +38,10 @@ type Config struct {
 	RemoteCache   string // grpc:// or grpcs:// URL
 	RemoteName    string // "local" or the URL, keys the seeder's state
 	SeedOnly      bool   // remote mode: seed the base revision and stop
+	// Relocate (local mode) hashes the base revision a second time with each
+	// hash-based tool, from a clone of the checkout at another path and with
+	// fresh output bases and caches at other paths, stored as <tool>@relocated.
+	Relocate bool
 	// LockfileSrc, if set, is the source checkout: regenerate the fixture's
 	// MODULE.bazel.lock and the scenarios' lockfiles there, and stop.
 	LockfileSrc string
@@ -366,6 +370,11 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 	if !remote {
 		res.RepoSupport = RepoSupportFor(cfg.WorkDir)
 	}
+	if cfg.Relocate && !remote {
+		if err := relocate(ctx, cfg, runner, logf, repo, baseRev, res, say); err != nil {
+			return nil, err
+		}
+	}
 
 	var base oracle.Snapshot
 	if cfg.Oracle {
@@ -428,6 +437,9 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 				}
 				if h, ok := cfg.Prior.BaseHashes[t]; ok {
 					res.BaseHashes[t] = h
+				}
+				if h, ok := cfg.Prior.BaseHashes[t+"@relocated"]; ok {
+					res.BaseHashes[t+"@relocated"] = h
 				}
 			}
 		}
@@ -774,14 +786,7 @@ func sanitize(s string) string {
 func resetForMode(dir, mode string) error {
 	marker := filepath.Join(dir, ".mode")
 	if b, err := os.ReadFile(marker); err != nil || string(b) != mode {
-		// Bazel leaves read-only directories behind; make them writable first.
-		filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
-			if err == nil && d.IsDir() {
-				os.Chmod(p, 0o755)
-			}
-			return nil
-		})
-		if err := os.RemoveAll(dir); err != nil {
+		if err := removeAll(dir); err != nil {
 			return err
 		}
 	}
@@ -789,4 +794,16 @@ func resetForMode(dir, mode string) error {
 		return err
 	}
 	return os.WriteFile(marker, []byte(mode), 0o644)
+}
+
+// removeAll removes dir, first making the read-only directories Bazel leaves
+// behind writable.
+func removeAll(dir string) error {
+	filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+		if err == nil && d.IsDir() {
+			os.Chmod(p, 0o755)
+		}
+		return nil
+	})
+	return os.RemoveAll(dir)
 }

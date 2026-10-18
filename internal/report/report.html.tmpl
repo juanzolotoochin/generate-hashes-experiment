@@ -69,11 +69,11 @@ scale {{.R.Scale}} · {{.R.BaseSize}} targets · {{index .R.Meta "host"}}, {{ind
 </td>{{end}}
 </tr>{{end}}</tbody></table></div>
 
-{{if .Consistency}}<h2>Consistency: same revision, remote repo contents cache off vs on</h2>
-<p class="muted">Each tool's hashes of the base revision, computed in local mode and with <code>--experimental_remote_repo_contents_cache</code>, where external repositories are served lazily and are not on disk. A correct tool gives identical hashes; a difference means its hash snapshots depend on what happens to be materialized locally, so comparing snapshots from different machines or runs gives wrong answers.</p>
+{{if .Consistency}}<h2>Consistency: same revision, different setups</h2>
+<p class="muted">Each tool's hashes of the base revision in local mode, compared with its hashes from a second checkout at another path with fresh output bases and caches at other paths (as on another CI machine or worktree), and with <code>--experimental_remote_repo_contents_cache</code>, where external repositories are served lazily and are not on disk. A correct tool gives identical hashes; a difference means its hash snapshots depend on what happens to be materialized locally, so comparing snapshots from different machines or runs gives wrong answers.</p>
 <div class="wrap"><table>
-<thead><tr><th>Tool</th><th class="num">Targets compared</th><th class="num">Different hashes</th><th>Targets</th></tr></thead>
-<tbody>{{range .Consistency}}<tr><td><b>{{.Tool}}</b></td><td class="num">{{.Compared}}</td><td class="num {{if .Different}}bad{{else}}ok{{end}}">{{len .Different}}</td>
+<thead><tr><th>Tool</th><th>Compared with</th><th class="num">Targets compared</th><th class="num">Different hashes</th><th>Targets</th></tr></thead>
+<tbody>{{range .Consistency}}<tr><td><b>{{.Tool}}</b></td><td>{{.Against}}</td><td class="num">{{.Compared}}</td><td class="num {{if .Different}}bad{{else}}ok{{end}}">{{len .Different}}</td>
 <td>{{if .Different}}<details><summary>{{len .Different}} targets</summary><ul class="l">{{range .Different}}<li><code>{{.}}</code></li>{{end}}</ul></details>{{end}}</td></tr>{{end}}</tbody></table></div>
 {{end}}
 

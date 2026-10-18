@@ -6,6 +6,7 @@ go_library(
         "bench.go",
         "localcache.go",
         "lockfiles.go",
+        "relocate.go",
         "repos.go",
     ],
     importpath = "github.com/juanzolotoochin/generate-hashes-experiment/internal/bench",

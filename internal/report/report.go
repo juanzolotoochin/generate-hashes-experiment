@@ -47,34 +47,49 @@ type view struct {
 	Consistency []Consistency
 }
 
-// Consistency compares one tool's hashes of the same base revision with the
-// remote repo contents cache off and on.
+// Consistency compares one tool's hashes of the same base revision in two
+// setups: with the remote repo contents cache off and on, or from another
+// checkout with another output base.
 type Consistency struct {
 	Tool      string
+	Against   string
 	Compared  int
 	Different []string
 }
 
+var consistencyChecks = []struct{ suffix, desc string }{
+	{"@relocated", "another checkout and output base"},
+	{"@remote", "remote repo contents cache on"},
+}
+
 func consistency(r *bench.Results) []Consistency {
 	var out []Consistency
-	for _, t := range r.Tools {
-		a, b := r.BaseHashes[t], r.BaseHashes[t+"@remote"]
-		if a == nil || b == nil {
-			continue
-		}
-		c := Consistency{Tool: t}
-		for l, h := range a {
-			if h2, ok := b[l]; ok {
-				c.Compared++
-				if h != h2 {
-					c.Different = append(c.Different, l)
-				}
+	for _, chk := range consistencyChecks {
+		for _, t := range r.Tools {
+			if c, ok := compareHashes(r, t, chk.suffix, chk.desc); ok {
+				out = append(out, c)
 			}
 		}
-		sort.Strings(c.Different)
-		out = append(out, c)
 	}
 	return out
+}
+
+func compareHashes(r *bench.Results, t, suffix, desc string) (Consistency, bool) {
+	a, b := r.BaseHashes[t], r.BaseHashes[t+suffix]
+	if a == nil || b == nil {
+		return Consistency{}, false
+	}
+	c := Consistency{Tool: t, Against: desc}
+	for l, h := range a {
+		if h2, ok := b[l]; ok {
+			c.Compared++
+			if h != h2 {
+				c.Different = append(c.Different, l)
+			}
+		}
+	}
+	sort.Strings(c.Different)
+	return c, true
 }
 
 // Write renders report.html and summary.md into dir and returns their paths.
@@ -296,11 +311,11 @@ func markdown(v view) string {
 		b.WriteString("\n")
 	}
 	if len(v.Consistency) > 0 {
-		b.WriteString("\n## Consistency: same revision, remote repo contents cache off vs on\n\n")
-		b.WriteString("Each tool's hashes of the base revision, computed in local mode and with `--experimental_remote_repo_contents_cache` (where external repos are served lazily and are not on disk). A correct tool gives identical hashes; any difference means its hash snapshots depend on what is materialized locally.\n\n")
-		b.WriteString("| Tool | Targets compared | Different hashes | Examples |\n|---|---|---|---|\n")
+		b.WriteString("\n## Consistency: same revision, different setups\n\n")
+		b.WriteString("Each tool's hashes of the base revision in local mode, compared with its hashes from a second checkout at another path with fresh output bases and caches at other paths (as on another CI machine or worktree), and with `--experimental_remote_repo_contents_cache` (where external repos are served lazily and are not on disk). A correct tool gives identical hashes; any difference means comparing hash snapshots from different machines or runs gives wrong answers.\n\n")
+		b.WriteString("| Tool | Compared with | Targets compared | Different hashes | Examples |\n|---|---|---|---|---|\n")
 		for _, c := range v.Consistency {
-			fmt.Fprintf(&b, "| %s | %d | %d | %s |\n", c.Tool, c.Compared, len(c.Different), strings.Join(shortList(c.Different, 4), ", "))
+			fmt.Fprintf(&b, "| %s | %s | %d | %d | %s |\n", c.Tool, c.Against, c.Compared, len(c.Different), strings.Join(shortList(c.Different, 4), ", "))
 		}
 	}
 	if len(v.R.RepoSupport) > 0 {

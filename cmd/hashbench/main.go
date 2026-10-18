@@ -75,6 +75,7 @@ func run() error {
 		rcServer    = flag.String("remote-cache-server", "", "the bundled local remote cache server (set by bazel run)")
 		updLocks    = flag.Bool("update-lockfiles", false, "regenerate fixture/_workspace/MODULE.bazel.lock and the scenarios' lockfiles in the source tree (run with bazel run) and exit")
 		rereport    = flag.Bool("rereport", false, "regenerate the report from <results-dir>/results.json (adding the repo contents cache support table if missing) and exit")
+		relocate    = flag.Bool("relocate", true, "local mode: also hash the base revision from a second checkout with fresh output bases at other paths, and report whether the hashes match")
 		seedOnly    = flag.Bool("seed-only", false, "with -repo-cache-mode=remote: seed the remote repo contents cache with the base revision's repositories and exit")
 		reuseTruth  = flag.String("reuse-truth", "", "results.json of an earlier run: reuse its ground truth (skips per-scenario oracle builds) and merge its tools' scores")
 	)
@@ -254,7 +255,7 @@ func run() error {
 		}
 		cfg := bench.Config{
 			WorkDir: dir, ResultsDir: out, CacheDir: cache, Toolbox: toolbox, Git: git, ExtraRC: rcs,
-			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, LockfileSrc: lockSrc, SeedOnly: *seedOnly,
+			RepoCacheMode: *cacheMode, RemoteCache: remoteURL, RemoteName: *remoteCache, LockfileSrc: lockSrc, SeedOnly: *seedOnly, Relocate: *relocate,
 			CustomBazel: *customBazel, StockBazel: *stockBazel, BazelDiff: *bazelDiff, TD: *td,
 			Tools: toolNames, Scenarios: selected, Scale: n, PerfReps: *perfReps,
 			Oracle: oracleOn || prior != nil, KeepServers: *keepServers, Out: os.Stdout, Prior: prior,
