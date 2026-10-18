@@ -422,19 +422,25 @@ func markdown(v view) string {
 	return b.String()
 }
 
-// detCell is a determinism cell: ✅, ❌ N of M, or the error.
+// detCell is a determinism cell: ✅ or ❌ (N of M, or N selected for
+// target-determinator), "error" if hashing failed, and a note if a build
+// between the snapshots failed.
 func detCell(c bench.DetResult) string {
-	switch {
-	case c.Tool == "":
+	if c.Tool == "" {
 		return "–"
-	case c.Err != "" && c.Compared == 0:
-		return "error"
-	case len(c.Different) > 0 && c.Compared == 0:
-		return fmt.Sprintf("❌ %d selected", len(c.Different))
-	case len(c.Different) > 0:
-		return fmt.Sprintf("❌ %d of %d", len(c.Different), c.Compared)
-	case c.Err != "":
-		return "✅ (with errors)"
 	}
-	return "✅"
+	if c.Err != "" && c.Compared == 0 && len(c.Different) == 0 {
+		return "error"
+	}
+	cell := "✅"
+	switch {
+	case len(c.Different) > 0 && c.Compared == 0:
+		cell = fmt.Sprintf("❌ %d selected", len(c.Different))
+	case len(c.Different) > 0:
+		cell = fmt.Sprintf("❌ %d of %d", len(c.Different), c.Compared)
+	}
+	if c.BuildErr != "" {
+		cell += " (build errors)"
+	}
+	return cell
 }

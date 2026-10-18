@@ -173,8 +173,8 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		"LANG=C.UTF-8",
 	}}
 
-	// A fresh checkout every run; output bases and caches under state/ and
-	// CacheDir survive between runs so repeated runs start warm.
+	// A fresh checkout every run. Tool state under state/ is recreated below;
+	// the oracle's caches in CacheDir survive between runs.
 	say("Materializing fixture in %s", repo)
 	if err := os.RemoveAll(repo); err != nil {
 		return nil, err
@@ -239,7 +239,12 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 	var ts []tools.Tool
 	for i, name := range cfg.Tools {
 		dir := filepath.Join(state, name)
-		if err := resetForMode(dir, cfg.RepoCacheMode); err != nil {
+		// Every tool starts cold, from empty caches and output bases at the
+		// same paths in both modes: Setup measures a first run.
+		if err := removeAll(dir); err != nil {
+			return nil, err
+		}
+		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return nil, err
 		}
 		m, err := netmeter.Start(remoteAddr, filepath.Join(sockDir, fmt.Sprintf("%d.sock", i)))
@@ -777,22 +782,6 @@ func sanitize(s string) string {
 		}
 		return '_'
 	}, strings.ToLower(s))
-}
-
-// resetForMode empties a tool's state dir (output bases and caches) when it
-// was last used in another repo cache mode, so every mode starts cold from
-// the same paths, and records the mode.
-func resetForMode(dir, mode string) error {
-	marker := filepath.Join(dir, ".mode")
-	if b, err := os.ReadFile(marker); err != nil || string(b) != mode {
-		if err := removeAll(dir); err != nil {
-			return err
-		}
-	}
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
-	}
-	return os.WriteFile(marker, []byte(mode), 0o644)
 }
 
 // removeAll removes dir, first making the read-only directories Bazel leaves

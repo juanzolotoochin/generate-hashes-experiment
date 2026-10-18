@@ -112,8 +112,8 @@ Requirements: Linux x86_64, `git`, network access (Bazel Central Registry,
 GitHub releases, busybox.net, proxy.golang.org, PyPI, crates.io,
 static.rust-lang.org, gcr.io, packages.wolfi.dev, snapshot.debian.org), and about
 15 GB of disk. The first run fetches and builds the fixture's toolchains (LLVM,
-Go, Rust, Python). Later runs reuse `~/.cache/hashbench` and
-`hashbench-work/state` and start warm.
+Go, Rust, Python). Every run starts each tool from empty caches; later runs
+reuse `~/.cache/hashbench` for the oracle and the remote cache.
 
 ### Getting the custom Bazel
 

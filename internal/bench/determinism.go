@@ -23,7 +23,26 @@ type DetResult struct {
 	Compared  int      `json:"compared"`
 	Different []string `json:"different,omitempty"`
 	Err       string   `json:"error,omitempty"`
-	Seconds   float64  `json:"seconds"`
+	// BuildErr is a failed build between the snapshots (with --keep_going,
+	// so the rest of the build still ran).
+	BuildErr string  `json:"build_error,omitempty"`
+	Seconds  float64 `json:"seconds"`
+}
+
+// splitErrs separates build errors (from build steps) from hashing errors.
+func splitErrs(errs []error) (hash, build string) {
+	var h, b []string
+	for _, e := range errs {
+		if e == nil {
+			continue
+		}
+		if m := firstLine(e.Error()); strings.HasPrefix(m, "build: ") {
+			b = append(b, m)
+		} else {
+			h = append(h, m)
+		}
+	}
+	return strings.Join(h, "; "), strings.Join(b, "; ")
 }
 
 // DetCheck describes one determinism check.
@@ -221,13 +240,7 @@ func (d *detTool) run(runner, otherRunner *ws.Runner, checkout, elsewhere string
 	start := time.Now()
 	record := func(check string, a, b map[string]string, errs ...error) {
 		r := DetResult{Check: check, Tool: d.name, Seconds: time.Since(start).Seconds()}
-		var msgs []string
-		for _, e := range errs {
-			if e != nil {
-				msgs = append(msgs, firstLine(e.Error()))
-			}
-		}
-		r.Err = strings.Join(msgs, "; ")
+		r.Err, r.BuildErr = splitErrs(errs)
 		for l, h := range a {
 			if h2, ok := b[l]; ok {
 				r.Compared++
@@ -240,6 +253,9 @@ func (d *detTool) run(runner, otherRunner *ws.Runner, checkout, elsewhere string
 		status := fmt.Sprintf("%d of %d targets differ", len(r.Different), r.Compared)
 		if r.Err != "" {
 			status += " (error: " + r.Err + ")"
+		}
+		if r.BuildErr != "" {
+			status += " (build errors)"
 		}
 		d.say("  %-24s %6.1fs  %s", check, r.Seconds, status)
 		out = append(out, r)
@@ -479,19 +495,16 @@ func (d *detTool) runTD(runner, otherRunner *ws.Runner, checkout, elsewhere stri
 	run := func(check string, t tools.Tool, errs ...error) {
 		o := t.Affected(d.ctx, d.rev, d.empty)
 		r := DetResult{Check: check, Tool: d.name, Seconds: time.Since(start).Seconds(), Different: o.Labels}
-		var msgs []string
-		for _, e := range errs {
-			if e != nil {
-				msgs = append(msgs, firstLine(e.Error()))
-			}
-		}
 		if o.Err != "" {
-			msgs = append(msgs, firstLine(o.Err))
+			errs = append(errs, fmt.Errorf("%s", o.Err))
 		}
-		r.Err = strings.Join(msgs, "; ")
+		r.Err, r.BuildErr = splitErrs(errs)
 		status := fmt.Sprintf("%d targets selected", len(r.Different))
 		if r.Err != "" {
 			status += " (error: " + r.Err + ")"
+		}
+		if r.BuildErr != "" {
+			status += " (build errors)"
 		}
 		d.say("  %-24s %6.1fs  %s", check, r.Seconds, status)
 		out = append(out, r)
