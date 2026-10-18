@@ -89,10 +89,12 @@ func New(name string, env Env) (Tool, error) {
 		return &bazelDiffTool{env: env, dir: dir, name: full}, nil
 	case "bazel-diff-fine":
 		return &bazelDiffTool{env: env, dir: dir, name: full, fine: true}, nil
+	case "bazel-diff-cquery":
+		return &bazelDiffTool{env: env, dir: dir, name: full, cquery: true}, nil
 	case "target-determinator":
 		return &tdTool{env: env, dir: dir, name: full}, nil
 	}
-	return nil, fmt.Errorf("unknown tool %q (want custom, custom-cquery, bazel-diff, bazel-diff-fine or target-determinator)", name)
+	return nil, fmt.Errorf("unknown tool %q (want custom, custom-cquery, bazel-diff, bazel-diff-fine, bazel-diff-cquery or target-determinator)", name)
 }
 
 // NormalizeLabel maps @@//pkg:name and @//pkg:name to //pkg:name, and expands
@@ -225,6 +227,9 @@ type bazelDiffTool struct {
 	// --fineGrainedHashExternalReposFile, reading their files from disk, as
 	// CI setups commonly do. The repo list is computed for every revision.
 	fine bool
+	// cquery hashes the configured graph (--useCquery) instead of the
+	// unconfigured one, so configuration and toolchain changes can show up.
+	cquery bool
 }
 
 var fineRepoRE = regexp.MustCompile(`^@@([^/]*\+(pip|go_deps|crate)\+[^/]*)//`)
@@ -288,6 +293,9 @@ func (t *bazelDiffTool) generate(ctx context.Context, out string) ws.Result {
 			return ws.Result{Duration: d, Err: err}
 		}
 		args = append(args, "--fineGrainedHashExternalReposFile="+list)
+	}
+	if t.cquery {
+		args = append(args, "--useCquery=true")
 	}
 	res := t.env.Runner.Run(ctx, t.env.Workspace, t.env.BazelDiff, append(args, out)...)
 	res.Duration += listTime

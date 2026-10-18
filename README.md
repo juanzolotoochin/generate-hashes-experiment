@@ -168,7 +168,7 @@ repositories (the custom Bazel's `--generate_hashes` queries, stock `query` and
 | Flag | Default | Meaning |
 |---|---|---|
 | `-custom-bazel` | (required) | Bazel binary that supports `query --generate_hashes`. |
-| `-tools` | `custom,bazel-diff,target-determinator` | Which tools to benchmark (also available: `custom-cquery`). |
+| `-tools` | `custom,bazel-diff,target-determinator` | Which tools to benchmark (also available: `custom-cquery`, `bazel-diff-fine` with `--fineGrainedHashExternalReposFile`, and `bazel-diff-cquery` with `--useCquery`). Reports name `custom` and `custom-cquery` `generate_hashes (query)` and `generate_hashes (cquery)`. |
 | `-reuse-truth` | | `results.json` of an earlier run: reuse its ground truth instead of re-running the oracle per scenario, and merge its tools' scores. Handy for adding a tool. |
 | `-scenarios` | all | Comma-separated scenario names or categories, e.g. `source,toolchain` or `go_dep_bump`. See `-list`. |
 | `-list` | | Print the scenarios and exit. |

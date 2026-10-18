@@ -19,6 +19,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -274,9 +275,16 @@ func run() error {
 		m := meta()
 		m["remote_cache"] = remoteCacheMeta("remote", *remoteCache)
 		delete(m, "repo_cache_mode")
+		// Keep earlier determinism results of tools not in this run.
+		var others []bench.DetResult
+		for _, d := range kept.Determinism {
+			if !slices.Contains(toolNames, d.Tool) {
+				others = append(others, d)
+			}
+		}
 		save := func(det []bench.DetResult) error {
 			res := kept
-			res.Determinism, res.DeterminismMeta = det, m
+			res.Determinism, res.DeterminismMeta = append(append([]bench.DetResult(nil), others...), det...), m
 			b, _ := json.MarshalIndent(&res, "", " ")
 			if err := os.WriteFile(filepath.Join(results, "results.json"), b, 0o644); err != nil {
 				return err
