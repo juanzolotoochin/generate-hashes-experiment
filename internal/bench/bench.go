@@ -359,7 +359,12 @@ func Run(ctx context.Context, cfg Config) (*Results, error) {
 		say("  warning: preparing the tools modified the checkout: %s (restored)", strings.Join(dirty, ", "))
 		git.Reset(ctx, baseRev)
 	}
-	res.RepoSupport = RepoSupportFor(cfg.WorkDir)
+	// Only meaningful in local mode: there a cacheable repo is a symlink into
+	// the local repo contents cache. In remote mode it is a lazy directory, so
+	// a remote pass keeps the table from the local pass it is merged with.
+	if !remote {
+		res.RepoSupport = RepoSupportFor(cfg.WorkDir)
+	}
 
 	var base oracle.Snapshot
 	if cfg.Oracle {

@@ -14,41 +14,81 @@ correctness and warm-cache performance:
 
 ## Results
 
-Latest run (Linux x86_64, 16 CPUs, 42 scenarios; full tables in
-[`results/summary.md`](results/summary.md), interactive report in
-[`results/report.html`](results/report.html), raw data in
-[`results/results.json`](results/results.json)). `custom` and `custom-cquery`
-are the same custom Bazel running `query --generate_hashes` (unconfigured
-graph) and `cquery --generate_hashes` (configured graph).
+Latest run: Linux x86_64, 16 CPUs, 47 scenarios, 43 targets. Full tables are in
+[`results/summary.md`](results/summary.md), the interactive report in
+[`results/report.html`](results/report.html), and raw data in
+[`results/results.json`](results/results.json).
+
+Each tool ran twice in the same work dir:
+- **Local mode:** repos fetched from the internet into the tool's own empty caches.
+- **`@remote`:** with `--experimental_remote_repo_contents_cache` against the
+  bundled localhost cache, seeded with every revision's repos.
 
 | Tool | Exact | Scenarios with misses | Missed targets | Over-selected targets | Recall | Precision | Warm no-change | Warm per change (median) |
 |---|---|---|---|---|---|---|---|---|
-| custom-cquery | 26/42 | 0 | 0 | 84 | 100.0% | 63.2% | 0.7s | 0.9s |
-| custom | 25/42 | 1 | 8 | 65 | 94.4% | 67.7% | 5.1s | 6.0s |
-| bazel-diff | 23/42 | 4 | 47 | 70 | 67.4% | 58.1% | 0.4s | 0.5s |
-| target-determinator | 26/42 | 0 | 0 | 84 | 100.0% | 63.2% | 10.2s | 11.2s |
+| custom | 26/47 | 2 | 28 | 128 | 84.2% | 53.8% | 0.1s | 0.2s |
+| custom-cquery | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.6s | 1.0s |
+| bazel-diff | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.4s | 0.6s |
+| bazel-diff-fine | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.5s | 0.7s |
+| target-determinator | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 9.4s | 10.4s |
 
-- **custom-cquery** never missed a target that needed rebuilding. It selects
-  exactly what target-determinator selects in every scenario, at a median 0.9s
-  per change versus 11.2s. Changes to `MODULE.bazel` or lock files take longer
-  (up to about 15s) because they invalidate the analysis cache.
-- **target-determinator** never missed a target either, but it's the slowest.
-  Like custom-cquery, it over-selects, e.g. every C/C++ dependent on a
-  `.bazelrc` `--copt` change.
-- **custom** (query) now catches the toolchain bumps (Go SDK, Rust, LLVM), the
-  exec-bit change and the rules_multitool bump. Its only miss is the
-  `.bazelrc` `--copt` change, since build flags are invisible to an
-  unconfigured query. It over-selects more than cquery on the Python and LLVM
-  toolchain bumps. With this build it takes 5–6s even for a no-change run, up
-  from 0.2s with the previous build, and up to 2 minutes after a toolchain
-  bump.
-- **bazel-diff** answers in under a second but misses every toolchain bump and
-  the `.bazelrc` flag change.
-- **bazel-diff** over-selects on rules_distroless lock changes (including a
-  snapshot move where every package is byte-identical), on a `bazel_dep` bump,
-  and on exec-bit changes to source files.
-- All tools over-select where outputs don't depend on the change (visibility,
-  .bzl comments, helper targets without outputs).
+Correctness with the remote repo contents cache is the same as in local mode
+for every tool (see the `@remote` rows in the full tables).
+
+**Consistency.** Each tool's hashes of the *same* base revision, local mode vs
+remote repo contents cache:
+
+| Tool | Targets compared | Different hashes |
+|---|---|---|
+| custom | 43 | 0 |
+| custom-cquery | 43 | 0 |
+| bazel-diff | 102 | 0 |
+| bazel-diff-fine | 102 | 8 |
+
+- **custom-cquery** (`cquery --generate_hashes`) never missed a target. It
+  selects close to what target-determinator selects, at about 1s per change
+  versus about 10s. Its hashes don't depend on whether external repos are
+  materialized.
+- **custom** (`query --generate_hashes`) is the fastest tool (0.2s per change)
+  and catches toolchain changes through the toolchain repos' definitions. It
+  misses two kinds of change:
+  - the `.bazelrc` `--copt` change, which is invisible to an unconfigured query;
+  - an edit to the contents of a toolchain's patch file (`toolchain_patch_edit`),
+    because the toolchain repo's definition doesn't change.
+- **bazel-diff** misses every toolchain change (Go SDK, Rust, LLVM, the Go SDK
+  patch) and the `.bazelrc` change.
+- **bazel-diff-fine** hashes third-party repos (pip, `go_deps`, crates) per
+  target by reading their files from disk. With the remote repo contents cache,
+  those repos are served lazily and aren't on disk, so it computes different
+  hashes for the same commit: 8 Python targets here. Comparing hash snapshots
+  taken on different machines or at different times then gives wrong answers.
+  Default bazel-diff hashes external repos as opaque blobs and isn't affected.
+- **target-determinator** never missed a target, but it's the slowest. It works
+  with lazily served repos.
+- **Downloads.** With the remote repo contents cache, 93–100% of every tool's
+  downloads come from the remote cache. A cold setup of `custom` downloads 389
+  MB, most of it BUILD and `.bzl` files.
+
+### Fixes applied
+
+The benchmark uncovered these issues; the fixture includes fixes for the first
+two.
+
+1. **gazelle:** `go.env` contained output-base paths, so every `go_deps` repo
+   missed the repo contents cache in any fresh output base. Fixed upstream in
+   0.53.0 (bazel-gazelle #2385); the fixture uses 0.54.0.
+2. **rules_python:** interpreter repos contain `__pycache__` symlinks that point
+   outside the repo, so Bazel never uploads them to a remote repo contents
+   cache. Fixed on upstream main (d03bc77c), not yet released. The fixture
+   applies the fix as a patch to 2.4.2, plus
+   `--repo_env=RULES_PYTHON_PYCACHE_DIR=/dev/null`.
+3. **Bazel:** it doesn't upload repos with symlinks that leave the repo, and it
+   says nothing when it skips them (bazelbuild/bazel#30160). Reported only.
+4. **BuildBuddy:** `llvm-project` misses the remote repo contents cache there,
+   but hits with a local cache. Reported only, unresolved.
+
+rules_distroless stays at 0.8.0 because 0.9 replaced its `apt` extension API.
+All other modules are at their latest BCR releases.
 
 ## Running it
 
