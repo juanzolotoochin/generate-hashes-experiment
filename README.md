@@ -24,50 +24,65 @@ Each tool ran twice in the same work dir:
 - **`@remote`:** with `--experimental_remote_repo_contents_cache` against the
   bundled localhost cache, seeded with every revision's repos.
 
+My reading of these results is in [FINDINGS.md](FINDINGS.md). In the report,
+"generate_hashes (query)" is the `custom` tool and "generate_hashes (cquery)" is
+`custom-cquery`.
+
 | Tool | Exact | Scenarios with misses | Missed targets | Over-selected targets | Recall | Precision | Warm no-change | Warm per change (median) |
 |---|---|---|---|---|---|---|---|---|
-| custom | 25/47 | 1 | 10 | 150 | 94.4% | 52.7% | 0.1s | 0.2s |
-| custom-cquery | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.7s | 1.0s |
-| bazel-diff | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.6s | 0.6s |
-| bazel-diff-fine | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.7s | 0.8s |
-| target-determinator | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 10.3s | 12.2s |
+| generate_hashes (query) | 25/47 | 1 | 10 | 150 | 94.4% | 52.7% | 0.1s | 0.2s |
+| generate_hashes (cquery) | 25/47 | 0 | 0 | 143 | 100.0% | 55.3% | 0.7s | 1.3s |
+| bazel-diff | 23/47 | 5 | 60 | 90 | 66.1% | 56.5% | 0.5s | 0.7s |
+| bazel-diff-fine | 23/47 | 5 | 57 | 93 | 67.8% | 56.3% | 0.6s | 0.8s |
+| bazel-diff-cquery | 26/47 | 2 | 20 | 144 | 88.7% | 52.2% | 4.1s | 5.0s |
+| target-determinator | 28/47 | 0 | 0 | 106 | 100.0% | 62.5% | 9.9s | 11.4s |
 
 Correctness with the remote repo contents cache is the same as in local mode
 for every tool (see the `@remote` rows in the full tables).
 
-**Consistency.** Each tool's hashes of the *same* base revision, local mode vs
-remote repo contents cache:
+**Determinism.** `hashbench -determinism` hashes the same revision twice with
+one thing changed in between: a server restart, another environment, another
+output base or checkout path, fresh caches, a build in between, or the remote
+repo contents cache toggled. Targets whose hashes differ:
 
-| Tool | Targets compared | Different hashes |
-|---|---|---|
-| custom | 43 | 0 |
-| custom-cquery | 43 | 0 |
-| bazel-diff | 102 | 0 |
-| bazel-diff-fine | 102 | 8 |
+| Check | generate_hashes (query) | generate_hashes (cquery) | bazel-diff | bazel-diff-fine | bazel-diff-cquery | target-determinator |
+|---|---|---|---|---|---|---|
+| Output base at another path | 1 of 46 | 1 of 46 | 0 | 0 | 2 of 109 | 0 |
+| Remote repo contents cache on, then off | 0 | 0 | 0 | 8 of 109 | 0 | 0 |
+| The flag toggled in the same output base | 0 | 0 | 0 | 8 of 109 | 0 | 0 |
+| A build between snapshots, remote repo contents cache on | 0 | 0 | 0 | 5 of 109 | 0 | 0 |
+| Remote snapshot, then a local build and a local snapshot | 0 | 0 | 0 | 8 of 109 | 0 | 0 |
+| Repeat, server restart, another user and home, fresh output base, another checkout path, fresh caches, a local build between | 0 | 0 | 0 | 0 | 0 | 0 |
 
-- **custom-cquery** (`cquery --generate_hashes`) never missed a target. It
-  selects close to what target-determinator selects, at about 1s per change
-  versus about 12s. Its hashes don't depend on whether external repos are
-  materialized.
-- **custom** (`query --generate_hashes`) is the fastest tool (0.2s per change)
-  and catches toolchain changes through the toolchain repos' definitions,
-  including the contents of files those definitions point to, such as patches.
-  Its only misses are the `.bazelrc` `--copt` change, which is invisible to an
-  unconfigured query. It over-selects for a toolchain patch edit that doesn't
-  change any output (`toolchain_patch_noop`), as custom-cquery does.
+- **generate_hashes (cquery)** never missed a target, at about 1s per change
+  versus about 11s for target-determinator. Its hashes don't depend on whether
+  external repos are materialized.
+- **generate_hashes (query)** is the fastest tool (0.2s per change) and catches
+  toolchain changes through the toolchain repos' definitions, including the
+  contents of files those definitions point to, such as patches. Its only
+  misses are the `.bazelrc` `--copt` change, which is invisible to an
+  unconfigured query. Both generate_hashes modes over-select when an external
+  repo's files change without changing any output (`toolchain_patch_noop`,
+  `bzlmod_patch_noop`), and both depend on the output base path for a fetched
+  repo that writes its own path into a file (`//hazard:path_content`).
 - **bazel-diff** misses every toolchain change (Go SDK, Rust, LLVM, the Go SDK
   patch) and the `.bazelrc` change.
 - **bazel-diff-fine** hashes third-party repos (pip, `go_deps`, crates) per
   target by reading their files from disk. With the remote repo contents cache,
   those repos are served lazily and aren't on disk, so it computes different
-  hashes for the same commit: 8 Python targets here. Comparing hash snapshots
-  taken on different machines or at different times then gives wrong answers.
-  Default bazel-diff hashes external repos as opaque blobs and isn't affected.
-- **target-determinator** never missed a target, but it's the slowest. It works
-  with lazily served repos.
+  hashes for the same commit: 8 Python and Rust targets here, depending on the
+  flag and on whether a build materialized the files. Default bazel-diff hashes
+  external repos as opaque blobs and isn't affected.
+- **bazel-diff-cquery** (`--useCquery`) catches the toolchain version bumps and
+  the `.bazelrc` change, but misses the Go SDK patch edit and a rules_multitool
+  version bump, takes about 5s per change, and depends on the output base path
+  for a local repo with its path in an attribute (`//hazard:path_attr`).
+- **target-determinator** never missed a target and has the best precision, but
+  it's the slowest. It keeps no snapshots: it checks out both revisions in one
+  git repository.
 - **Downloads.** With the remote repo contents cache, 93–100% of every tool's
-  downloads come from the remote cache. A cold setup of `custom` downloads 389
-  MB, most of it BUILD and `.bzl` files.
+  downloads come from the remote cache. A cold setup of generate_hashes (query)
+  downloads 389 MB, most of it BUILD and `.bzl` files.
 
 ### Fixes applied
 

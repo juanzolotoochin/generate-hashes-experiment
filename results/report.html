@@ -27,61 +27,71 @@ ul.l { margin:2px 0 6px 18px; padding:0 } .card { background:var(--card); border
 <h1>hashbench</h1>
 <p class="muted">Correctness against a build-output oracle and warm-cache performance of Bazel target-selection tools.
 Stock Bazel 9.2.0 · bazel-diff v60.0.0 · target-determinator v0.34.0 ·
-scale 0 · 43 targets · linux/amd64, 16 CPUs · 2026-10-18T05:44:22&#43;02:00</p>
+scale 0 · 43 targets · linux/amd64, 16 CPUs · 2026-10-18T09:57:42&#43;02:00</p>
 
 <h2>Summary</h2>
 <div class="wrap"><table>
 <thead><tr><th>Tool</th><th class="num">Exact</th><th class="num">Scenarios with misses</th><th class="num">Missed targets</th><th class="num">Over-selected targets</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">Warm no-change</th><th class="num">Warm per change (median)</th><th class="num">Setup download</th><th class="num">Download, all changes</th></tr></thead>
 <tbody><tr>
-<td><b>custom</b></td>
+<td><b>generate_hashes (query)</b></td>
 <td class="num">25/47</td><td class="num">1</td><td class="num">10</td><td class="num">150</td>
 <td class="num">94.4%</td><td class="num">52.7%</td><td class="num">0.1s</td><td class="num">0.2s</td>
-<td class="num">413.4 MB<div class="muted">55s</div></td><td class="num">281.0 MB</td>
+<td class="num">413.4 MB<div class="muted">50s</div></td><td class="num">281.0 MB</td>
 </tr><tr>
-<td><b>custom-cquery</b></td>
+<td><b>generate_hashes (cquery)</b></td>
 <td class="num">25/47</td><td class="num">0</td><td class="num">0</td><td class="num">143</td>
-<td class="num">100.0%</td><td class="num">55.3%</td><td class="num">0.7s</td><td class="num">1.0s</td>
-<td class="num">820.5 MB<div class="muted">76s</div></td><td class="num">662.3 MB</td>
+<td class="num">100.0%</td><td class="num">55.3%</td><td class="num">0.7s</td><td class="num">1.3s</td>
+<td class="num">820.4 MB<div class="muted">69s</div></td><td class="num">662.3 MB</td>
 </tr><tr>
 <td><b>bazel-diff</b></td>
 <td class="num">23/47</td><td class="num">5</td><td class="num">60</td><td class="num">90</td>
-<td class="num">66.1%</td><td class="num">56.5%</td><td class="num">0.6s</td><td class="num">0.6s</td>
-<td class="num">140.8 MB<div class="muted">21s</div></td><td class="num">84.6 MB</td>
+<td class="num">66.1%</td><td class="num">56.5%</td><td class="num">0.5s</td><td class="num">0.7s</td>
+<td class="num">140.8 MB<div class="muted">19s</div></td><td class="num">84.6 MB</td>
 </tr><tr>
 <td><b>bazel-diff-fine</b></td>
 <td class="num">23/47</td><td class="num">5</td><td class="num">57</td><td class="num">93</td>
-<td class="num">67.8%</td><td class="num">56.3%</td><td class="num">0.7s</td><td class="num">0.8s</td>
-<td class="num">236.3 MB<div class="muted">34s</div></td><td class="num">98.3 MB</td>
+<td class="num">67.8%</td><td class="num">56.3%</td><td class="num">0.6s</td><td class="num">0.8s</td>
+<td class="num">236.3 MB<div class="muted">32s</div></td><td class="num">98.3 MB</td>
+</tr><tr>
+<td><b>bazel-diff-cquery</b></td>
+<td class="num">26/47</td><td class="num">2</td><td class="num">20</td><td class="num">144</td>
+<td class="num">88.7%</td><td class="num">52.2%</td><td class="num">4.1s</td><td class="num">5.0s</td>
+<td class="num">828.7 MB<div class="muted">68s</div></td><td class="num">729.7 MB</td>
 </tr><tr>
 <td><b>target-determinator</b></td>
 <td class="num">28/47</td><td class="num">0</td><td class="num">0</td><td class="num">106</td>
-<td class="num">100.0%</td><td class="num">62.5%</td><td class="num">10.3s</td><td class="num">12.2s</td>
-<td class="num">820.4 MB<div class="muted">118s</div></td><td class="num">662.3 MB</td>
+<td class="num">100.0%</td><td class="num">62.5%</td><td class="num">9.9s</td><td class="num">11.4s</td>
+<td class="num">820.4 MB<div class="muted">80s</div></td><td class="num">662.3 MB</td>
 </tr><tr>
-<td><b>custom@remote</b></td>
+<td><b>generate_hashes (query)@remote</b></td>
 <td class="num">25/47</td><td class="num">1</td><td class="num">10</td><td class="num">150</td>
-<td class="num">94.4%</td><td class="num">52.7%</td><td class="num">0.1s</td><td class="num">0.1s</td>
-<td class="num">389.0 MB (97% remote)<div class="muted">21s</div></td><td class="num">298.2 MB (100% remote)</td>
+<td class="num">94.4%</td><td class="num">52.7%</td><td class="num">0.1s</td><td class="num">0.2s</td>
+<td class="num">389.0 MB (97% remote)<div class="muted">19s</div></td><td class="num">298.2 MB (100% remote)</td>
 </tr><tr>
-<td><b>custom-cquery@remote</b></td>
+<td><b>generate_hashes (cquery)@remote</b></td>
 <td class="num">25/47</td><td class="num">0</td><td class="num">0</td><td class="num">143</td>
-<td class="num">100.0%</td><td class="num">55.3%</td><td class="num">0.6s</td><td class="num">0.8s</td>
-<td class="num">407.5 MB (93% remote)<div class="muted">22s</div></td><td class="num">467.0 MB (99% remote)</td>
+<td class="num">100.0%</td><td class="num">55.3%</td><td class="num">0.6s</td><td class="num">1.1s</td>
+<td class="num">407.5 MB (93% remote)<div class="muted">21s</div></td><td class="num">467.0 MB (99% remote)</td>
 </tr><tr>
 <td><b>bazel-diff@remote</b></td>
 <td class="num">23/47</td><td class="num">5</td><td class="num">60</td><td class="num">90</td>
-<td class="num">66.1%</td><td class="num">56.5%</td><td class="num">0.5s</td><td class="num">0.4s</td>
+<td class="num">66.1%</td><td class="num">56.5%</td><td class="num">0.6s</td><td class="num">0.5s</td>
 <td class="num">401.6 MB (100% remote)<div class="muted">14s</div></td><td class="num">1484.2 MB (100% remote)</td>
 </tr><tr>
 <td><b>bazel-diff-fine@remote</b></td>
 <td class="num">23/47</td><td class="num">5</td><td class="num">57</td><td class="num">93</td>
-<td class="num">67.8%</td><td class="num">56.3%</td><td class="num">0.6s</td><td class="num">0.6s</td>
-<td class="num">414.6 MB (97% remote)<div class="muted">28s</div></td><td class="num">781.6 MB (100% remote)</td>
+<td class="num">67.8%</td><td class="num">56.3%</td><td class="num">0.7s</td><td class="num">0.8s</td>
+<td class="num">414.7 MB (97% remote)<div class="muted">28s</div></td><td class="num">781.6 MB (100% remote)</td>
+</tr><tr>
+<td><b>bazel-diff-cquery@remote</b></td>
+<td class="num">26/47</td><td class="num">2</td><td class="num">20</td><td class="num">144</td>
+<td class="num">88.7%</td><td class="num">52.2%</td><td class="num">4.6s</td><td class="num">4.6s</td>
+<td class="num">462.9 MB (94% remote)<div class="muted">29s</div></td><td class="num">1657.6 MB (100% remote)</td>
 </tr><tr>
 <td><b>target-determinator@remote</b></td>
 <td class="num">28/47</td><td class="num">0</td><td class="num">0</td><td class="num">106</td>
-<td class="num">100.0%</td><td class="num">62.5%</td><td class="num">7.4s</td><td class="num">8.4s</td>
-<td class="num">421.6 MB (93% remote)<div class="muted">38s</div></td><td class="num">1086.9 MB (100% remote)</td>
+<td class="num">100.0%</td><td class="num">62.5%</td><td class="num">8.1s</td><td class="num">8.2s</td>
+<td class="num">421.6 MB (93% remote)<div class="muted">42s</div></td><td class="num">1086.9 MB (100% remote)</td>
 </tr></tbody></table></div>
 <p class="muted"><b>Downloads</b> are bytes each tool's Bazel received over the network (internet downloads plus the remote cache), measured by a per-tool proxy. Every tool starts from its own empty repository caches; setup is the first run on the base revision. <code>@remote</code> tools use <code>--experimental_remote_repo_contents_cache</code>.</p>
 <p class="muted">A <b>miss</b> is a target whose outputs, runfiles or test attributes changed but the tool did not select it: CI would skip a target that needs rebuilding or retesting. An <b>over-selection</b> is a target the tool selected although nothing it produces changed: wasted CI work.</p>
@@ -89,7 +99,7 @@ scale 0 · 43 targets · linux/amd64, 16 CPUs · 2026-10-18T05:44:22&#43;02:00</
 <h2>Scenarios</h2>
 <p class="legend"><span style="background:var(--okbg);color:var(--ok)">exact</span><span style="background:var(--warnbg);color:var(--warn)">over-selects only</span><span style="background:var(--badbg);color:var(--bad)">misses targets</span></p>
 <div class="wrap"><table>
-<thead><tr><th style="width:30%">Scenario</th><th class="num">Truth</th><th>custom</th><th>custom-cquery</th><th>bazel-diff</th><th>bazel-diff-fine</th><th>target-determinator</th><th>custom@remote</th><th>custom-cquery@remote</th><th>bazel-diff@remote</th><th>bazel-diff-fine@remote</th><th>target-determinator@remote</th></tr></thead>
+<thead><tr><th style="width:30%">Scenario</th><th class="num">Truth</th><th>generate_hashes (query)</th><th>generate_hashes (cquery)</th><th>bazel-diff</th><th>bazel-diff-fine</th><th>bazel-diff-cquery</th><th>target-determinator</th><th>generate_hashes (query)@remote</th><th>generate_hashes (cquery)@remote</th><th>bazel-diff@remote</th><th>bazel-diff-fine@remote</th><th>bazel-diff-cquery@remote</th><th>target-determinator@remote</th></tr></thead>
 <tbody><tr>
 <td><div class="cat">control</div><b>control</b><div class="muted">Empty commit: nothing changes.</div>
 <details><summary>details</summary>
@@ -110,22 +120,27 @@ scale 0 · 43 targets · linux/amd64, 16 CPUs · 2026-10-18T05:44:22&#43;02:00</
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
-
-</td><td class="ok">
-<b>exact</b>
-
 <div class="muted">0.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">0.4s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.2s · 0.0 MB</div>
+<div class="muted">0.5s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">3.9s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.9s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -145,12 +160,17 @@ scale 0 · 43 targets · linux/amd64, 16 CPUs · 2026-10-18T05:44:22&#43;02:00</
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.4s · 0.0 MB (100% remote)</div>
+<div class="muted">4.6s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">8.1s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -177,7 +197,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.4s · 0.0 MB</div>
+<div class="muted">1.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -185,7 +205,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.8s · 0.0 MB</div>
+<div class="muted">0.9s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -193,7 +213,15 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.0s · 0.0 MB</div>
+<div class="muted">0.9s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">4.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -209,7 +237,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.1s · 0.0 MB (100% remote)</div>
+<div class="muted">0.3s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -217,7 +245,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<div class="muted">1.6s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -225,7 +253,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -233,7 +261,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<div class="muted">1.0s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -241,7 +269,15 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">7.2s · 0.0 MB (100% remote)</div>
+<div class="muted">4.7s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">7.9s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -271,6 +307,14 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
+<div class="muted">0.9s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
 <div class="muted">0.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
@@ -287,7 +331,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">4.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -295,7 +339,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">10.2s · 0.0 MB</div>
+<div class="muted">10.6s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -319,7 +363,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">0.5s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -327,7 +371,7 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -335,7 +379,15 @@ go/greet/greet.go | 2 &#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">7.7s · 0.0 MB (100% remote)</div>
+<div class="muted">3.9s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">7.6s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -362,12 +414,7 @@ py/lib/greet.py | 4 &#43;&#43;&#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB</div>
-
-</td><td class="ok">
-<b>exact</b>
-
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -377,7 +424,17 @@ py/lib/greet.py | 4 &#43;&#43;&#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">9.5s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">4.5s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -387,22 +444,27 @@ py/lib/greet.py | 4 &#43;&#43;&#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.5s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
 <div class="muted">0.6s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">3.6s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
-
-</td><td class="ok">
-<b>exact</b>
-
-<div class="muted">7.4s · 0.0 MB (100% remote)</div>
+<div class="muted">8.1s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -431,17 +493,22 @@ cc/lib/hello.h | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">9.7s · 0.0 MB</div>
+<div class="muted">4.5s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.3s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -456,17 +523,22 @@ cc/lib/hello.h | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">0.5s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.1s · 0.0 MB (100% remote)</div>
+<div class="muted">4.0s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">8.2s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -490,7 +562,7 @@ rust/lib/lib.rs | 4 &#43;&#43;&#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">0.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -505,7 +577,12 @@ rust/lib/lib.rs | 4 &#43;&#43;&#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.1s · 0.0 MB</div>
+<div class="muted">4.3s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">9.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -515,7 +592,7 @@ rust/lib/lib.rs | 4 &#43;&#43;&#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<div class="muted">0.9s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -525,12 +602,17 @@ rust/lib/lib.rs | 4 &#43;&#43;&#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.7s · 0.0 MB (100% remote)</div>
+<div class="muted">4.0s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">7.9s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -554,7 +636,7 @@ data/a.json | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.8s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -569,7 +651,12 @@ data/a.json | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">9.7s · 0.0 MB</div>
+<div class="muted">4.5s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.2s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -590,6 +677,11 @@ data/a.json | 2 &#43;-
 <b>exact</b>
 
 <div class="muted">0.6s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">3.6s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -624,17 +716,22 @@ data/c.json | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.8s · 0.0 MB</div>
+<div class="muted">4.5s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">11.1s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -644,12 +741,7 @@ data/c.json | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.8s · 0.0 MB (100% remote)</div>
-
-</td><td class="ok">
-<b>exact</b>
-
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">1.0s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -659,7 +751,17 @@ data/c.json | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.6s · 0.0 MB (100% remote)</div>
+<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">4.4s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">7.5s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -689,7 +791,7 @@ go/greet/NOTES.txt | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">0.5s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -699,7 +801,12 @@ go/greet/NOTES.txt | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.2s · 0.0 MB</div>
+<div class="muted">4.7s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.9s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -724,7 +831,12 @@ go/greet/NOTES.txt | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.1s · 0.0 MB (100% remote)</div>
+<div class="muted">3.6s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.9s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -748,12 +860,7 @@ docs/README.md | 2 &#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
-
-</td><td class="ok">
-<b>exact</b>
-
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -763,7 +870,17 @@ docs/README.md | 2 &#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.1s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">4.9s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">11.2s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -778,7 +895,7 @@ docs/README.md | 2 &#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">0.3s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -788,7 +905,12 @@ docs/README.md | 2 &#43;&#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.2s · 0.0 MB (100% remote)</div>
+<div class="muted">3.5s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.6s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -818,17 +940,22 @@ tools/fixture.txt | 0
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
-
-</td><td class="ok">
-<b>exact</b>
-
 <div class="muted">0.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.6s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">4.6s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">12.1s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -853,7 +980,12 @@ tools/fixture.txt | 0
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.1s · 0.0 MB (100% remote)</div>
+<div class="muted">3.4s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">7.0s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -881,7 +1013,7 @@ go/greet/greet.go | 0
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -897,7 +1029,7 @@ go/greet/greet.go | 0
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">0.9s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -905,7 +1037,15 @@ go/greet/greet.go | 0
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">9.6s · 0.0 MB</div>
+<div class="muted">5.0s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">10.9s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -945,7 +1085,15 @@ go/greet/greet.go | 0
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">7.4s · 0.0 MB (100% remote)</div>
+<div class="muted">3.3s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">6.7s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -970,7 +1118,7 @@ go/greet/BUILD.bazel               | 2 &#43;-
 <td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.1s · 0.0 MB</div>
+<div class="muted">0.2s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -986,7 +1134,7 @@ go/greet/BUILD.bazel               | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">0.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -994,7 +1142,15 @@ go/greet/BUILD.bazel               | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">4.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -1018,7 +1174,7 @@ go/greet/BUILD.bazel               | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.8s · 0.0 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -1026,7 +1182,7 @@ go/greet/BUILD.bazel               | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">0.3s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -1042,7 +1198,15 @@ go/greet/BUILD.bazel               | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">7.3s · 0.0 MB (100% remote)</div>
+<div class="muted">3.4s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">7.1s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -1080,7 +1244,7 @@ py/app/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">0.4s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
@@ -1088,7 +1252,7 @@ py/app/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.6s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
@@ -1096,7 +1260,15 @@ py/app/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">10.1s · 0.0 MB</div>
+<div class="muted">4.3s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+1</b> extra
+
+<div class="muted">10.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
@@ -1112,7 +1284,7 @@ py/app/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">0.7s · 0.0 MB (100% remote)</div>
+<div class="muted">0.8s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
@@ -1120,7 +1292,7 @@ py/app/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">0.5s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
@@ -1136,7 +1308,15 @@ py/app/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">7.3s · 0.0 MB (100% remote)</div>
+<div class="muted">3.6s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+1</b> extra
+
+<div class="muted">6.9s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/app:app</code></li></ul></div>
@@ -1163,22 +1343,27 @@ cc/app/BUILD.bazel | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.8s · 0.0 MB</div>
-
-</td><td class="ok">
-<b>exact</b>
-
 <div class="muted">0.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">0.4s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.6s · 0.0 MB</div>
+<div class="muted">0.5s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">4.4s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.9s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1188,7 +1373,7 @@ cc/app/BUILD.bazel | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB (100% remote)</div>
+<div class="muted">0.6s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1203,7 +1388,12 @@ cc/app/BUILD.bazel | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.8s · 0.0 MB (100% remote)</div>
+<div class="muted">3.5s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">7.7s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -1232,17 +1422,22 @@ go/greet/BUILD.bazel | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
+<div class="muted">0.5s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
 <div class="muted">0.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">4.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.1s · 0.0 MB</div>
+<div class="muted">11.2s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1267,7 +1462,12 @@ go/greet/BUILD.bazel | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.7s · 0.0 MB (100% remote)</div>
+<div class="muted">3.6s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.9s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -1291,22 +1491,27 @@ go/greet/BUILD.bazel | 6 ------
 </td><td class="ok">
 <b>exact</b>
 
+<div class="muted">0.8s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.8s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
 <div class="muted">0.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">4.5s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB</div>
-
-</td><td class="ok">
-<b>exact</b>
-
-<div class="muted">10.9s · 0.0 MB</div>
+<div class="muted">11.1s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1316,7 +1521,7 @@ go/greet/BUILD.bazel | 6 ------
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB (100% remote)</div>
+<div class="muted">0.8s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1331,7 +1536,12 @@ go/greet/BUILD.bazel | 6 ------
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.3s · 0.0 MB (100% remote)</div>
+<div class="muted">3.6s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.8s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -1355,22 +1565,27 @@ go/greet/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="ok">
 <b>exact</b>
 
+<div class="muted">1.3s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.6s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
 <div class="muted">0.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">4.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
-
-</td><td class="ok">
-<b>exact</b>
-
-<div class="muted">9.7s · 0.0 MB</div>
+<div class="muted">11.3s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1395,7 +1610,12 @@ go/greet/BUILD.bazel | 5 &#43;&#43;&#43;&#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.3s · 0.0 MB (100% remote)</div>
+<div class="muted">3.5s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">7.0s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -1419,22 +1639,27 @@ go/greet/BUILD.bazel | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
+<div class="muted">0.8s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
 <div class="muted">0.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">4.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.7s · 0.0 MB</div>
+<div class="muted">11.0s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1459,7 +1684,12 @@ go/greet/BUILD.bazel | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.4s · 0.0 MB (100% remote)</div>
+<div class="muted">3.4s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.9s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -1488,17 +1718,22 @@ go/greet/BUILD.bazel | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.0s · 0.0 MB</div>
+<div class="muted">4.6s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">11.3s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1523,7 +1758,12 @@ go/greet/BUILD.bazel | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.6s · 0.0 MB (100% remote)</div>
+<div class="muted">3.4s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">7.0s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -1550,6 +1790,22 @@ go/greet/BUILD.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+11</b> extra
 
+<div class="muted">1.2s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">0.6s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
 <div class="muted">0.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
@@ -1558,7 +1814,7 @@ go/greet/BUILD.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">4.3s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -1566,15 +1822,7 @@ go/greet/BUILD.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">0.7s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+11</b> extra
-
-<div class="muted">10.6s · 0.0 MB</div>
+<div class="muted">10.8s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -1590,7 +1838,7 @@ go/greet/BUILD.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">0.7s · 0.0 MB (100% remote)</div>
+<div class="muted">0.6s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -1614,7 +1862,15 @@ go/greet/BUILD.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+11</b> extra
 
-<div class="muted">7.5s · 0.0 MB (100% remote)</div>
+<div class="muted">3.3s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+11</b> extra
+
+<div class="muted">6.8s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -1651,12 +1907,17 @@ tools/defs.bzl | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">0.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">12.8s · 0.0 MB</div>
+<div class="muted">4.3s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">10.0s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -1681,7 +1942,12 @@ tools/defs.bzl | 1 &#43;
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.3s · 0.0 MB (100% remote)</div>
+<div class="muted">3.5s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">6.8s · 0.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -1708,7 +1974,7 @@ tools/defs.bzl | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.8s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
@@ -1716,7 +1982,7 @@ tools/defs.bzl | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.8s · 0.0 MB</div>
+<div class="muted">0.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
@@ -1724,7 +1990,7 @@ tools/defs.bzl | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.9s · 0.0 MB</div>
+<div class="muted">0.6s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
@@ -1732,7 +1998,15 @@ tools/defs.bzl | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">10.5s · 0.0 MB</div>
+<div class="muted">4.3s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">10.2s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
@@ -1772,7 +2046,15 @@ tools/defs.bzl | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">6.9s · 0.0 MB (100% remote)</div>
+<div class="muted">3.4s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">6.8s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li></ul></div>
@@ -1818,7 +2100,15 @@ tools/defs.bzl | 1 &#43;
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">0.5s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">4.0s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
@@ -1827,100 +2117,6 @@ tools/defs.bzl | 1 &#43;
 <b>+3</b> extra
 
 <div class="muted">10.7s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">0.1s · 0.0 MB (100% remote)</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">9.0s · 0.0 MB (100% remote)</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td>
-</tr><tr>
-<td><div class="cat">.bzl</div><b>bzl_unused_fn</b><div class="muted">Add an unused function to tools/defs.bzl.</div>
-<details><summary>details</summary>
-<div><b>Expectation:</b> Nothing affected.</div>
-
-
-
-
-<pre>append to tools/defs.bzl
-tools/defs.bzl | 3 &#43;&#43;&#43;
- 1 file changed, 3 insertions(&#43;)</pre>
-</details></td>
-<td class="num">0</td>
-<td class="warn">
-<b>+3</b> extra
-
-<div class="muted">0.1s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">1.0s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">0.6s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">0.9s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">12.3s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
@@ -1960,7 +2156,125 @@ tools/defs.bzl | 3 &#43;&#43;&#43;
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">7.3s · 0.0 MB (100% remote)</div>
+<div class="muted">3.4s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">7.1s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td>
+</tr><tr>
+<td><div class="cat">.bzl</div><b>bzl_unused_fn</b><div class="muted">Add an unused function to tools/defs.bzl.</div>
+<details><summary>details</summary>
+<div><b>Expectation:</b> Nothing affected.</div>
+
+
+
+
+<pre>append to tools/defs.bzl
+tools/defs.bzl | 3 &#43;&#43;&#43;
+ 1 file changed, 3 insertions(&#43;)</pre>
+</details></td>
+<td class="num">0</td>
+<td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.1s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.7s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.4s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.9s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">4.4s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">10.0s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.1s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.3s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">3.4s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">6.9s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li></ul></div>
@@ -2000,7 +2314,7 @@ go.mod | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.7s · 0.1 MB</div>
+<div class="muted">1.6s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2016,7 +2330,7 @@ go.mod | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">13.3s · 0.0 MB</div>
+<div class="muted">6.9s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2024,7 +2338,7 @@ go.mod | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.8s · 0.0 MB (100% remote)</div>
+<div class="muted">12.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2032,15 +2346,7 @@ go.mod | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.4s · 0.0 MB (100% remote)</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+2</b> extra
-
-<div class="muted">1.6s · 0.1 MB (3% remote)</div>
+<div class="muted">0.9s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2056,7 +2362,31 @@ go.mod | 2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">17.1s · 14.1 MB (100% remote)</div>
+<div class="muted">1.4s · 0.1 MB (3% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">1.4s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">16.7s · 6.9 MB (99% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">16.3s · 14.1 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2084,7 +2414,7 @@ MODULE.bazel.lock        | 4 &#43;&#43;--
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">6.8s · 0.0 MB</div>
+<div class="muted">6.6s · 0.0 MB</div>
 
 </td><td class="warn">
 <b>+2</b> extra
@@ -2097,7 +2427,7 @@ MODULE.bazel.lock        | 4 &#43;&#43;--
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.2s · 0.0 MB</div>
+<div class="muted">1.3s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li></ul></div>
@@ -2105,7 +2435,12 @@ MODULE.bazel.lock        | 4 &#43;&#43;--
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">17.5s · 0.0 MB</div>
+<div class="muted">7.4s · 0.1 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">16.2s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -2115,12 +2450,12 @@ MODULE.bazel.lock        | 4 &#43;&#43;--
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">11.4s · 21.7 MB (100% remote)</div>
+<div class="muted">14.0s · 21.7 MB (100% remote)</div>
 
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.9s · 0.1 MB (4% remote)</div>
+<div class="muted">1.3s · 0.1 MB (3% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li></ul></div>
@@ -2128,7 +2463,7 @@ MODULE.bazel.lock        | 4 &#43;&#43;--
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.6s · 0.0 MB (100% remote)</div>
+<div class="muted">1.3s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li></ul></div>
@@ -2136,7 +2471,12 @@ MODULE.bazel.lock        | 4 &#43;&#43;--
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">40.4s · 71.7 MB (100% remote)</div>
+<div class="muted">17.9s · 7.9 MB (99% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">39.3s · 71.7 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -2155,17 +2495,17 @@ Cargo.lock | 4 &#43;&#43;--
 <td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 0.0 MB</div>
+<div class="muted">0.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">6.1s · 0.0 MB</div>
+<div class="muted">5.8s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.3s · 0.1 MB</div>
+<div class="muted">1.2s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -2175,32 +2515,42 @@ Cargo.lock | 4 &#43;&#43;--
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">15.4s · 0.0 MB</div>
+<div class="muted">7.4s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.8s · 0.0 MB (100% remote)</div>
+<div class="muted">14.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">13.7s · 21.7 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.4s · 0.1 MB (3% remote)</div>
+<div class="muted">11.0s · 21.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.5s · 0.0 MB (100% remote)</div>
+<div class="muted">1.5s · 0.1 MB (3% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">31.8s · 50.0 MB (100% remote)</div>
+<div class="muted">1.8s · 0.0 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">17.0s · 7.9 MB (99% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">32.4s · 50.0 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -2224,47 +2574,63 @@ tools/multitool.lock.json | 12 &#43;&#43;&#43;&#43;&#43;&#43;------
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">5.1s · 2.3 MB</div>
+<div class="muted">5.3s · 2.3 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.2s · 0.1 MB</div>
+<div class="muted">1.1s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.2s · 0.0 MB</div>
+<div class="muted">1.0s · 0.0 MB</div>
+
+</td><td class="bad">
+<b>2 missed</b>
+
+<div class="muted">7.2s · 2.3 MB</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//tools:check_test</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">14.2s · 2.3 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">15.3s · 2.3 MB</div>
+<div class="muted">0.9s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.8s · 0.0 MB (100% remote)</div>
+<div class="muted">12.2s · 16.4 MB (86% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">9.4s · 16.4 MB (86% remote)</div>
+<div class="muted">1.5s · 0.1 MB (3% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.2s · 0.1 MB (3% remote)</div>
+<div class="muted">1.4s · 0.0 MB (100% remote)</div>
 
+</td><td class="bad">
+<b>2 missed</b>
+
+<div class="muted">15.1s · 9.1 MB (75% remote)</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//tools:check_test</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.1s · 0.0 MB (100% remote)</div>
-
-</td><td class="ok">
-<b>exact</b>
-
-<div class="muted">24.2s · 30.5 MB (93% remote)</div>
+<div class="muted">24.0s · 30.5 MB (93% remote)</div>
 
 </td>
 </tr><tr>
@@ -2283,7 +2649,7 @@ MODULE.bazel | 2 &#43;-
 <td class="warn">
 <b>+3</b> extra
 
-<div class="muted">1.6s · 0.0 MB</div>
+<div class="muted">1.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2307,7 +2673,7 @@ MODULE.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">3.7s · 0.0 MB</div>
+<div class="muted">1.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2315,7 +2681,7 @@ MODULE.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">17.1s · 0.0 MB</div>
+<div class="muted">7.5s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2323,7 +2689,7 @@ MODULE.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">12.3s · 19.7 MB (100% remote)</div>
+<div class="muted">16.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2331,7 +2697,7 @@ MODULE.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">13.3s · 21.7 MB (100% remote)</div>
+<div class="muted">12.2s · 19.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2339,7 +2705,7 @@ MODULE.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">2.4s · 16.7 MB (100% remote)</div>
+<div class="muted">10.7s · 21.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2347,7 +2713,7 @@ MODULE.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">6.3s · 17.4 MB (100% remote)</div>
+<div class="muted">1.9s · 16.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2355,7 +2721,23 @@ MODULE.bazel | 2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">43.5s · 71.7 MB (100% remote)</div>
+<div class="muted">9.8s · 17.4 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">17.9s · 23.8 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">40.2s · 71.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2377,52 +2759,62 @@ MODULE.bazel | 2 &#43;-
 <td class="ok">
 <b>exact</b>
 
-<div class="muted">5.1s · 0.0 MB</div>
+<div class="muted">5.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">9.5s · 0.0 MB</div>
+<div class="muted">9.4s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.3s · 0.1 MB</div>
+<div class="muted">1.0s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">5.5s · 0.0 MB</div>
+<div class="muted">6.7s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">17.8s · 0.0 MB</div>
+<div class="muted">8.2s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">11.7s · 19.8 MB (100% remote)</div>
+<div class="muted">15.6s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.8s · 21.7 MB (100% remote)</div>
+<div class="muted">7.6s · 19.8 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">2.2s · 16.7 MB (100% remote)</div>
+<div class="muted">10.6s · 21.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">6.4s · 17.4 MB (100% remote)</div>
+<div class="muted">2.1s · 16.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">35.8s · 57.6 MB (100% remote)</div>
+<div class="muted">9.9s · 17.4 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">18.3s · 23.8 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">32.3s · 57.6 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -2443,52 +2835,62 @@ apko/apko.lock.json | 40 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 <td class="ok">
 <b>exact</b>
 
-<div class="muted">1.1s · 0.5 MB</div>
+<div class="muted">1.3s · 0.5 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">5.6s · 0.5 MB</div>
+<div class="muted">5.3s · 0.5 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.2s · 0.1 MB</div>
+<div class="muted">1.0s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.2s · 0.5 MB</div>
+<div class="muted">1.0s · 0.5 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">14.8s · 0.5 MB</div>
+<div class="muted">6.8s · 0.6 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.7s · 19.8 MB (100% remote)</div>
+<div class="muted">13.2s · 0.5 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">13.6s · 21.7 MB (100% remote)</div>
+<div class="muted">8.0s · 19.8 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.8s · 16.7 MB (100% remote)</div>
+<div class="muted">10.8s · 21.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">9.7s · 17.5 MB (100% remote)</div>
+<div class="muted">2.1s · 16.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">26.9s · 35.9 MB (100% remote)</div>
+<div class="muted">7.2s · 17.5 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">18.1s · 23.8 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">25.1s · 35.9 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -2515,7 +2917,7 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">5.4s · 0.3 MB</div>
+<div class="muted">4.7s · 0.3 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2523,7 +2925,7 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+5</b> extra
 
-<div class="muted">1.1s · 0.1 MB</div>
+<div class="muted">0.8s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2539,7 +2941,7 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">15.2s · 0.3 MB</div>
+<div class="muted">5.8s · 0.4 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2547,7 +2949,7 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">1.3s · 0.0 MB (100% remote)</div>
+<div class="muted">13.5s · 0.3 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2555,7 +2957,15 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">9.0s · 14.1 MB (100% remote)</div>
+<div class="muted">1.4s · 0.0 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+1</b> extra
+
+<div class="muted">9.1s · 14.1 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2563,7 +2973,7 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+5</b> extra
 
-<div class="muted">0.8s · 0.1 MB (3% remote)</div>
+<div class="muted">1.1s · 0.1 MB (3% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2571,7 +2981,7 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+5</b> extra
 
-<div class="muted">1.6s · 0.0 MB (100% remote)</div>
+<div class="muted">1.9s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2579,7 +2989,15 @@ distroless/bookworm.lock.json | 258 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43
 </td><td class="warn">
 <b>+1</b> extra
 
-<div class="muted">23.7s · 28.3 MB (100% remote)</div>
+<div class="muted">15.6s · 6.9 MB (99% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+1</b> extra
+
+<div class="muted">24.4s · 28.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2603,7 +3021,7 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 <td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.1s · 6.6 MB</div>
+<div class="muted">0.8s · 6.6 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2611,7 +3029,7 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">5.2s · 6.6 MB</div>
+<div class="muted">5.0s · 6.6 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2619,7 +3037,7 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.0s · 0.1 MB</div>
+<div class="muted">0.9s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2627,7 +3045,7 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">1.2s · 6.6 MB</div>
+<div class="muted">1.3s · 6.6 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2635,7 +3053,7 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">14.8s · 6.6 MB</div>
+<div class="muted">7.5s · 6.7 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2643,7 +3061,7 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.8s · 0.0 MB (100% remote)</div>
+<div class="muted">14.2s · 6.6 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2651,7 +3069,7 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">9.2s · 14.1 MB (100% remote)</div>
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2659,7 +3077,15 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">0.9s · 0.1 MB (3% remote)</div>
+<div class="muted">9.5s · 14.1 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">1.1s · 0.1 MB (3% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2675,7 +3101,15 @@ distroless/bookworm.lock.json | 72 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">24.1s · 28.3 MB (100% remote)</div>
+<div class="muted">14.8s · 6.9 MB (99% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">23.6s · 28.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li></ul></div>
@@ -2699,17 +3133,17 @@ distroless/bookworm.lock.json | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-----
 <td class="ok">
 <b>exact</b>
 
-<div class="muted">0.7s · 6.9 MB</div>
+<div class="muted">0.8s · 6.9 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">5.1s · 6.9 MB</div>
+<div class="muted">4.9s · 6.9 MB</div>
 
 </td><td class="warn">
 <b>+8</b> extra
 
-<div class="muted">0.9s · 0.1 MB</div>
+<div class="muted">0.8s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li></ul></div>
@@ -2717,7 +3151,7 @@ distroless/bookworm.lock.json | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-----
 </td><td class="warn">
 <b>+8</b> extra
 
-<div class="muted">1.4s · 6.9 MB</div>
+<div class="muted">1.2s · 6.9 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li></ul></div>
@@ -2725,12 +3159,17 @@ distroless/bookworm.lock.json | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-----
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">15.1s · 6.9 MB</div>
+<div class="muted">7.1s · 7.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.6s · 0.0 MB (100% remote)</div>
+<div class="muted">13.8s · 6.9 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">0.7s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -2740,7 +3179,7 @@ distroless/bookworm.lock.json | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-----
 </td><td class="warn">
 <b>+8</b> extra
 
-<div class="muted">0.9s · 0.1 MB (3% remote)</div>
+<div class="muted">1.1s · 0.1 MB (3% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li></ul></div>
@@ -2748,7 +3187,7 @@ distroless/bookworm.lock.json | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-----
 </td><td class="warn">
 <b>+8</b> extra
 
-<div class="muted">1.1s · 0.0 MB (100% remote)</div>
+<div class="muted">1.3s · 0.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li></ul></div>
@@ -2756,7 +3195,12 @@ distroless/bookworm.lock.json | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-----
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">24.7s · 28.3 MB (100% remote)</div>
+<div class="muted">16.7s · 6.9 MB (99% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">24.4s · 28.3 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -2776,7 +3220,7 @@ MODULE.bazel      | 2 &#43;-
 <td class="warn">
 <b>+37</b> extra
 
-<div class="muted">1.7s · 0.1 MB</div>
+<div class="muted">1.6s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>… and 12 more</code></li></ul></div>
@@ -2784,7 +3228,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+5</b> extra
 
-<div class="muted">6.0s · 0.1 MB</div>
+<div class="muted">5.8s · 0.1 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -2792,7 +3236,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+13</b> extra
 
-<div class="muted">1.6s · 0.2 MB</div>
+<div class="muted">1.5s · 0.2 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -2800,20 +3244,28 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+16</b> extra
 
-<div class="muted">1.8s · 0.2 MB</div>
+<div class="muted">2.1s · 0.2 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
 </details>
+</td><td class="warn">
+<b>+43</b> extra
+
+<div class="muted">7.3s · 0.2 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//data:json</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>… and 18 more</code></li></ul></div>
+</details>
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">17.7s · 0.1 MB</div>
+<div class="muted">16.6s · 0.1 MB</div>
 
 </td><td class="warn">
 <b>+37</b> extra
 
-<div class="muted">12.1s · 19.7 MB (100% remote)</div>
+<div class="muted">12.4s · 19.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>… and 12 more</code></li></ul></div>
@@ -2821,7 +3273,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+5</b> extra
 
-<div class="muted">11.6s · 21.7 MB (100% remote)</div>
+<div class="muted">12.7s · 21.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -2829,7 +3281,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+13</b> extra
 
-<div class="muted">2.2s · 16.7 MB (100% remote)</div>
+<div class="muted">3.3s · 16.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -2837,15 +3289,23 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+16</b> extra
 
-<div class="muted">7.1s · 17.5 MB (100% remote)</div>
+<div class="muted">11.2s · 17.5 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
 </details>
+</td><td class="warn">
+<b>+43</b> extra
+
+<div class="muted">19.1s · 23.8 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//data:json</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>… and 18 more</code></li></ul></div>
+</details>
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">40.8s · 71.7 MB (100% remote)</div>
+<div class="muted">40.1s · 71.7 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -2864,52 +3324,62 @@ MODULE.bazel | 1 &#43;
 <td class="ok">
 <b>exact</b>
 
-<div class="muted">1.0s · 0.0 MB</div>
+<div class="muted">0.9s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">5.5s · 0.0 MB</div>
+<div class="muted">5.4s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.1s · 0.1 MB</div>
+<div class="muted">1.2s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.3s · 0.1 MB</div>
+<div class="muted">1.4s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">15.6s · 0.0 MB</div>
+<div class="muted">7.3s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">11.8s · 19.7 MB (100% remote)</div>
+<div class="muted">14.1s · 0.0 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">11.1s · 21.7 MB (100% remote)</div>
+<div class="muted">11.7s · 19.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">2.1s · 16.7 MB (100% remote)</div>
+<div class="muted">11.5s · 21.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.0s · 17.5 MB (100% remote)</div>
+<div class="muted">2.5s · 16.7 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">34.3s · 57.6 MB (100% remote)</div>
+<div class="muted">10.3s · 17.5 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">17.8s · 23.8 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">33.2s · 57.6 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -2939,7 +3409,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">4.7s · 0.0 MB</div>
+<div class="muted">5.2s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2947,7 +3417,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">0.6s · 0.0 MB</div>
+<div class="muted">1.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2955,7 +3425,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">0.8s · 0.0 MB</div>
+<div class="muted">0.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2963,7 +3433,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">14.7s · 0.0 MB</div>
+<div class="muted">6.7s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2971,7 +3441,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">12.2s · 19.7 MB (100% remote)</div>
+<div class="muted">13.0s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2979,7 +3449,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">13.2s · 21.7 MB (100% remote)</div>
+<div class="muted">12.0s · 19.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2987,7 +3457,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">2.3s · 17.3 MB (100% remote)</div>
+<div class="muted">10.7s · 21.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -2995,7 +3465,7 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">9.7s · 17.4 MB (100% remote)</div>
+<div class="muted">1.6s · 17.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3003,7 +3473,23 @@ MODULE.bazel                |  2 &#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">25.8s · 43.4 MB (100% remote)</div>
+<div class="muted">6.3s · 17.4 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">17.6s · 24.3 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">26.0s · 43.4 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3025,23 +3511,23 @@ patches/rules_oci.patch | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-
 <td class="warn">
 <b>+3</b> extra
 
-<div class="muted">0.9s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
-<div class="muted">5.3s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+3</b> extra
-
 <div class="muted">0.7s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">4.5s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">1.1s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3057,7 +3543,7 @@ patches/rules_oci.patch | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">14.9s · 0.0 MB</div>
+<div class="muted">5.1s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3065,7 +3551,15 @@ patches/rules_oci.patch | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">11.8s · 19.7 MB (100% remote)</div>
+<div class="muted">13.0s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">7.7s · 19.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3081,7 +3575,7 @@ patches/rules_oci.patch | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">1.4s · 16.7 MB (100% remote)</div>
+<div class="muted">1.2s · 16.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3089,7 +3583,7 @@ patches/rules_oci.patch | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">6.3s · 17.4 MB (100% remote)</div>
+<div class="muted">6.2s · 17.4 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3097,7 +3591,15 @@ patches/rules_oci.patch | 16 &#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;-
 </td><td class="warn">
 <b>+3</b> extra
 
-<div class="muted">25.5s · 43.4 MB (100% remote)</div>
+<div class="muted">18.4s · 23.7 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+3</b> extra
+
+<div class="muted">29.0s · 43.4 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3127,7 +3629,7 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="warn">
 <b>+12</b> extra
 
-<div class="muted">5.4s · 0.0 MB</div>
+<div class="muted">5.1s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -3135,7 +3637,7 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="warn">
 <b>+12</b> extra
 
-<div class="muted">0.5s · 0.0 MB</div>
+<div class="muted">0.4s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -3143,7 +3645,7 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="warn">
 <b>+12</b> extra
 
-<div class="muted">0.8s · 0.0 MB</div>
+<div class="muted">0.6s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -3151,12 +3653,17 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">14.1s · 0.0 MB</div>
+<div class="muted">6.8s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">12.7s · 0.0 MB</div>
 
 </td><td class="warn">
 <b>+12</b> extra
 
-<div class="muted">0.3s · 0.2 MB (100% remote)</div>
+<div class="muted">0.4s · 0.2 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -3164,7 +3671,7 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="warn">
 <b>+12</b> extra
 
-<div class="muted">10.3s · 21.7 MB (100% remote)</div>
+<div class="muted">10.4s · 21.7 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -3172,7 +3679,7 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="warn">
 <b>+12</b> extra
 
-<div class="muted">1.3s · 0.8 MB (100% remote)</div>
+<div class="muted">1.1s · 0.8 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -3180,7 +3687,7 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="warn">
 <b>+12</b> extra
 
-<div class="muted">0.8s · 0.2 MB (100% remote)</div>
+<div class="muted">1.1s · 0.2 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li></ul></div>
@@ -3188,7 +3695,12 @@ patches/rules_oci.patch | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">29.1s · 43.4 MB (100% remote)</div>
+<div class="muted">17.6s · 8.7 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">25.5s · 43.4 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -3207,31 +3719,39 @@ patches/go_sdk.patch | 13 &#43;&#43;&#43;&#43;&#43;&#43;&#43;------
 <td class="warn">
 <b>+2</b> extra
 
+<div class="muted">1.2s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">5.6s · 0.0 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="bad">
+<b>18 missed</b>
+
+<div class="muted">0.4s · 0.0 MB</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="bad">
+<b>18 missed</b>
+
 <div class="muted">1.4s · 0.0 MB</div>
 <details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
-</details>
-</td><td class="warn">
-<b>+2</b> extra
-
-<div class="muted">5.8s · 0.0 MB</div>
-<details><summary>targets</summary>
-
-<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
-</details>
-</td><td class="bad">
-<b>18 missed</b>
-
-<div class="muted">0.5s · 0.0 MB</div>
-<details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
 
 </details>
 </td><td class="bad">
 <b>18 missed</b>
 
-<div class="muted">1.8s · 0.0 MB</div>
+<div class="muted">6.9s · 0.0 MB</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
 
@@ -3239,7 +3759,7 @@ patches/go_sdk.patch | 13 &#43;&#43;&#43;&#43;&#43;&#43;&#43;------
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">14.6s · 0.0 MB</div>
+<div class="muted">12.8s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3247,7 +3767,7 @@ patches/go_sdk.patch | 13 &#43;&#43;&#43;&#43;&#43;&#43;&#43;------
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">9.5s · 1.8 MB (100% remote)</div>
+<div class="muted">9.3s · 1.8 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3255,7 +3775,7 @@ patches/go_sdk.patch | 13 &#43;&#43;&#43;&#43;&#43;&#43;&#43;------
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">10.2s · 23.3 MB (100% remote)</div>
+<div class="muted">9.9s · 23.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3271,7 +3791,15 @@ patches/go_sdk.patch | 13 &#43;&#43;&#43;&#43;&#43;&#43;&#43;------
 </td><td class="bad">
 <b>18 missed</b>
 
-<div class="muted">9.9s · 3.4 MB (100% remote)</div>
+<div class="muted">9.8s · 3.4 MB (100% remote)</div>
+<details><summary>targets</summary>
+<div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+
+</details>
+</td><td class="bad">
+<b>18 missed</b>
+
+<div class="muted">17.2s · 9.6 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
 
@@ -3279,7 +3807,7 @@ patches/go_sdk.patch | 13 &#43;&#43;&#43;&#43;&#43;&#43;&#43;------
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">27.9s · 23.3 MB (100% remote)</div>
+<div class="muted">25.1s · 23.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3301,7 +3829,7 @@ patches/go_sdk.patch | 2 &#43;-
 <td class="warn">
 <b>+20</b> extra
 
-<div class="muted">1.2s · 0.0 MB</div>
+<div class="muted">1.0s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3309,7 +3837,7 @@ patches/go_sdk.patch | 2 &#43;-
 </td><td class="warn">
 <b>+20</b> extra
 
-<div class="muted">2.2s · 0.0 MB</div>
+<div class="muted">2.1s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3327,12 +3855,17 @@ patches/go_sdk.patch | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">12.1s · 0.0 MB</div>
+<div class="muted">5.4s · 0.0 MB</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">11.6s · 0.0 MB</div>
 
 </td><td class="warn">
 <b>+20</b> extra
 
-<div class="muted">0.3s · 1.6 MB (100% remote)</div>
+<div class="muted">0.4s · 1.6 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3340,7 +3873,7 @@ patches/go_sdk.patch | 2 &#43;-
 </td><td class="warn">
 <b>+20</b> extra
 
-<div class="muted">9.3s · 1.6 MB (100% remote)</div>
+<div class="muted">9.5s · 1.6 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3348,7 +3881,7 @@ patches/go_sdk.patch | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">0.4s · 0.0 MB (100% remote)</div>
+<div class="muted">0.5s · 0.0 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
@@ -3358,7 +3891,12 @@ patches/go_sdk.patch | 2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">24.1s · 3.2 MB (100% remote)</div>
+<div class="muted">12.5s · 1.6 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">24.8s · 3.2 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -3378,7 +3916,7 @@ MODULE.bazel      |   2 &#43;-
 <td class="warn">
 <b>+2</b> extra
 
-<div class="muted">13.2s · 70.7 MB</div>
+<div class="muted">12.4s · 70.7 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3386,7 +3924,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">19.8s · 70.7 MB</div>
+<div class="muted">15.9s · 70.7 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3394,7 +3932,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="bad">
 <b>18 missed</b>
 
-<div class="muted">6.4s · 70.7 MB</div>
+<div class="muted">7.8s · 70.7 MB</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
 
@@ -3402,7 +3940,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="bad">
 <b>18 missed</b>
 
-<div class="muted">13.0s · 70.7 MB</div>
+<div class="muted">11.8s · 70.7 MB</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
 
@@ -3410,7 +3948,15 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">28.8s · 70.7 MB</div>
+<div class="muted">18.6s · 70.7 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">25.4s · 70.7 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3426,7 +3972,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">10.2s · 23.3 MB (100% remote)</div>
+<div class="muted">10.4s · 23.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3434,7 +3980,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="bad">
 <b>18 missed</b>
 
-<div class="muted">4.0s · 262.9 MB (100% remote)</div>
+<div class="muted">4.5s · 262.9 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
 
@@ -3442,7 +3988,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="bad">
 <b>18 missed</b>
 
-<div class="muted">6.4s · 20.5 MB (100% remote)</div>
+<div class="muted">6.7s · 20.5 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:check_test</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
 
@@ -3450,7 +3996,15 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="warn">
 <b>+2</b> extra
 
-<div class="muted">34.9s · 62.2 MB (100% remote)</div>
+<div class="muted">20.4s · 271.5 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+2</b> extra
+
+<div class="muted">35.4s · 62.2 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image_index_json</code></li></ul></div>
@@ -3473,12 +4027,12 @@ MODULE.bazel      |   2 &#43;-
 <td class="ok">
 <b>exact</b>
 
-<div class="muted">2.8s · 12.1 MB</div>
+<div class="muted">2.6s · 12.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">18.6s · 229.6 MB</div>
+<div class="muted">17.9s · 229.6 MB</div>
 
 </td><td class="bad">
 <b>3 missed</b>
@@ -3491,7 +4045,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="bad">
 <b>3 missed</b>
 
-<div class="muted">2.1s · 12.1 MB</div>
+<div class="muted">1.8s · 12.1 MB</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
 
@@ -3499,22 +4053,27 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">30.7s · 229.6 MB</div>
+<div class="muted">18.2s · 229.7 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">11.7s · 64.7 MB (100% remote)</div>
+<div class="muted">26.7s · 229.6 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">12.4s · 66.7 MB (100% remote)</div>
+<div class="muted">11.8s · 64.7 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">12.3s · 66.7 MB (100% remote)</div>
 
 </td><td class="bad">
 <b>3 missed</b>
 
-<div class="muted">4.5s · 306.6 MB (100% remote)</div>
+<div class="muted">4.1s · 306.6 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
 
@@ -3522,7 +4081,7 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="bad">
 <b>3 missed</b>
 
-<div class="muted">10.0s · 64.0 MB (100% remote)</div>
+<div class="muted">5.2s · 64.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></div>
 
@@ -3530,7 +4089,12 @@ MODULE.bazel      |   2 &#43;-
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">44.5s · 121.3 MB (100% remote)</div>
+<div class="muted">19.5s · 315.2 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">39.4s · 121.3 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -3549,52 +4113,62 @@ MODULE.bazel | 4 &#43;&#43;--
 <td class="ok">
 <b>exact</b>
 
-<div class="muted">1.4s · 0.1 MB</div>
+<div class="muted">1.0s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">13.4s · 123.6 MB</div>
+<div class="muted">11.8s · 123.6 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.3s · 0.1 MB</div>
+<div class="muted">1.2s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">1.3s · 0.1 MB</div>
+<div class="muted">1.2s · 0.1 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">23.4s · 123.6 MB</div>
+<div class="muted">13.8s · 123.6 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">7.7s · 21.4 MB (100% remote)</div>
+<div class="muted">21.9s · 123.6 MB</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.0s · 23.3 MB (100% remote)</div>
+<div class="muted">11.8s · 21.4 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">5.0s · 263.2 MB (100% remote)</div>
+<div class="muted">13.1s · 23.3 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">10.4s · 20.6 MB (100% remote)</div>
+<div class="muted">4.2s · 263.2 MB (100% remote)</div>
 
 </td><td class="ok">
 <b>exact</b>
 
-<div class="muted">43.0s · 77.9 MB (100% remote)</div>
+<div class="muted">6.9s · 20.6 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">19.7s · 271.8 MB (100% remote)</div>
+
+</td><td class="ok">
+<b>exact</b>
+
+<div class="muted">43.2s · 77.9 MB (100% remote)</div>
 
 </td>
 </tr><tr>
@@ -3614,7 +4188,7 @@ MODULE.bazel      | 2 &#43;-
 <td class="warn">
 <b>+26</b> extra
 
-<div class="muted">16.7s · 183.6 MB</div>
+<div class="muted">16.6s · 183.6 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>… and 1 more</code></li></ul></div>
@@ -3622,7 +4196,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+18</b> extra
 
-<div class="muted">23.9s · 221.6 MB</div>
+<div class="muted">21.6s · 221.6 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3638,7 +4212,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="bad">
 <b>8 missed</b>
 
-<div class="muted">2.1s · 0.7 MB</div>
+<div class="muted">1.8s · 0.7 MB</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
@@ -3646,7 +4220,15 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+18</b> extra
 
-<div class="muted">33.6s · 221.6 MB</div>
+<div class="muted">31.7s · 288.1 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+18</b> extra
+
+<div class="muted">32.1s · 221.6 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3654,7 +4236,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+26</b> extra
 
-<div class="muted">13.2s · 24.4 MB (100% remote)</div>
+<div class="muted">8.4s · 24.4 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>… and 1 more</code></li></ul></div>
@@ -3662,7 +4244,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+18</b> extra
 
-<div class="muted">10.8s · 26.4 MB (100% remote)</div>
+<div class="muted">11.4s · 26.4 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3670,7 +4252,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="bad">
 <b>11 missed</b>
 
-<div class="muted">3.8s · 266.3 MB (100% remote)</div>
+<div class="muted">3.9s · 266.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
@@ -3678,7 +4260,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="bad">
 <b>8 missed</b>
 
-<div class="muted">12.4s · 274.6 MB (100% remote)</div>
+<div class="muted">9.3s · 274.6 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
@@ -3686,7 +4268,15 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+18</b> extra
 
-<div class="muted">43.6s · 81.0 MB (100% remote)</div>
+<div class="muted">23.3s · 280.1 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
+</details>
+</td><td class="warn">
+<b>+18</b> extra
+
+<div class="muted">39.5s · 81.0 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//tools/fixturetool:fixturetool</code></li><li><code>//tools:notes</code></li><li><code>//tools:pair_a</code></li><li><code>//tools:pair_b</code></li><li><code>//tools:shout</code></li><li><code>//tools:summary</code></li></ul></div>
@@ -3708,7 +4298,7 @@ MODULE.bazel      | 2 &#43;-
 <td class="bad">
 <b>10 missed</b>
 
-<div class="muted">1.2s · 0.0 MB</div>
+<div class="muted">1.0s · 0.0 MB</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
@@ -3716,7 +4306,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+33</b> extra
 
-<div class="muted">5.9s · 0.0 MB</div>
+<div class="muted">5.5s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//data:json</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//oci:image_write_entrypoint</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>… and 8 more</code></li></ul></div>
@@ -3732,15 +4322,23 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="bad">
 <b>10 missed</b>
 
-<div class="muted">1.5s · 0.1 MB</div>
+<div class="muted">1.4s · 0.1 MB</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
 </details>
 </td><td class="warn">
+<b>+30</b> extra
+
+<div class="muted">6.3s · 0.1 MB</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/lib:lib</code></li><li><code>… and 5 more</code></li></ul></div>
+</details>
+</td><td class="warn">
 <b>+33</b> extra
 
-<div class="muted">15.9s · 0.0 MB</div>
+<div class="muted">13.1s · 0.0 MB</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//data:json</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//oci:image_write_entrypoint</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>… and 8 more</code></li></ul></div>
@@ -3748,7 +4346,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="bad">
 <b>10 missed</b>
 
-<div class="muted">12.4s · 24.4 MB (100% remote)</div>
+<div class="muted">7.7s · 24.4 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
@@ -3756,7 +4354,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="warn">
 <b>+33</b> extra
 
-<div class="muted">13.7s · 26.4 MB (100% remote)</div>
+<div class="muted">10.6s · 26.4 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//data:json</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//oci:image_write_entrypoint</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>… and 8 more</code></li></ul></div>
@@ -3764,7 +4362,7 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="bad">
 <b>10 missed</b>
 
-<div class="muted">4.3s · 266.3 MB (100% remote)</div>
+<div class="muted">3.6s · 266.3 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
@@ -3772,15 +4370,23 @@ MODULE.bazel      | 2 &#43;-
 </td><td class="bad">
 <b>10 missed</b>
 
-<div class="muted">8.9s · 273.1 MB (100% remote)</div>
+<div class="muted">9.1s · 273.1 MB (100% remote)</div>
 <details><summary>targets</summary>
 <div><b>Missed</b><ul class="l"><li><code>//cc/app:app</code></li><li><code>//cc/lib:hello</code></li><li><code>//cc/lib:hello_test</code></li><li><code>//go/diff:diff</code></li><li><code>//go/diff:diff_test</code></li><li><code>//go/greet:greet</code></li><li><code>//go/greet:greet_test</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib_test</code></li><li><code>//tools:check_test</code></li></ul></div>
 
 </details>
 </td><td class="warn">
+<b>+30</b> extra
+
+<div class="muted">20.4s · 279.5 MB (100% remote)</div>
+<details><summary>targets</summary>
+
+<div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/lib:lib</code></li><li><code>… and 5 more</code></li></ul></div>
+</details>
+</td><td class="warn">
 <b>+33</b> extra
 
-<div class="muted">25.1s · 42.1 MB (100% remote)</div>
+<div class="muted">24.7s · 42.1 MB (100% remote)</div>
 <details><summary>targets</summary>
 
 <div><b>Over-selected</b><ul class="l"><li><code>//apko:image</code></li><li><code>//apko:image.lock</code></li><li><code>//data:json</code></li><li><code>//distroless:cacerts_image</code></li><li><code>//distroless:cacerts_image.digest</code></li><li><code>//distroless:cacerts_image_index_json</code></li><li><code>//distroless:cacerts_image_index_json_cp</code></li><li><code>//distroless:tzdata_image</code></li><li><code>//distroless:tzdata_image.digest</code></li><li><code>//distroless:tzdata_image_index_json</code></li><li><code>//distroless:tzdata_image_index_json_cp</code></li><li><code>//go/cmd/greeter:greeter</code></li><li><code>//img:greeter_layer</code></li><li><code>//img:image</code></li><li><code>//oci:greeter_layer</code></li><li><code>//oci:greeter_layer_mtree</code></li><li><code>//oci:image</code></li><li><code>//oci:image.digest</code></li><li><code>//oci:image_index_json</code></li><li><code>//oci:image_index_json_cp</code></li><li><code>//oci:image_write_entrypoint</code></li><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>… and 8 more</code></li></ul></div>
@@ -3788,15 +4394,22 @@ MODULE.bazel      | 2 &#43;-
 </td>
 </tr></tbody></table></div>
 
-<h2>Consistency: same revision, remote repo contents cache off vs on</h2>
-<p class="muted">Each tool's hashes of the base revision, computed in local mode and with <code>--experimental_remote_repo_contents_cache</code>, where external repositories are served lazily and are not on disk. A correct tool gives identical hashes; a difference means its hash snapshots depend on what happens to be materialized locally, so comparing snapshots from different machines or runs gives wrong answers.</p>
+<h2>Consistency: same revision, different setups</h2>
+<p class="muted">Each tool's hashes of the base revision in local mode, compared with its hashes from a second checkout at another path with fresh output bases and caches at other paths (as on another CI machine or worktree), and with <code>--experimental_remote_repo_contents_cache</code>, where external repositories are served lazily and are not on disk. A correct tool gives identical hashes; a difference means its hash snapshots depend on what happens to be materialized locally, so comparing snapshots from different machines or runs gives wrong answers.</p>
 <div class="wrap"><table>
-<thead><tr><th>Tool</th><th class="num">Targets compared</th><th class="num">Different hashes</th><th>Targets</th></tr></thead>
-<tbody><tr><td><b>custom</b></td><td class="num">43</td><td class="num ok">0</td>
-<td></td></tr><tr><td><b>custom-cquery</b></td><td class="num">43</td><td class="num ok">0</td>
-<td></td></tr><tr><td><b>bazel-diff</b></td><td class="num">102</td><td class="num ok">0</td>
-<td></td></tr><tr><td><b>bazel-diff-fine</b></td><td class="num">102</td><td class="num bad">8</td>
+<thead><tr><th>Tool</th><th>Compared with</th><th class="num">Targets compared</th><th class="num">Different hashes</th><th>Targets</th></tr></thead>
+<tbody><tr><td><b>generate_hashes (query)</b></td><td>remote repo contents cache on</td><td class="num">43</td><td class="num ok">0</td>
+<td></td></tr><tr><td><b>generate_hashes (cquery)</b></td><td>remote repo contents cache on</td><td class="num">43</td><td class="num ok">0</td>
+<td></td></tr><tr><td><b>bazel-diff</b></td><td>remote repo contents cache on</td><td class="num">102</td><td class="num ok">0</td>
+<td></td></tr><tr><td><b>bazel-diff-fine</b></td><td>remote repo contents cache on</td><td class="num">102</td><td class="num bad">8</td>
 <td><details><summary>8 targets</summary><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></details></td></tr></tbody></table></div>
+
+
+<h2>Determinism: the same revision hashed twice</h2>
+<p class="muted">Each check hashes the same revision twice with one thing changed in between; every target whose hash differs would be selected although nothing changed. The checkout adds three hazard repos to the fixture, each with its own target: an absolute symlink (<code>//hazard:symlink</code>), a local repo with its own path in a string attribute, like rules_java's <code>local_jdk</code> (<code>//hazard:path_attr</code>), and a fetched repo with its path in a BUILD file comment (<code>//hazard:path_content</code>). target-determinator keeps no snapshots: in each setup it compares the revision with an empty commit on top, in one run, and every target it selects is wrong. Custom Bazel: bazel-hashes-9-2, 2026-10-18T10:38:50&#43;02:00.</p>
+<div class="wrap"><table>
+<thead><tr><th>Check</th><th>generate_hashes (query)</th><th>generate_hashes (cquery)</th><th>bazel-diff</th><th>bazel-diff-fine</th><th>target-determinator</th><th>bazel-diff-cquery</th><th>What changes between the snapshots</th></tr></thead>
+<tbody><tr><td><b>setup</b></td><td class="">–</td><td class="">–</td><td class="">–</td><td class="">–</td><td class="ok">✅</td><td class="">–</td><td class="muted">First snapshot.</td></tr><tr><td><b>repeat</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Hash twice in a row with the same Bazel server.</td></tr><tr><td><b>restart</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Shut down the Bazel server between the two snapshots.</td></tr><tr><td><b>environment</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Restart the server with a different HOME, USER and TMPDIR.</td></tr><tr><td><b>output_base_path</b></td><td class="bad">❌ 1 of 46<details><summary>targets</summary><ul class="l"><li><code>//hazard:path_content</code></li></ul></details></td><td class="bad">❌ 1 of 46<details><summary>targets</summary><ul class="l"><li><code>//hazard:path_content</code></li></ul></details></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="bad">❌ 2 of 109<details><summary>targets</summary><ul class="l"><li><code>//hazard:path_attr</code></li><li><code>//hazard:path_attr.txt</code></li></ul></details></td><td class="muted">Second snapshot from an output base at another path (same checkout and caches), as on another machine.</td></tr><tr><td><b>fresh_output_base</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Delete the output base between the two snapshots (same path, caches kept).</td></tr><tr><td><b>checkout_path</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Second snapshot from a clone of the checkout at another path (output base recreated at the same path), as in another CI worktree.</td></tr><tr><td><b>fresh_caches</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Delete the output base and the repository and repo contents caches between the two snapshots (same paths).</td></tr><tr><td><b>build_between</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Build //... between the two snapshots.</td></tr><tr><td><b>remote_cache</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="bad">❌ 8 of 109<details><summary>targets</summary><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></details></td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">First snapshot with --experimental_remote_repo_contents_cache, second without it (output base recreated at the same path).</td></tr><tr><td><b>remote_off_same_output_base</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="bad">❌ 8 of 109<details><summary>targets</summary><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></details></td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">First snapshot with --experimental_remote_repo_contents_cache, second without it in the same output base (as when toggling the flag in .bazelrc).</td></tr><tr><td><b>remote_on_again</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="bad">❌ 8 of 109<details><summary>targets</summary><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></details></td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">Then with --experimental_remote_repo_contents_cache again, same output base, compared with the first snapshot.</td></tr><tr><td><b>build_between_remote</b></td><td class="ok">✅ (build errors)</td><td class="ok">✅ (build errors)</td><td class="ok">✅ (build errors)</td><td class="bad">❌ 5 of 109 (build errors)<details><summary>targets</summary><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li></ul></details></td><td class="ok">✅ (build errors)</td><td class="ok">✅ (build errors)</td><td class="muted">With --experimental_remote_repo_contents_cache: build //... between the two snapshots.</td></tr><tr><td><b>remote_then_local_build</b></td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅</td><td class="bad">❌ 8 of 109<details><summary>targets</summary><ul class="l"><li><code>//py/app:app</code></li><li><code>//py/extra:extra</code></li><li><code>//py/extra:extra_test</code></li><li><code>//py/lib:greet_test</code></li><li><code>//py/lib:lib</code></li><li><code>//rust/app:app</code></li><li><code>//rust/lib:lib</code></li><li><code>//rust/lib:lib_test</code></li></ul></details></td><td class="ok">✅</td><td class="ok">✅</td><td class="muted">First snapshot with --experimental_remote_repo_contents_cache (as in CI), second without it after a local build //... (as on a laptop), same output base path.</td></tr></tbody></table></div>
 
 
 <h2>Repo contents cache support by module</h2>
@@ -3897,17 +4510,19 @@ MODULE.bazel      | 2 &#43;-
 <h2>Warm performance</h2>
 <div class="wrap"><table>
 <thead><tr><th>Tool</th><th class="num">No change</th><th class="num">source</th><th class="num">BUILD</th><th class="num">.bzl</th><th class="num">dependency</th><th class="num">bzlmod</th><th class="num">patch</th><th class="num">toolchain</th><th class="num">config</th></tr></thead>
-<tbody><tr><td><b>custom</b></td><td class="num">0.1s</td>
-<td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.8s</td><td class="num">1.3s</td><td class="num">0.9s</td><td class="num">8.0s</td><td class="num">1.2s</td></tr><tr><td><b>custom-cquery</b></td><td class="num">0.7s</td>
-<td class="num">0.7s</td><td class="num">0.7s</td><td class="num">0.8s</td><td class="num">5.5s</td><td class="num">5.7s</td><td class="num">5.3s</td><td class="num">19.2s</td><td class="num">5.9s</td></tr><tr><td><b>bazel-diff</b></td><td class="num">0.6s</td>
-<td class="num">0.5s</td><td class="num">0.5s</td><td class="num">0.6s</td><td class="num">1.2s</td><td class="num">1.3s</td><td class="num">0.5s</td><td class="num">1.9s</td><td class="num">1.2s</td></tr><tr><td><b>bazel-diff-fine</b></td><td class="num">0.7s</td>
-<td class="num">0.7s</td><td class="num">0.7s</td><td class="num">0.7s</td><td class="num">1.2s</td><td class="num">1.5s</td><td class="num">0.8s</td><td class="num">2.1s</td><td class="num">1.5s</td></tr><tr><td><b>target-determinator</b></td><td class="num">10.3s</td>
-<td class="num">10.1s</td><td class="num">10.4s</td><td class="num">11.5s</td><td class="num">15.3s</td><td class="num">16.7s</td><td class="num">14.6s</td><td class="num">29.8s</td><td class="num">15.9s</td></tr><tr><td><b>custom@remote</b></td><td class="num">0.1s</td>
-<td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.9s</td><td class="num">11.9s</td><td class="num">9.5s</td><td class="num">9.7s</td><td class="num">12.4s</td></tr><tr><td><b>custom-cquery@remote</b></td><td class="num">0.6s</td>
-<td class="num">0.6s</td><td class="num">0.7s</td><td class="num">0.7s</td><td class="num">10.1s</td><td class="num">11.3s</td><td class="num">10.3s</td><td class="num">10.5s</td><td class="num">13.7s</td></tr><tr><td><b>bazel-diff@remote</b></td><td class="num">0.5s</td>
-<td class="num">0.4s</td><td class="num">0.4s</td><td class="num">0.4s</td><td class="num">1.5s</td><td class="num">2.1s</td><td class="num">1.3s</td><td class="num">4.2s</td><td class="num">4.3s</td></tr><tr><td><b>bazel-diff-fine@remote</b></td><td class="num">0.6s</td>
-<td class="num">0.6s</td><td class="num">0.6s</td><td class="num">0.6s</td><td class="num">1.6s</td><td class="num">7.0s</td><td class="num">6.3s</td><td class="num">10.2s</td><td class="num">8.9s</td></tr><tr><td><b>target-determinator@remote</b></td><td class="num">7.4s</td>
-<td class="num">7.4s</td><td class="num">7.4s</td><td class="num">7.3s</td><td class="num">25.8s</td><td class="num">37.5s</td><td class="num">25.8s</td><td class="num">43.3s</td><td class="num">25.1s</td></tr></tbody></table></div>
+<tbody><tr><td><b>generate_hashes (query)</b></td><td class="num">0.1s</td>
+<td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.8s</td><td class="num">1.3s</td><td class="num">0.8s</td><td class="num">7.5s</td><td class="num">1.0s</td></tr><tr><td><b>generate_hashes (cquery)</b></td><td class="num">0.7s</td>
+<td class="num">0.8s</td><td class="num">0.8s</td><td class="num">0.7s</td><td class="num">5.3s</td><td class="num">5.6s</td><td class="num">5.1s</td><td class="num">16.9s</td><td class="num">5.5s</td></tr><tr><td><b>bazel-diff</b></td><td class="num">0.5s</td>
+<td class="num">0.6s</td><td class="num">0.7s</td><td class="num">0.5s</td><td class="num">1.1s</td><td class="num">1.4s</td><td class="num">0.5s</td><td class="num">1.9s</td><td class="num">1.2s</td></tr><tr><td><b>bazel-diff-fine</b></td><td class="num">0.6s</td>
+<td class="num">0.7s</td><td class="num">0.7s</td><td class="num">0.7s</td><td class="num">1.2s</td><td class="num">1.7s</td><td class="num">0.8s</td><td class="num">1.8s</td><td class="num">1.4s</td></tr><tr><td><b>bazel-diff-cquery</b></td><td class="num">4.1s</td>
+<td class="num">4.6s</td><td class="num">4.5s</td><td class="num">4.3s</td><td class="num">7.3s</td><td class="num">7.3s</td><td class="num">6.7s</td><td class="num">18.4s</td><td class="num">6.3s</td></tr><tr><td><b>target-determinator</b></td><td class="num">9.9s</td>
+<td class="num">10.7s</td><td class="num">11.1s</td><td class="num">10.1s</td><td class="num">14.2s</td><td class="num">15.4s</td><td class="num">12.8s</td><td class="num">26.0s</td><td class="num">13.1s</td></tr><tr><td><b>generate_hashes (query)@remote</b></td><td class="num">0.1s</td>
+<td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.1s</td><td class="num">0.9s</td><td class="num">12.1s</td><td class="num">7.7s</td><td class="num">10.1s</td><td class="num">7.7s</td></tr><tr><td><b>generate_hashes (cquery)@remote</b></td><td class="num">0.6s</td>
+<td class="num">0.7s</td><td class="num">0.7s</td><td class="num">0.7s</td><td class="num">10.6s</td><td class="num">12.1s</td><td class="num">10.4s</td><td class="num">11.8s</td><td class="num">10.6s</td></tr><tr><td><b>bazel-diff@remote</b></td><td class="num">0.6s</td>
+<td class="num">0.4s</td><td class="num">0.4s</td><td class="num">0.4s</td><td class="num">1.5s</td><td class="num">2.9s</td><td class="num">1.1s</td><td class="num">4.1s</td><td class="num">3.6s</td></tr><tr><td><b>bazel-diff-fine@remote</b></td><td class="num">0.7s</td>
+<td class="num">0.6s</td><td class="num">0.6s</td><td class="num">0.6s</td><td class="num">1.6s</td><td class="num">10.7s</td><td class="num">6.2s</td><td class="num">6.8s</td><td class="num">9.1s</td></tr><tr><td><b>bazel-diff-cquery@remote</b></td><td class="num">4.6s</td>
+<td class="num">3.6s</td><td class="num">3.5s</td><td class="num">3.4s</td><td class="num">16.9s</td><td class="num">18.4s</td><td class="num">17.6s</td><td class="num">20.1s</td><td class="num">20.4s</td></tr><tr><td><b>target-determinator@remote</b></td><td class="num">8.1s</td>
+<td class="num">7.5s</td><td class="num">6.9s</td><td class="num">6.9s</td><td class="num">24.8s</td><td class="num">36.7s</td><td class="num">25.5s</td><td class="num">39.4s</td><td class="num">24.7s</td></tr></tbody></table></div>
 <p class="muted">Medians of wall-clock time for the tool to produce its affected set for the head revision, with every tool's Bazel server warm and its base-revision state (hashes, worktree) already computed. For the hash-based tools this is hashing the head revision (plus bazel-diff's impacted-target diff); target-determinator inherently evaluates both revisions. Dependency and toolchain scenarios include fetching the changed external repositories. Each scenario also pays for reverting the previous one.</p>
 
 <h2>Method</h2>
@@ -3915,6 +4530,6 @@ MODULE.bazel      | 2 &#43;-
 <li>Each scenario is one change committed on top of the same base revision of the fixture workspace (rules_cc + hermetic LLVM, rules_go, rules_python, rules_rs, rules_oci, rules_img, rules_apko, rules_distroless, rules_multitool, plus a custom rule and macro).</li>
 <li><b>Ground truth</b>: the workspace is built with an aspect that digests every top-level target's output files, runfiles and executable (contents and file modes), plus test-execution attributes (<code>size</code>, <code>timeout</code>, <code>args</code>, <code>env</code>, …). A target is affected when that digest changes, or when it is new.</li>
 <li>Tools are scored on the targets the oracle digests (main-repository targets with outputs). Labels outside that set (source files, external repositories) are ignored.</li>
-<li>Tools run unmodified with default options: the custom Bazel's <code>query //... --generate_hashes</code>, bazel-diff <code>generate-hashes</code> + <code>get-impacted-targets</code>, and target-determinator with <code>-nocache_results</code>. Each tool has its own output base.</li>
+<li>Tools run unmodified with default options: generate_hashes (query) and (cquery), the custom Bazel's <code>query</code> and <code>cquery //... --experimental_generate_hashes</code>; bazel-diff <code>generate-hashes</code> + <code>get-impacted-targets</code>, and target-determinator with <code>-nocache_results</code>. Each tool has its own output base.</li>
 </ul></div>
 </main></body></html>

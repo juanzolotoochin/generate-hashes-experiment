@@ -1,7 +1,11 @@
 # Status
 
-`results/` is current (October 2026): five tools, 47 scenarios, with the remote
-repo contents cache off and on, using a bundled localhost cache.
+`results/` is current (October 18, 2026, custom Bazel 6bd8e72091): six tools,
+47 scenarios, with the remote repo contents cache off and on, using a bundled
+localhost cache, plus the determinism suite for every tool. The
+local-versus-remote consistency table has no bazel-diff-cquery row: its local
+base hashes were read before a label parsing fix. The determinism suite's
+`remote_cache` check covers the same comparison.
 
 ## Open issues
 

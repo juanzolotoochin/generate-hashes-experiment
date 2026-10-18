@@ -119,7 +119,7 @@ func consistency(r *bench.Results) []Consistency {
 
 func compareHashes(r *bench.Results, t, suffix, desc string) (Consistency, bool) {
 	a, b := r.BaseHashes[t], r.BaseHashes[t+suffix]
-	if a == nil || b == nil {
+	if len(a) == 0 || len(b) == 0 {
 		return Consistency{}, false
 	}
 	c := Consistency{Tool: t, Against: desc}
