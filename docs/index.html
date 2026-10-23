@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: prose capped at ~72ch; diagrams, tables and code use the full content width beside a contents rail on wide screens. */
+/* Layout: one content column (~940px) shared by prose, diagrams, tables and code, beside a contents rail on wide screens. */
 :root {
   --bg: #f6f8f7;
   --surface: #ffffff;
@@ -60,7 +60,7 @@ body {
   padding-block: 48px 96px;
 }
 .page {
-  max-width: 1360px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -70,8 +70,7 @@ body {
   .page { grid-template-columns: 200px minmax(0, 1fr); }
   .toc { position: sticky; top: 24px; align-self: start; }
 }
-article { min-width: 0; }
-header.intro > *, section > :not(figure):not(pre):not(.table-wrap) { max-width: 72ch; }
+article { min-width: 0; max-width: 940px; }
 
 h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
 h1 { font-size: var(--step-3); font-weight: 700; letter-spacing: -0.01em; }
