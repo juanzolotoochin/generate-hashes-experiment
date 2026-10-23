@@ -24,6 +24,10 @@ Each tool ran twice in the same work dir:
 - **`@remote`:** with `--experimental_remote_repo_contents_cache` against the
   bundled localhost cache, seeded with every revision's repos.
 
+For how `--experimental_generate_hashes` hashes repos from the remote repo
+contents cache without downloading them, see
+[Query Hashes and Remote Repos](https://juanzolotoochin.github.io/generate-hashes-experiment/).
+
 My reading of these results is in [FINDINGS.md](FINDINGS.md). In the report,
 "generate_hashes (query)" is the `custom` tool and "generate_hashes (cquery)" is
 `custom-cquery`.

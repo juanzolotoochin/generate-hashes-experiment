@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Query Hashes and Remote Repos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column (~68ch) with a contents rail on wide screens; diagrams and code may scroll inside their own boxes. */
+:root {
+  --bg: #f6f8f7;
+  --surface: #ffffff;
+  --fg: #17211d;
+  --muted: #55645d;
+  --line: #d6dfda;
+  --accent: #0f7a5a;
+  --accent-soft: #e2f2eb;
+  --code-bg: #eef3f1;
+  --warn: #8a5a00;
+  --warn-soft: #fbf1dc;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3rem;
+  --step-2: 1.7rem;
+  --step-3: 2.4rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101614;
+    --surface: #161e1b;
+    --fg: #e3ebe7;
+    --muted: #9aaba3;
+    --line: #2a3632;
+    --accent: #4fd1a5;
+    --accent-soft: #15332a;
+    --code-bg: #1b2522;
+    --warn: #f2c063;
+    --warn-soft: #33290f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101614;
+  --surface: #161e1b;
+  --fg: #e3ebe7;
+  --muted: #9aaba3;
+  --line: #2a3632;
+  --accent: #4fd1a5;
+  --accent-soft: #15332a;
+  --code-bg: #1b2522;
+  --warn: #f2c063;
+  --warn-soft: #33290f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 48px 96px;
+}
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 48px;
+}
+@media (min-width: 1040px) {
+  .page { grid-template-columns: 220px minmax(0, 1fr); }
+  .toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; }
+}
+article { min-width: 0; max-width: 72ch; }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: var(--step-3); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: var(--step-2); font-weight: 700; }
+h3 { font-size: var(--step-1); font-weight: 500; }
+p, ul, ol { margin: 0; }
+ul, ol { padding-left: 1.3em; display: grid; gap: 6px; }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+strong { font-weight: 600; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.lede { font-size: var(--step-1); color: var(--muted); line-height: 1.45; }
+
+header.intro { display: grid; gap: 16px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+section { display: grid; gap: 16px; padding-block: 40px; border-bottom: 1px solid var(--line); }
+section:last-of-type { border-bottom: 0; }
+
+code, pre, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+:not(pre) > code { background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
+pre.code {
+  margin: 0;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  line-height: 1.5;
+  font-size: 0.8rem;
+}
+pre.code .c { color: var(--muted); }
+pre.code .k { color: var(--accent); font-weight: 600; }
+.src { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); margin-top: -8px; overflow-wrap: anywhere; }
+
+.answer {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 20px 22px;
+  display: grid;
+  gap: 10px;
+}
+.answer .verdict { font-family: var(--font-display); font-size: var(--step-1); font-weight: 700; }
+.note {
+  background: var(--warn-soft);
+  border-left: 3px solid var(--warn);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+}
+.note b { color: var(--warn); }
+
+.toc { font-size: var(--step--1); }
+.toc p { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+.toc ol { padding-left: 1.4em; gap: 4px; }
+.toc a { color: var(--fg); text-decoration: none; }
+.toc a:hover { color: var(--accent); text-decoration: underline; }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--font-mono); font-size: var(--step--1); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--code-bg); }
+
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.diagram pre.mermaid { margin: 0; background: transparent; font-family: var(--font-body); }
+figcaption { font-size: var(--step--1); color: var(--muted); }
+figure { margin: 0; display: grid; gap: 8px; }
+
+.analogy { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.analogy > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.analogy .term { font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+
+ol.steps { counter-reset: s; list-style: none; padding-left: 0; gap: 14px; }
+ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 10px; }
+ol.steps > li::before {
+  content: counter(s);
+  font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem;
+  width: 1.9em; height: 1.9em; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent);
+}
+ol.steps > li > div { display: grid; gap: 8px; min-width: 0; }
+
+dl.gloss { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 0; }
+@media (min-width: 640px) { dl.gloss { grid-template-columns: 14em minmax(0, 1fr); column-gap: 20px; } }
+dl.gloss dt { font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; }
+dl.gloss dd { margin: 0; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+<div class="page">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#answer">The short answer</a></li>
+      <li><a href="#flag">What the flag does</a></li>
+      <li><a href="#skyframe">Skyframe in ten minutes</a></li>
+      <li><a href="#design">How the hashing is built</a></li>
+      <li><a href="#rrcc">The remote repo contents cache</a></li>
+      <li><a href="#meet">Where the two meet</a></li>
+      <li><a href="#invalidation">Across commands</a></li>
+      <li><a href="#edges">Edge cases</a></li>
+      <li><a href="#tests">What isn't tested yet</a></li>
+      <li><a href="#files">File map and glossary</a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <header class="intro">
+      <span class="eyebrow">Branch generate-hashes · commits a84d1c98cb, ba7f6cac1f</span>
+      <h1>How <code>query --experimental_generate_hashes</code> handles remote repos</h1>
+      <p class="lede">A guided tour for someone who knows Bazel well from the command line but hasn't read its source. It covers what the new flag computes, the Bazel internals it is built on, and why files from <code>--experimental_remote_repo_contents_cache</code> get hashed correctly without being downloaded.</p>
+    </header>
+
+    <section id="answer">
+      <span class="eyebrow">1 · The short answer</span>
+      <div class="answer">
+        <span class="verdict">Yes, remote repos are handled correctly.</span>
+        <p>A repo served from the remote repo contents cache comes from a reproducible repo rule, so <code>--experimental_generate_hashes</code> hashes it as one unit: it lists the repo and asks for the digest of every file. The cache already stores those digests, and the overlay filesystem returns them without downloading the file bytes.</p>
+        <p>The digests are the ones Bazel would compute from the files on disk, and executable bits are left out of the repo digest. So a target hashes the same whether its repo came from the cache or was fetched locally.</p>
+        <p>This conclusion comes from reading the code. No end-to-end test covers this combination yet (see <a href="#tests">section 9</a>).</p>
+      </div>
+      <p>The rest of this page explains why, starting from the parts of Bazel you've only seen from the outside.</p>
+    </section>
+
+    <section id="flag">
+      <span class="eyebrow">2 · From the user's side</span>
+      <h2>What the flag does</h2>
+      <p>Normally <code>bazel query</code> prints the targets that match your expression. With <code>--experimental_generate_hashes</code> it ignores <code>--output</code> and prints each target followed by a SHA-256 fingerprint of that target <em>and everything it depends on</em>:</p>
+<pre class="code"><span class="c">$</span> bazel query --experimental_generate_hashes 'deps(//app:server, 1)'
+//app:server 9c1e5a0f3b…e71d   <span class="c"># 64 hex characters in real output</span>
+//app:main.go 41aa07c2d8…09b3
+@com_github_foo//:foo 7d52e1b9a4…c6f0</pre>
+      <p>If anything in a target's transitive closure changes, its hash changes. That makes it useful for "which targets are affected by this commit?" tooling: hash every target on two commits and compare.</p>
+      <p>Each hash covers:</p>
+      <ul>
+        <li>the target's label and kind (<code>go_binary</code>, <code>source file</code>, …);</li>
+        <li>for rules: every attribute value, plus a digest of the rule's Starlark definition and the <code>.bzl</code> files it was loaded from. Absolute paths to the output base or the workspace inside string attributes are replaced by placeholders, so hashes don't depend on where those directories are;</li>
+        <li>for source files in the main repo and in <code>local</code> or <code>configure</code> repos: the file's content digest and its executable bit;</li>
+        <li>for source files in other external repos: one digest of the whole repo's contents (see <a href="#meet">section 6</a>);</li>
+        <li>for <code>package_group</code>s: the packages they contain;</li>
+        <li>the labels and hashes of all dependencies, including deps that aspects might add (the same conservative treatment as <code>--aspect_deps=conservative</code>), and the toolchain types of exec groups and aspects;</li>
+        <li>for each <code>toolchain_type</code>: every toolchain registered for it in MODULE.bazel files. A <code>toolchain()</code> implemented in a fetched external repo is hashed by that repo's definition (repo rule, attribute values, files its label attributes point to such as patches) and the definitions of the repos it can see, without fetching it.</li>
+      </ul>
+      <p>Dependencies through "nodep" attributes such as <code>visibility</code> don't count. A dependency that doesn't exist is hashed as <code>&lt;missing&gt;</code>, so creating it changes its dependents' hashes. Any other error, in a queried target or in one of its dependencies, is reported and fails the command.</p>
+      <p><code>--noimplicit_deps</code>, <code>--notool_deps</code> and <code>--aspect_deps</code> values other than <code>conservative</code> are rejected, because they would drop dependencies from the hash. The flag is also rejected in <code>genquery</code>.</p>
+      <p>The hashes are <strong>unconfigured</strong>: they describe the target graph you see in <code>bazel query</code>. A <code>select()</code> contributes all of its branches, and <code>--extra_toolchains</code> and build options aren't seen. <code>bazel cquery --experimental_generate_hashes</code> hashes the configured graph instead. It prints <code>&lt;label&gt; (&lt;config&gt;) &lt;hash&gt;</code>, follows only the <code>select()</code> branches taken and the toolchains actually resolved, and includes the build options, so its hashes are only valid for the options they were computed with.</p>
+    </section>
+
+    <section id="skyframe">
+      <span class="eyebrow">3 · Background</span>
+      <h2>Skyframe in ten minutes</h2>
+      <p>When you run <code>bazel</code>, the small C++ client talks to a long-lived Java server, which is why the second build in a session is so much faster than the first. The server keeps a huge in-memory graph of everything it has computed. That graph and the engine that maintains it are called <strong>Skyframe</strong>, and almost everything Bazel does (loading packages, reading files, analysing rules, running actions) is a node in it.</p>
+      <p>You already know the idea from actions: an action's output is reused as long as its inputs haven't changed. Skyframe applies the same rule to every piece of work.</p>
+      <div class="analogy">
+        <div><span class="term">SkyKey</span><span>The name of a piece of work. "The file <code>/src/app/main.go</code>", "the package <code>//app</code>".</span></div>
+        <div><span class="term">SkyValue</span><span>The result of that work. File metadata, a loaded package. Immutable, and compared with <code>equals()</code>.</span></div>
+        <div><span class="term">SkyFunction</span><span>The code that turns a key into a value. It may ask Skyframe for other keys it needs.</span></div>
+      </div>
+      <p>Three properties matter for this page:</p>
+      <ol class="steps">
+        <li><div><strong>Memoization.</strong> Once a key is computed, its value stays in the server's memory. The next command that asks for it gets it for free.</div></li>
+        <li><div><strong>Recorded dependencies and invalidation.</strong> When a SkyFunction asks for another key, Skyframe remembers the edge. Between commands, Bazel checks which files changed on disk and marks their nodes dirty. Everything that depends on them is then re-checked on the next command.</div></li>
+        <li><div><strong>Change pruning.</strong> When a dirty node is recomputed and its new value <code>equals()</code> the old one, its dependents are <em>not</em> recomputed. Touching a file without changing its contents doesn't cascade through the graph.</div></li>
+      </ol>
+      <p>One more idiom shows up in every SkyFunction: if a value the function needs isn't computed yet, the function returns <code>null</code>. Skyframe computes the missing dependency and calls the function again from the top. That's why the code below is full of <code>if (x == null) return null;</code>.</p>
+      <p>Three existing nodes are central here:</p>
+      <ul>
+        <li><strong><code>FileStateValue</code></strong>: what a single <code>stat()</code> of a path found. For a regular file that includes its size and, <em>when the filesystem can supply one cheaply</em>, its content digest.</li>
+        <li><strong><code>FileValue</code></strong>: a <code>FileStateValue</code> with symlinks resolved. This is what most code asks for when it wants to know about a file.</li>
+        <li><strong><code>RepositoryDirectoryValue</code></strong>: the node that represents "this external repo has been fetched". It is recomputed when the repo is refetched.</li>
+      </ul>
+    </section>
+
+    <section id="design">
+      <span class="eyebrow">4 · The new code</span>
+      <h2>How the hashing is built</h2>
+      <p>The branch adds four SkyFunctions and one plain Java class under <code>src/main/java/com/google/devtools/build/lib/query2/query/hash/</code>. <code>BuiltinCommandModule</code> registers the four functions with the server, and <code>QueryCommand</code> calls them when the flag is set.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Piece</th><th>Kind</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>DirectTargetHashFunction</code></td><td>SkyFunction</td><td>Given a label, returns the target's <em>direct</em> hash (everything about the target itself) and the sorted list of its dependency labels.</td></tr>
+            <tr><td><code>RepoContentDigestFunction</code></td><td>SkyFunction</td><td>Given an external repo, returns one digest of all its files, or a marker meaning "hash this repo's files one by one" for the main repo and for <code>local</code>, <code>configure</code> and overridden repos.</td></tr>
+            <tr><td><code>SourceFileDigestFunction</code></td><td>SkyFunction</td><td>Given a file path, returns its content digest and executable bit, or a marker for missing files, directories and special files. Used for files the repo digest doesn't cover.</td></tr>
+            <tr><td><code>RegisteredToolchainsByTypeFunction</code></td><td>SkyFunction</td><td>Maps each toolchain type to the toolchains registered for it in MODULE.bazel files.</td></tr>
+            <tr><td><code>TransitiveHashes</code></td><td>Plain Java</td><td>Walks the graph, asks Skyframe for every direct hash, adds edges from toolchain types to their registered toolchains, then combines everything bottom-up into transitive hashes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <figure>
+        <div class="diagram">
+<pre class="mermaid">
+flowchart TD
+  Q["QueryCommand<br/>runs the query, collects targets"] --> T["TransitiveHashes.compute<br/>breadth-first walk, one Skyframe call per level"]
+  T -->|"one key per label"| D["DirectTargetHashFunction<br/>direct hash + dep labels"]
+  T -->|"toolchain_type targets"| RT["RegisteredToolchainsByTypeFunction<br/>registered toolchains per type"]
+  D -->|"rules"| P["Package loading<br/>attributes, rule definition"]
+  D -->|"external repos"| R["RepoContentDigestFunction<br/>one digest per fetched repo"]
+  D -->|"main, local, configure repos"| S["SourceFileDigestFunction<br/>content digest + executable bit"]
+  R --> RD["RepositoryDirectoryValue<br/>existing Bazel node"]
+  S --> F["FileValue<br/>existing Bazel node"]
+  T --> C["Combine with Tarjan's SCC algorithm<br/>outside Skyframe"]
+  C --> O["Print: label hash"]
+</pre>
+        </div>
+        <figcaption>Everything inside Skyframe is memoized by the server. The combining step is cheap and runs fresh each time.</figcaption>
+      </figure>
+
+      <h3>Why the transitive hash isn't a SkyFunction</h3>
+      <p>The obvious design would have each target's SkyFunction ask for its deps' hashes and fold them in. That can't work here. The unconfigured target graph can contain cycles (for example, a toolchain whose tools depend back on something that uses the toolchain). In a real build, configuration transitions break those cycles, but <code>query</code> sees them, and Skyframe forbids cycles between nodes.</p>
+      <p>So the work is split. <code>DirectTargetHashFunction</code> never asks for another target's hash. It only returns the dep <em>labels</em>. <code>TransitiveHashes</code> then:</p>
+      <ol class="steps">
+        <li><div>Starts from the query results and requests their direct hashes from Skyframe in one batch.</div></li>
+        <li><div>Collects the not-yet-seen dep labels into the next batch, and repeats until nothing new turns up. A <code>toolchain_type</code> gets extra edges to every toolchain registered for it. Each batch is one parallel Skyframe evaluation, and you see <code>Hashing: visited N targets (depth D, …)</code> in the progress bar.</div></li>
+        <li><div>Runs <a href="https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm">Tarjan's algorithm</a> over the collected graph. It finds the strongly connected components (each cycle, plus every target that isn't in a cycle as a component of one) and emits them leaves-first.</div></li>
+        <li><div>For a target not in a cycle: <code>hash = H(direct hash, [(dep label, dep hash) …])</code>. Members of a cycle share one hash of all their direct hashes and edges, salted with each member's own label so they still get distinct hashes.</div></li>
+      </ol>
+      <p>A dep that doesn't exist contributes a fixed <code>&lt;missing&gt;</code> marker, so a dep that later starts to exist still changes the hash. Other errors fail the command with "hashes of targets depending on them may be wrong".</p>
+
+      <h3>Choosing between the repo digest and per-file digests</h3>
+      <p>For a target in an external repo, <code>DirectTargetHashFunction</code> first asks <code>RepoContentDigestFunction</code> for that repo. If it returns a digest, a source file's direct hash uses the repo digest instead of its own content. A rule's same-package file deps are dropped from the walk and the repo digest is mixed into the rule's hash, which keeps the walk from visiting every file of large toolchain repos. Only when the repo function returns "use file digests" does the code fall back to <code>SourceFileDigestFunction</code>:</p>
+<pre class="code"><span class="k">public</span> SkyValue compute(SkyKey skyKey, Environment env) {
+  RootedPath rootedPath = (RootedPath) skyKey.argument();
+  FileValue fileValue = env.getValueOrThrow(FileValue.key(rootedPath), IOException.class);
+  <span class="k">if</span> (fileValue == <span class="k">null</span>) <span class="k">return null</span>;            <span class="c">// not computed yet; Skyframe will restart us</span>
+  <span class="k">if</span> (!fileValue.exists()) <span class="k">return</span> Value.MISSING;
+  <span class="k">if</span> (fileValue.isDirectory()) <span class="k">return</span> Value.DIRECTORY;
+  <span class="k">if</span> (fileValue.isSpecialFile()) <span class="k">return</span> Value.SPECIAL;
+  <span class="c">// Prefer the digest already recorded in the file state …</span>
+  Path realPath = fileValue.realRootedPath(rootedPath).asPath();
+  <span class="k">byte</span>[] digest = fileValue.getDigest();
+  <span class="k">if</span> (digest == <span class="k">null</span>) {
+    <span class="c">// … otherwise read the file, going through the computed digest cache.</span>
+    digest = DigestUtils.manuallyComputeDigest(realPath, <span class="k">null</span>);
+  }
+  <span class="k">return new</span> Value(digest, realPath.isExecutable());
+}</pre>
+      <p class="src">SourceFileDigestFunction.java (lightly trimmed)</p>
+      <p>This function depends only on the file's <code>FileValue</code>, so on a warm server it reruns exactly when Skyframe thinks the file changed.</p>
+    </section>
+
+    <section id="rrcc">
+      <span class="eyebrow">5 · The other feature</span>
+      <h2>The remote repo contents cache</h2>
+      <p>From the user's side, <code>--experimental_remote_repo_contents_cache</code> stores the results of reproducible repository rules in your remote cache. When another machine (or a fresh output base) needs the same repo, Bazel skips running the repo rule. It also doesn't download the repo's files up front. They stay remote until something actually needs their bytes.</p>
+      <p>Inside, it works like this:</p>
+      <ol class="steps">
+        <li><div><strong>Cache key.</strong> The repo rule's inputs (its attributes, the rule's code, and any files or environment variables it read) are hashed into the same "predeclared inputs hash" Bazel already uses to decide whether a repo needs refetching. That hash becomes the key of an Action Cache entry, the same kind of entry a cached build action uses.</div></li>
+        <li><div><strong>Cache entry.</strong> The entry's outputs are the repo's marker file and a <em>Tree</em>: the repo's full directory listing, with the size and content digest of every file. The Tree is metadata only. File contents live separately in the CAS, the cache's content-addressed blob store.</div></li>
+        <li><div><strong>On a hit.</strong> Bazel downloads the Tree, not the files, and injects it into an in-memory filesystem that sits over <code>$(bazel info output_base)/external</code>. That's <code>RemoteExternalOverlayFileSystem</code>. To the rest of Bazel the repo looks fully present: <code>stat</code>, <code>readdir</code> and symlinks all work.</div></li>
+        <li><div><strong>Lazy reads.</strong> Files are fetched only when their bytes are read. <code>.bzl</code> files and <code>REPO.bazel</code> are prefetched in bulk, because package loading will need them anyway. If a locally executed action needs the repo, the repo is written out to disk ("materialized").</div></li>
+      </ol>
+      <p>The key detail for us: each file in the in-memory tree carries the digest from the Tree.</p>
+<pre class="code"><span class="k">static class</span> RemoteInMemoryFileInfo <span class="k">extends</span> FileInfo <span class="k">implements</span> FileStatusWithMetadata {
+  <span class="k">public byte</span>[] getFastDigest() { <span class="k">return</span> metadata.getDigest(); }
+  <span class="k">public byte</span>[] getDigest()     { <span class="k">return</span> metadata.getDigest(); }
+  …
+}</pre>
+      <p class="src">RemoteActionFileSystem.java:965-1004</p>
+      <p>And reading a remote file's digest through the overlay filesystem never downloads it:</p>
+<pre class="code"><span class="c">// All regular files in this file system are remote files, whose digest is known in advance
+// and returned by the base implementation of getFastDigest, …  The base implementation of
+// getDigest would instead download the file contents to hash them.</span>
+<span class="k">public byte</span>[] getDigest(PathFragment path) { <span class="k">return</span> getFastDigest(path); }</pre>
+      <p class="src">RemoteExternalOverlayFileSystem.java:944-950</p>
+    </section>
+
+    <section id="meet">
+      <span class="eyebrow">6 · The core of the answer</span>
+      <h2>Where the two meet</h2>
+      <p>Take a source file in a cached repo, <code>@foo//:data.txt</code>, and follow it through <code>query --experimental_generate_hashes</code>.</p>
+      <figure>
+        <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  participant DT as DirectTargetHashFunction
+  participant RC as RepoContentDigestFunction
+  participant RD as RepositoryDirectoryValue
+  participant OFS as Overlay filesystem
+  participant Cache as Remote cache
+  DT->>RC: digest of repo @foo?
+  RC->>RD: is @foo fetched?
+  RD-->>RC: yes, root directory
+  RC->>OFS: readdir (no symlink following), recursively
+  OFS-->>RC: entries from the cached Tree
+  RC->>OFS: getDigest(file) for each file
+  OFS-->>RC: digest from the Tree
+  Note over RC: one fingerprint over paths, types, digests, symlink targets
+  RC-->>DT: repo digest
+  Note over DT: data.txt hashes as its label, kind and the repo digest
+  Note over Cache: never contacted for file bytes
+</pre>
+        </div>
+        <figcaption>The digests travel from the cached Tree straight into the repo digest. The remote cache isn't asked for any file's bytes.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li><div>
+          <p><strong>Repo lookup.</strong> Loading <code>@foo</code> hits the cache, and the overlay filesystem now holds <code>external/foo/</code> as remote files with known digests.</p>
+        </div></li>
+        <li><div>
+          <p><strong>Which path is taken.</strong> <code>DirectTargetHashFunction</code> asks <code>RepoContentDigestFunction</code> for <code>@foo</code>. Repos in the remote repo contents cache come from reproducible repo rules, which are never <code>local</code> or <code>configure</code>, so the function computes a whole-repo digest. <code>SourceFileDigestFunction</code> and the file's <code>FileValue</code> aren't used.</p>
+        </div></li>
+        <li><div>
+          <p><strong>The repo walk.</strong> The function lists the repo directory with <code>readdir(Symlinks.NOFOLLOW)</code>, sorts the entries and recurses. For each entry it adds the relative path and type. Files add <code>path.getDigest()</code>; symlinks add their target, with absolute targets under the repo, <code>external/</code>, the workspace or the output base rewritten relative to those directories.</p>
+<pre class="code"><span class="k">case</span> FILE -&gt; {
+  fp.addString(<span class="k">"&lt;file&gt;"</span>);
+  fp.addBytes(path.getDigest());
+}</pre>
+          <p class="src">RepoContentDigestFunction.java, addDirectory</p>
+          <p>On the overlay filesystem, <code>path.getDigest()</code> is the override above, which returns the stored digest without downloading anything. The listing comes from the in-memory Tree too.</p>
+        </div></li>
+        <li><div>
+          <p><strong>The hash node.</strong> Back in <code>DirectTargetHashFunction</code>, <code>data.txt</code> hashes as its label, its kind and <code>&lt;repo contents&gt;</code> plus the repo digest. A rule in <code>@foo</code> with same-package file deps gets the repo digest the same way.</p>
+        </div></li>
+        <li><div>
+          <p><strong>Same answer as a local fetch.</strong> The overlay filesystem is built with the native filesystem's hash function (<code>super(nativeFs.getDigestFunction())</code>), the same function Bazel uses to hash files on disk. The digests in the Tree were computed from the same bytes you'd get from a local fetch. Executable bits are deliberately left out of the repo digest, because a locally fetched repo and one served lazily from the cache report them differently. So the hash comes out identical either way.</p>
+        </div></li>
+      </ol>
+      <p>BUILD and <code>.bzl</code> files in the repo do still get read, but that's ordinary package loading, which any <code>bazel query</code> over <code>@foo</code> already does. <code>--experimental_generate_hashes</code> doesn't add downloads of its own.</p>
+      <div class="note"><b>Toolchain repos are cheaper still.</b> When <code>@foo</code> is only reached as the implementation of a registered <code>toolchain()</code>, it isn't loaded at all. Its toolchain is hashed by the definitions of <code>@foo</code> and the repos it can see, so the repo is neither fetched nor looked up in the cache.</div>
+    </section>
+
+    <section id="invalidation">
+      <span class="eyebrow">7 · Warm server</span>
+      <h2>What happens across commands</h2>
+      <p>The flag's help text promises that a warm server only recomputes what changed. For fetched external repos, <code>RepoContentDigestFunction</code> depends on the repo's <code>RepositoryDirectoryValue</code>. It reads the repo's files directly instead of through Skyframe, so it doesn't track each file. That keeps toolchain repos with hundreds of thousands of files from being checked on every command.</p>
+      <ul>
+        <li><strong>Repo refetched</strong> (its inputs changed, or you ran <code>bazel fetch --force</code>): the repo node is recomputed, and so is the repo digest. If the files are identical, the new value equals the old one and change pruning stops the cascade there.</li>
+        <li><strong>The cache lost some of the repo's files:</strong> after the command, the overlay filesystem drops the repo from memory and invalidates its <code>RepositoryDirectoryValue</code> (<code>RemoteExternalOverlayFileSystem.java:176-177</code>), and the same chain follows on the next command.</li>
+        <li><strong>Repo materialized to disk</strong> mid-session: the bytes don't change, so neither does the digest or the hash.</li>
+        <li><strong>Edits by hand inside a fetched repo</strong> that don't cause a refetch aren't seen. This is a deliberate trade-off, listed in the flag's help text.</li>
+      </ul>
+    </section>
+
+    <section id="edges">
+      <span class="eyebrow">8 · Things to know</span>
+      <h2>Edge cases</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Situation</th><th>What happens</th><th>Is it a problem?</th></tr></thead>
+          <tbody>
+            <tr><td>A file's bytes were evicted from the remote cache</td><td>Hashing still succeeds, because only the stored digest is read.</td><td>No. The hash still reflects the file's contents. A later build that needs the file will find the eviction and refetch the repo.</td></tr>
+            <tr><td>A cached repo is materialized onto a filesystem without fast digests</td><td>If the repo digest is recomputed, <code>getDigest()</code> reads and hashes every file of the repo once.</td><td>No for correctness: the digests and the hash are the same. It costs one full read of the repo per fetch.</td></tr>
+            <tr><td>A source label points at a directory</td><td>In the main repo and in <code>local</code> or <code>configure</code> repos, it hashes as <code>&lt;directory&gt;</code> and the contents aren't walked. In fetched repos, the directory's contents are part of the repo digest.</td><td>A limitation for the main repo and local repos only.</td></tr>
+            <tr><td>A file is a symlink inside the cached repo</td><td>The symlink isn't followed. Its target is hashed as a string, with absolute targets under the repo, <code>external/</code>, the workspace or the output base made relative. A symlink into the workspace also adds the content digest of the file it points to.</td><td>No. Reproducible repos store relative symlinks, so the cache and a local fetch agree.</td></tr>
+            <tr><td>A file's executable bit changes in a fetched repo</td><td>Not part of the repo digest.</td><td>Deliberate: it keeps cache hits and local fetches consistent. Executable bits are hashed for the main repo and local repos.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tests">
+      <span class="eyebrow">9 · Gaps</span>
+      <h2>What isn't tested yet</h2>
+      <p>The branch has unit tests for the combining logic (<code>TransitiveHashesTest</code>: cycles, missing deps, determinism), Java integration tests (<code>TransitiveHashesIntegrationTest</code>, <code>HashesOutputFormatterCallbackTest</code>) and shell tests in <code>bazel_query_test.sh</code> and <code>configured_query_test.sh</code>. These cover external repo symlinks and executable bits. Nothing exercises <code>--experimental_generate_hashes</code> together with the remote repo contents cache.</p>
+      <div class="note"><b>Suggested test.</b> In <code>src/test/py/bazel/bzlmod/remote_repo_contents_cache_test.py</code>, which already starts a remote cache: define a repo containing a source file, then run <code>query --experimental_generate_hashes</code> on it twice. First with a fresh output base (a cache miss, so the repo is fetched locally), then with another fresh output base (a cache hit). Check that the two hashes match, that the file was never downloaded on the second run, and that changing the file's contents changes the hash. Include an executable file and a symlink, since those are where a cache hit and a local fetch can differ.</div>
+    </section>
+
+    <section id="files">
+      <span class="eyebrow">10 · Reference</span>
+      <h2>File map and glossary</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Why you'd open it</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">lib/runtime/commands/QueryCommand.java</td><td>Where the flag switches the output path and calls <code>outputHashes</code>.</td></tr>
+            <tr><td class="mono">lib/runtime/commands/BuiltinCommandModule.java</td><td>Registers the four new SkyFunctions with the server.</td></tr>
+            <tr><td class="mono">lib/query2/query/hash/TransitiveHashes.java</td><td>The graph walk, toolchain-type edges and Tarjan combine.</td></tr>
+            <tr><td class="mono">lib/query2/query/hash/DirectTargetHashFunction.java</td><td>What goes into a target's own hash, and the choice between repo and file digests.</td></tr>
+            <tr><td class="mono">lib/query2/query/hash/RepoContentDigestFunction.java</td><td>The whole-repo digest for fetched external repos.</td></tr>
+            <tr><td class="mono">lib/query2/query/hash/SourceFileDigestFunction.java</td><td>How a single file's digest is obtained.</td></tr>
+            <tr><td class="mono">lib/query2/query/hash/RegisteredToolchainsByTypeFunction.java</td><td>Which toolchains are registered for each type.</td></tr>
+            <tr><td class="mono">lib/query2/cquery/HashesOutputFormatterCallback.java</td><td>The cquery variant over the configured graph.</td></tr>
+            <tr><td class="mono">lib/remote/RemoteRepoContentsCacheImpl.java</td><td>Cache lookup and upload for repos.</td></tr>
+            <tr><td class="mono">lib/remote/RemoteExternalOverlayFileSystem.java</td><td>The in-memory overlay for <code>external/</code>, lazy reads, materialization.</td></tr>
+            <tr><td class="mono">lib/actions/FileStateValue.java</td><td>Where a stat result and its digest become a Skyframe value.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="src">All paths are under src/main/java/com/google/devtools/build/.</p>
+      <dl class="gloss">
+        <dt>Action Cache (AC)</dt><dd>The part of a remote cache that maps an action's key to its result. The repo contents cache reuses it with a synthetic "action" per repo.</dd>
+        <dt>CAS</dt><dd>Content-addressable storage: the part of a remote cache that stores file bytes, looked up by digest.</dd>
+        <dt>Change pruning</dt><dd>Skyframe skipping dependents when a recomputed value is equal to the old one.</dd>
+        <dt>Digest</dt><dd>A hash of a file's contents (SHA-256 by default, set by <code>--digest_function</code>).</dd>
+        <dt>Materialize</dt><dd>Write a remotely cached repo's files to the real disk.</dd>
+        <dt>Predeclared inputs hash</dt><dd>The hash of a repo rule's definition and attributes that Bazel uses to decide whether a repo needs refetching.</dd>
+        <dt>Repo digest</dt><dd>The single fingerprint <code>RepoContentDigestFunction</code> computes over a fetched repo's paths, file digests and symlink targets.</dd>
+        <dt>SCC</dt><dd>Strongly connected component: a set of targets that can all reach each other, which is how a cycle looks to a graph algorithm.</dd>
+        <dt>Tree</dt><dd>A remote-cache message describing a whole directory: names, sizes and digests of every file, without their contents.</dd>
+      </dl>
+    </section>
+  </article>
+</div>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral", securityLevel: "strict" });
+</script>
+</body>
+</html>
