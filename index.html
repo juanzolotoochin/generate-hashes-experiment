@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generate Hashes Experiment</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root { --bg: #f6f8f7; --surface: #ffffff; --fg: #17211d; --muted: #55645d; --line: #d6dfda; --accent: #0f7a5a; color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #101614; --surface: #161e1b; --fg: #e3ebe7; --muted: #9aaba3; --line: #2a3632; --accent: #4fd1a5; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 1.0625rem/1.6 "Source Sans 3", "Segoe UI", system-ui, sans-serif; padding: 64px 16px 96px; }
+main { max-width: 44rem; margin: 0 auto; display: grid; gap: 24px; }
+h1 { font-family: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif; font-size: 2.2rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+p { margin: 0; color: var(--muted); }
+ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+li a { display: grid; gap: 2px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; color: var(--fg); text-decoration: none; }
+li a:hover, li a:focus-visible { border-color: var(--accent); outline: none; }
+li a strong { color: var(--accent); font-weight: 600; }
+li a span { color: var(--muted); font-size: 0.95rem; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.88em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Generate Hashes Experiment</h1>
+  <p>Benchmarks of <code>bazel query --experimental_generate_hashes</code> and <code>cquery --experimental_generate_hashes</code> against bazel-diff and target-determinator, from <a href="https://github.com/bazelbuild/bazel/pull/32027">bazelbuild/bazel#32027</a>.</p>
+  <ul>
+    <li><a href="results/report.html"><strong>Experiment results</strong><span>Interactive report: correctness, speed and determinism of each tool across 47 scenarios, with the remote repo contents cache off and on.</span></a></li>
+    <li><a href="docs/"><strong>Query Hashes and Remote Repos</strong><span>How the flag hashes repos from the remote repo contents cache without downloading them.</span></a></li>
+    <li><a href="https://github.com/juanzolotoochin/generate-hashes-experiment/blob/main/FINDINGS.md"><strong>Findings</strong><span>A written reading of the results.</span></a></li>
+    <li><a href="https://github.com/juanzolotoochin/generate-hashes-experiment"><strong>Source</strong><span>The benchmark harness, fixtures and raw data.</span></a></li>
+  </ul>
+</main>
+</body>
+</html>

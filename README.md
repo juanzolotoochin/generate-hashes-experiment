@@ -16,7 +16,7 @@ correctness and warm-cache performance:
 
 Latest run: Linux x86_64, 16 CPUs, 47 scenarios, 43 targets. Full tables are in
 [`results/summary.md`](results/summary.md), the interactive report in
-[`results/report.html`](results/report.html), and raw data in
+[`results/report.html`](results/report.html) ([view online](https://juanzolotoochin.github.io/generate-hashes-experiment/results/report.html)), and raw data in
 [`results/results.json`](results/results.json).
 
 Each tool ran twice in the same work dir:
@@ -26,7 +26,7 @@ Each tool ran twice in the same work dir:
 
 For how `--experimental_generate_hashes` hashes repos from the remote repo
 contents cache without downloading them, see
-[Query Hashes and Remote Repos](https://juanzolotoochin.github.io/generate-hashes-experiment/).
+[Query Hashes and Remote Repos](https://juanzolotoochin.github.io/generate-hashes-experiment/docs/).
 
 My reading of these results is in [FINDINGS.md](FINDINGS.md). In the report,
 "generate_hashes (query)" is the `custom` tool and "generate_hashes (cquery)" is
